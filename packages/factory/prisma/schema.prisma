@@ -1,0 +1,130 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+// A factory is built around one orchestrator agent (slot 0). Subagents take slots 1-3
+// (a check constraint in the migration enforces the range). Channels and schedules belong
+// to the factory, so they can only ever trigger the orchestrator.
+model Factory {
+    id          String       @id @default(cuid())
+    name        String
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    agents      Agent[]
+    skills      Skill[]
+    connections Connection[]
+    channels    Channel[]
+    schedules   Schedule[]
+    toolGates   ToolGate[]
+}
+
+// Approval for one tool in a factory. The key is a prebuilt id (`web_fetch`)
+// or a connection tool id (`connectionId:toolName`).
+model ToolGate {
+    factoryId String
+    factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    toolKey   String
+    // never, once, always, or auto. Gates the call before it runs.
+    run       String  @default("never")
+    // never or always. A person accepts the output before the agent continues.
+    result    String  @default("never")
+
+    @@id([factoryId, toolKey])
+}
+
+model Agent {
+    id           String            @id @default(cuid())
+    factoryId    String
+    factory      Factory           @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    slot         Int
+    name         String
+    description  String            @default("")
+    model        String
+    instructions String            @default("")
+    tools        String[]
+    y            Float             @default(0)
+    skills       AgentSkill[]
+    connections  AgentConnection[]
+
+    @@unique([factoryId, slot])
+}
+
+// Library: authored once per factory, attached to any of its agents.
+model Skill {
+    id          String       @id @default(cuid())
+    factoryId   String
+    factory     Factory      @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    name        String
+    description String       @default("")
+    content     String       @default("")
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    agents      AgentSkill[]
+
+    @@unique([factoryId, name])
+}
+
+// An MCP server. `credentialRef` is a Vercel Connect connector uid when the
+// server needs a token. The token itself stays in Vercel Connect.
+model Connection {
+    id            String            @id @default(cuid())
+    factoryId     String
+    factory       Factory           @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    name          String
+    url           String            @default("")
+    credentialRef String?
+    createdAt     DateTime          @default(now())
+    agents        AgentConnection[]
+
+    @@unique([factoryId, name])
+}
+
+model AgentSkill {
+    agentId String
+    agent   Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+    skillId String
+    skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+    @@id([agentId, skillId])
+}
+
+model AgentConnection {
+    agentId       String
+    agent         Agent      @relation(fields: [agentId], references: [id], onDelete: Cascade)
+    connectionId  String
+    connection    Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+    // false means every tool the server publishes. true means `allowedTools` is the allow list.
+    restrictTools Boolean    @default(false)
+    allowedTools  String[]   @default([])
+
+    @@id([agentId, connectionId])
+}
+
+model Channel {
+    id        String   @id @default(cuid())
+    factoryId String
+    factory   Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    kind      String
+    enabled   Boolean  @default(true)
+    y         Float    @default(0)
+    createdAt DateTime @default(now())
+
+    @@unique([factoryId, kind])
+}
+
+model Schedule {
+    id        String   @id @default(cuid())
+    factoryId String
+    factory   Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    name      String   @default("")
+    cron      String   @default("0 9 * * *")
+    task      String   @default("")
+    enabled   Boolean  @default(true)
+    y         Float    @default(0)
+    createdAt DateTime @default(now())
+}

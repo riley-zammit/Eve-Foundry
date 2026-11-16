@@ -1,6 +1,9 @@
 import { defineAgent } from "eve";
+import { factoryModel } from "./lib/factory";
 
 export default defineAgent({
-  model: "openai/gpt-6-luna-fast",
-  reasoning: "high",
+    model: factoryModel(),
+    reasoning: "high",
+    // Each factory opts into tools in the builder; see agent/tools/factory.ts.
+    defaultTools: false,
 });
