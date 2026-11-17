@@ -3,6 +3,7 @@
 import {
     CHANNEL_KINDS,
     DEFAULT_MODEL,
+    isPluginId,
     isPrebuiltTool,
     isResultApproval,
     isRunApproval,
@@ -75,6 +76,7 @@ export async function saveAgent(factoryId: string, agent: AgentData) {
         model: agent.model,
         instructions: agent.instructions,
         tools: agent.tools.filter(isPrebuiltTool),
+        plugins: agent.plugins.filter(isPluginId),
         y: agent.y,
     };
     const upsertAgent = db.agent.upsert({
@@ -232,11 +234,12 @@ export async function deleteItem(factoryId: string, collection: "agents" | "skil
 }
 
 // Both gates off deletes the row, so a factory with no approvals stores nothing.
-// A connection tool can only pause before the call: the server has already answered by the time we see a result.
+// Only prebuilt tools have a reviewed version. Connection and plugin tools can only pause before the call.
 export async function saveToolGate(factoryId: string, toolKey: string, gate: ToolGate) {
     const db = getDb();
     const run = isRunApproval(gate.run) ? gate.run : "never";
-    const result = toolKey.includes(":") || !isResultApproval(gate.result) ? "never" : gate.result;
+    const canReview = isPrebuiltTool(toolKey) && isResultApproval(gate.result);
+    const result = canReview ? gate.result : "never";
     if (run === "never" && result === "never") {
         await db.toolGate.deleteMany({
             where: {

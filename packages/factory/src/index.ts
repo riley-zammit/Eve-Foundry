@@ -1,5 +1,9 @@
 // Shapes and rules shared by the builder (apps/web) and the runtime (agent/).
 
+import type { PluginId } from "./plugins";
+
+export * from "./plugins";
+
 // Header the web chat sends to tell the shared eve agent which factory to run.
 export const FACTORY_HEADER = "x-foundry-factory";
 
@@ -19,9 +23,9 @@ export const SUBAGENT_SLOTS = [1, 2, 3];
 // Prebuilt tools live in code; each maps to an eve built-in tool in agent/lib/factory.ts.
 // eve's `web_search` is a provider tool that can only be static, so it can't be toggled per
 // factory. TODO: add our own web_search as a defineTool (e.g. calling Exa directly).
+// There's no general shell: sandbox programs come from plugins, one scoped tool per CLI.
 export const PREBUILT_TOOLS = {
     web_fetch: "Read a web page",
-    bash: "Run shell commands in the sandbox",
 };
 export type PrebuiltTool = keyof typeof PREBUILT_TOOLS;
 
@@ -62,6 +66,7 @@ export type AgentData = {
     model: string;
     instructions: string;
     tools: string[];
+    plugins: string[];
     skillIds: string[];
     connectionIds: string[];
     // Per attached connection: null exposes every tool the server publishes.
@@ -109,7 +114,7 @@ export type FactoryData = {
     connections: ConnectionData[];
     channels: ChannelData[];
     schedules: ScheduleData[];
-    // Keyed by prebuilt tool id or `${connectionId}:${toolName}`.
+    // Keyed by prebuilt tool id, plugin tool name, or `${connectionId}:${toolName}`.
     toolGates: Record<string, ToolGate>;
 };
 
@@ -127,6 +132,7 @@ export type AgentConfig = {
         content: string;
     }[];
     tools: PrebuiltTool[];
+    plugins: PluginId[];
     mcps: {
         id: string;
         name: string;

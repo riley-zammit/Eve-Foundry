@@ -1,10 +1,10 @@
 "use client";
 
-import { CHANNEL_KINDS, PREBUILT_TOOLS, SUBAGENT_SLOTS, type FactoryData } from "@foundry/factory";
-import type { DragEvent, ReactNode } from "react";
+import { CHANNEL_KINDS, PLUGINS, PREBUILT_TOOLS, SUBAGENT_SLOTS, type FactoryData, type Plugin } from "@foundry/factory";
+import { useState, type DragEvent, type ReactNode } from "react";
 import { connectionToolId, DRAG_MIME, gateDetail, ITEM_COLORS, type LibraryItem, type Selection } from "./builder";
 
-// Left sidebar: the factory's skills, tools, and connections (dragged onto agents), plus
+// Left sidebar: the factory's skills, plugins, tools, and connections (dragged onto agents), plus
 // buttons that add cards to the canvas.
 export function Library({
     factory,
@@ -52,6 +52,18 @@ export function Library({
                             collection: "skills",
                             id: skill.id,
                         })}
+                    />
+                ))}
+            </Section>
+            <Section title="Plugins">
+                {Object.entries(PLUGINS).map(([pluginId, plugin]) => (
+                    <PluginRow
+                        key={pluginId}
+                        pluginId={pluginId}
+                        plugin={plugin}
+                        factory={factory}
+                        selection={selection}
+                        onSelect={onSelect}
                     />
                 ))}
             </Section>
@@ -185,6 +197,84 @@ function LibraryRow({
             </span>
             <span className="truncate pl-4 text-xs text-zinc-500">{detail}</span>
         </button>
+    );
+}
+
+// Drags as one item. The chevron opens the tools and skills it brings.
+function PluginRow({
+    pluginId,
+    plugin,
+    factory,
+    selection,
+    onSelect,
+}: {
+    pluginId: string;
+    plugin: Plugin;
+    factory: FactoryData;
+    selection: Selection;
+    onSelect: (selection: Selection) => void;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <div className="flex flex-col">
+            <div className="flex items-start gap-1">
+                <div className="min-w-0 flex-1">
+                    <LibraryRow
+                        item={{
+                            collection: "plugins",
+                            id: pluginId,
+                        }}
+                        name={plugin.title}
+                        detail={plugin.description}
+                        isSelected={selection?.collection === "plugins" && selection.id === pluginId}
+                        onSelect={() => onSelect({
+                            collection: "plugins",
+                            id: pluginId,
+                        })}
+                    />
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    aria-expanded={isOpen}
+                    aria-label={`Show what ${plugin.title} includes`}
+                    className="mt-1.5 rounded px-1.5 text-xs text-zinc-500 hover:bg-zinc-800 hover:text-zinc-100"
+                >
+                    {isOpen ? "▾" : "▸"}
+                </button>
+            </div>
+            {isOpen && (
+                <div className="ml-4 flex flex-col gap-0.5 border-l border-zinc-800 py-1 pl-2">
+                    {plugin.clis.map((cli) => (
+                        <button
+                            key={cli.name}
+                            type="button"
+                            onClick={() => onSelect({
+                                collection: "pluginTools",
+                                id: cli.name,
+                            })}
+                            className={`flex flex-col rounded px-1.5 py-1 text-left ${selection?.collection === "pluginTools" && selection.id === cli.name ? "bg-zinc-800" : "hover:bg-zinc-900"}`}
+                        >
+                            <span className="flex items-center gap-1.5 text-xs text-zinc-200">
+                                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ITEM_COLORS.tools }} />
+                                {cli.name}
+                            </span>
+                            <span className="truncate pl-3 text-[11px] text-zinc-500">{withGate(cli.programs.join(", "), factory.toolGates[cli.name])}</span>
+                        </button>
+                    ))}
+                    {plugin.skills.map((skill) => (
+                        <div key={skill.name} className="flex flex-col px-1.5 py-1">
+                            <span className="flex items-center gap-1.5 text-xs text-zinc-200">
+                                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ITEM_COLORS.skills }} />
+                                {skill.name}
+                            </span>
+                            <span className="truncate pl-3 text-[11px] text-zinc-500">Skill</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }
 

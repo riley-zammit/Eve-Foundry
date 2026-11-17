@@ -1,13 +1,14 @@
-import type { AgentData, FactoryData, ToolGate } from "@foundry/factory";
+import { isPluginId, PLUGINS, type AgentData, type FactoryData, type ToolGate } from "@foundry/factory";
 
 // Shared vocabulary for the builder's components.
 
 export type Collection = "agents" | "skills" | "connections" | "channels" | "schedules";
 
 // What the inspector shows. null means the orchestrator.
-// Tools are catalog entries, not saved entities, so they stay out of `Collection`.
+// Tools and plugins are catalog entries, not saved entities, so they stay out of `Collection`.
+// A plugin tool's id is its tool name.
 export type Selection = {
-    collection: Collection | "tools" | "connectionTools";
+    collection: Collection | "tools" | "connectionTools" | "plugins" | "pluginTools";
     id: string;
 } | null;
 
@@ -27,9 +28,9 @@ export function gateDetail(gate: ToolGate | undefined) {
 }
 
 // A library item that can be dropped onto an agent.
-// Prebuilt tools are catalog ids. A connection tool id is `${connectionId}:${toolName}`.
+// Prebuilt tools and plugins are catalog ids. A connection tool id is `${connectionId}:${toolName}`.
 export type LibraryItem = {
-    collection: "skills" | "connections" | "tools" | "connectionTools";
+    collection: "skills" | "plugins" | "connections" | "tools" | "connectionTools";
     id: string;
 };
 
@@ -52,6 +53,7 @@ export type AttachedItem = LibraryItem & {
 // Where each kind of library item is listed on an agent.
 export const ATTACH_FIELD = {
     skills: "skillIds",
+    plugins: "plugins",
     connections: "connectionIds",
     tools: "tools",
 } as const;
@@ -63,6 +65,12 @@ export function attachedItems(agent: AgentData, factory: FactoryData, catalogs: 
         collection: "skills" as const,
         id,
         name,
+    }));
+    const pluginIds = agent.plugins.filter(isPluginId);
+    const pluginItems = pluginIds.map((pluginId) => ({
+        collection: "plugins" as const,
+        id: pluginId,
+        name: PLUGINS[pluginId].title,
     }));
     const toolItems = agent.tools.map((tool) => ({
         collection: "tools" as const,
@@ -83,11 +91,12 @@ export function attachedItems(agent: AgentData, factory: FactoryData, catalogs: 
             name: tool,
         }));
     });
-    return [...skillItems, ...toolItems, ...connectionItems, ...connectionToolItems];
+    return [...skillItems, ...pluginItems, ...toolItems, ...connectionItems, ...connectionToolItems];
 }
 
 export const ITEM_COLORS = {
     skills: "#34d399",
+    plugins: "#a3e635",
     tools: "#fbbf24",
     connections: "#f472b6",
     connectionTools: "#22d3ee",
@@ -96,6 +105,7 @@ export const ITEM_COLORS = {
 // Order matches the library sidebar. Agent cards render one band per kind.
 export const ATTACHED_GROUPS = [
     { collection: "skills", label: "Skills" },
+    { collection: "plugins", label: "Plugins" },
     { collection: "tools", label: "Tools" },
     { collection: "connections", label: "Connections" },
     { collection: "connectionTools", label: "Connection tools" },

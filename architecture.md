@@ -10,7 +10,8 @@ One shared, multi-tenant eve deployment serves every factory. Factories are data
 | Instructions | dynamic `defineInstructions` | Yes |
 | Skills | dynamic `defineSkill` map | Yes |
 | MCPs / APIs | dynamic `defineMcpClientConnection` / `defineOpenAPIConnection` | Yes |
-| Prebuilt tools (web_fetch, bash, …) | shipped in runtime, toggled via dynamic tools | Yes (toggle/config only) |
+| Prebuilt tools (web_fetch, …) | shipped in runtime, toggled via dynamic tools | Yes (toggle/config only) |
+| Plugins (CLI tools + skills) | catalog in code, CLIs baked into the sandbox template | Yes (toggle/config only) |
 | Custom code tools | user code runs in the sandbox via a generic tool | Yes |
 | Schedules | `defineDynamicSchedules` (experimental) | Yes |
 | Subagents | pre-declared generic slots | Partly |
@@ -35,7 +36,7 @@ Later: compile a factory's config into a standalone eve project for export or de
 - **Hosting:** Next.js hosts the agent (`withEve`, `eveRoot: "../.."`). The builder's chat calls `/eve/v1/*` on the same origin.
 - **Factory selection:** the chat sends an `x-foundry-factory` header. The eve channel's `onMessage` checks that the factory exists and copies its ID into the session's auth attributes. Dynamic files read it from `auth.initiator`, so it's pinned for the whole session and inherited by subagent sessions.
 - **Live edits:** the builder autosaves. The agent memoizes the factory per turn, so edits apply from the next message.
-- **Wired up:** model, instructions, skills, prebuilt tools (`web_fetch`, `bash`), MCP connections (https only, no localhost or IP literals), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
+- **Wired up:** model, instructions, skills, prebuilt tools (`web_fetch`), plugins (see [Sandboxes](#sandboxes)), MCP connections (https only, no localhost or IP literals), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
 - **Connector catalog:** the Connections **+** opens a browser of OpenClaw's official connectors on ClawHub (`apps/web/app/factories/openclaw.ts`, cached for hours). Only the official list is offered, never community packages. Adding one creates a connection with the server's URL; OAuth connectors still need a Vercel Connect connector to sign in, and API-key connectors are disabled until there's a vault. Icons go through `/connector-icons/[hash]` because ClawHub serves them same-origin only. Custom URLs still work.
 - **Saved but not live:** channels (the orchestrator's Chat button always works) and schedules.
 - **Not built yet:** `web_search` (see above), `browser_use` (needs a real sandbox: Docker or Vercel), MCP auth, and rendering of approvals/questions/sign-ins in the chat.
@@ -107,6 +108,7 @@ erDiagram
         string model "AI Gateway id"
         string instructions
         string[] tools "prebuilt catalog ids"
+        string[] plugins "plugin catalog ids"
         float y "lane position; orchestrator ignores it"
     }
     SKILL {
@@ -160,7 +162,6 @@ erDiagram
 | Id | Backed by | Notes |
 |---|---|---|
 | `web_fetch` | eve `web_fetch` | |
-| `bash` | eve `bash` | Runs in the sandbox |
 | `web_search` | planned: our own `defineTool` | eve's provider tool can't be toggled per factory |
 | `browser_use` | planned | Needs a real sandbox |
 
@@ -177,6 +178,7 @@ classDiagram
         string instructions
         Skill[] skills
         PrebuiltTool[] tools
+        PluginId[] plugins
         Mcp[] mcps
     }
     class Skill {
@@ -191,7 +193,6 @@ classDiagram
     class PrebuiltTool {
         <<enumeration>>
         web_fetch
-        bash
     }
     AgentConfig *-- Skill
     AgentConfig *-- Mcp
@@ -279,7 +280,17 @@ Session state, which eve keeps:
   7. Fixing lint.
 
 ## Sandboxes
-For the time being, we wrap sandbox capabilities in tools
+For the time being, we wrap sandbox capabilities in tools. There's no general `bash`: the agent can only start programs a plugin allows.
+
+### Plugins
+A plugin bundles sandbox CLIs with the skills that teach an agent to use them. It's one library item: dragging it onto an agent attaches all of it, and the library row expands to show what's inside.
+
+- **Catalog:** `packages/factory/src/plugins.ts`, in code like prebuilt tools. `Agent.plugins` stores the ids. Today: `image_editing` (ImageMagick) and `video_editing` (ffmpeg). Only CLIs that need no credentials.
+- **Install:** `agent/sandbox.ts` installs every plugin's apt packages in the template's `prepare`, so sessions start with them. Adding a plugin means a rebuild. just-bash (dev without Docker) skips the install, and the tools say the program isn't installed.
+- **Tools:** each CLI becomes one `defineTool` (`agent/lib/plugin-tools.ts`). It takes `command: string[]`, checks the program against the CLI's allow list, and single-quotes every argument, so there's no shell to escape into. `show` returns output images to the model.
+- **Skills:** added after the factory's own skills, so a plugin skill wins a name clash.
+- **Gates:** keyed by tool name (`ffmpeg`). Only "before it runs" for now; result review needs a top-level workflow tool per CLI.
+- **Not built yet:** returning output files to the person in the chat (it renders no files today), and live Homebrew search for long-tail CLIs, installed on first use.
 
 ## Monetization
 Hosted version is free. We'll try to monetize on tokens. We WILL provide bring-your-own API key, but recommend against it for the legitimate reason that you'll lock yourself in to less model selection, meaning you can't easily optimize model use for specific use cases

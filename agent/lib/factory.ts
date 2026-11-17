@@ -1,18 +1,17 @@
-import { DEFAULT_MODEL, ORCHESTRATOR_SLOT, type PrebuiltTool, type RunApproval } from "@foundry/factory";
+import { DEFAULT_MODEL, ORCHESTRATOR_SLOT, PLUGINS, type PrebuiltTool, type RunApproval, type ToolGate } from "@foundry/factory";
 import { defineAgent, defineDynamic, type DynamicModelContext } from "eve";
 import { defineMcpClientConnection, defineDynamic as defineDynamicConnections } from "eve/connections";
 import { defineInstructions, defineDynamic as defineDynamicInstructions } from "eve/instructions";
 import { defineSkill, defineDynamic as defineDynamicSkills } from "eve/skills";
 import { defineDynamic as defineDynamicTools, defineTool, type ToolDefinition } from "eve/tools";
-import bash from "eve/tools/bash";
 import webFetch from "eve/tools/web_fetch";
 import { connectionHasRunGate, connectionRunPolicy, reviewedRunApproval, runPolicy } from "./gates";
-import { reviewedBash, reviewedWebFetch } from "./reviewed-tools";
+import { cliTool } from "./plugin-tools";
+import { reviewedWebFetch } from "./reviewed-tools";
 
 // Stable policies on the shared workflow tools. The workflow module itself stays free of
 // the database; this read happens before the workflow starts.
 reviewedWebFetch.approval = (ctx) => reviewedRunApproval(ctx, "web_fetch");
-reviewedBash.approval = (ctx) => reviewedRunApproval(ctx, "bash");
 
 // Every catalog tool needs an entry here, or typecheck fails. `reviewed` is the workflow
 // version used when a person accepts the result after it runs.
@@ -20,10 +19,6 @@ const PREBUILT_TOOL_DEFS = {
     web_fetch: {
         tool: webFetch,
         reviewed: reviewedWebFetch,
-    },
-    bash: {
-        tool: bash,
-        reviewed: reviewedBash,
     },
 } satisfies Record<PrebuiltTool, unknown>;
 
@@ -90,13 +85,19 @@ export function factoryInstructions(slot: number) {
     });
 }
 
+// A plugin skill comes after the factory's own skills, so it wins a name clash.
 export function factorySkills(slot: number) {
     return defineDynamicSkills(async (ctx) => {
         const agent = await loadAgentConfig(ctx, slot);
-        if (!agent || agent.skills.length === 0) {
+        if (!agent) {
             return null;
         }
-        const skillEntries = agent.skills.map((skill) => [
+        const pluginSkills = agent.plugins.flatMap((pluginId) => PLUGINS[pluginId].skills);
+        const skills = [...agent.skills, ...pluginSkills];
+        if (skills.length === 0) {
+            return null;
+        }
+        const skillEntries = skills.map((skill) => [
             skill.name,
             defineSkill({
                 description: skill.description,
@@ -110,19 +111,36 @@ export function factorySkills(slot: number) {
 export function factoryTools(slot: number) {
     return defineDynamicTools(async (ctx) => {
         const agent = await loadAgentConfig(ctx, slot);
-        if (!agent || agent.tools.length === 0) {
+        if (!agent) {
             return null;
         }
-        const toolEntries = agent.tools.map((toolId) => {
-            const gate = agent.toolGates[toolId] ?? { run: "never" as const, result: "never" as const };
+        const prebuiltEntries = agent.tools.map((toolId) => {
+            const gate = gateFor(agent.toolGates, toolId);
             const { tool, reviewed } = PREBUILT_TOOL_DEFS[toolId];
             if (gate.result === "always") {
                 return [toolId, reviewed] as const;
             }
             return [toolId, withRunApproval(tool, gate.run, toolId)] as const;
         });
+        // Plugin tools only pause before they run; there's no reviewed version yet.
+        const clis = agent.plugins.flatMap((pluginId) => PLUGINS[pluginId].clis);
+        const pluginEntries = clis.map((cli) => {
+            const gate = gateFor(agent.toolGates, cli.name);
+            return [cli.name, withRunApproval(cliTool(cli), gate.run, cli.name)] as const;
+        });
+        const toolEntries = [...prebuiltEntries, ...pluginEntries];
+        if (toolEntries.length === 0) {
+            return null;
+        }
         return Object.fromEntries(toolEntries);
     });
+}
+
+function gateFor(gates: Record<string, ToolGate>, toolKey: string): ToolGate {
+    return gates[toolKey] ?? {
+        run: "never",
+        result: "never",
+    };
 }
 
 export function factoryConnections(slot: number) {

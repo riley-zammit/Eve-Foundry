@@ -1,8 +1,7 @@
-import { defineWorkflowTool, toolOutput } from "eve/tools";
-import type { BashToolInput, BashToolOutput } from "eve/tools/bash";
+import { defineWorkflowTool } from "eve/tools";
 import type { WebFetchToolInput } from "eve/tools/web_fetch";
 import { FatalError } from "eve/workflow";
-import { runBash, runWebFetch } from "./reviewed-steps";
+import { runWebFetch } from "./reviewed-steps";
 
 // Result review asks after the tool has already run. The consts stay at the top level:
 // a workflow tool built inside `defineDynamic` does not compile. The before-it-runs
@@ -17,8 +16,6 @@ Usage notes:
 - Default timeout is 30 seconds (max 120 seconds)
 - Maximum response size is 5 MB; content is further capped at the shared tool-output budget (50 KB / 2000 lines)
 - This tool is read-only and does not modify any files`;
-
-const BASH_DESCRIPTION = `Execute a shell command in the shared workspace environment. The call waits 60 seconds for the command, or \`timeout\` seconds from 1 to 120. For builds, installs, and test suites whose full output you need, pass a larger \`timeout\` instead of shortening or splitting the command. The result is the command's stdout, then any stderr after a \`[stderr]\` line, or \`(no output)\`. A command that fails ends with \`[exit code: N]\` and is reported as an error. A command still running after the wait keeps running in the background, and a final note says how to check on or stop it.`;
 
 export const reviewedWebFetch = defineWorkflowTool({
     description: WEB_FETCH_DESCRIPTION,
@@ -79,93 +76,3 @@ export const reviewedWebFetch = defineWorkflowTool({
         throw new FatalError(`A person rejected this result.${note}`);
     },
 });
-
-export const reviewedBash = defineWorkflowTool({
-    description: BASH_DESCRIPTION,
-    label: { start: (input: BashToolInput) => `Run ${input.command}` },
-    inputSchema: {
-        type: "object",
-        properties: {
-            command: {
-                type: "string",
-                description: "The shell command to execute.",
-            },
-            timeout: {
-                type: "number",
-                description: "Seconds to wait for the command before it keeps running in the background. Defaults to 60; values above 120 wait 120, and values below 1 wait 1.",
-            },
-        },
-        required: ["command"],
-        additionalProperties: false,
-    },
-    outputSchema: {
-        oneOf: [
-            {
-                type: "object",
-                properties: {
-                    status: { const: "completed" },
-                    exitCode: { type: "number" },
-                    stderr: { type: "string" },
-                    stdout: { type: "string" },
-                    truncated: { type: "boolean" },
-                },
-                required: ["status", "exitCode", "stderr", "stdout", "truncated"],
-                additionalProperties: false,
-            },
-            {
-                type: "object",
-                properties: {
-                    status: { const: "running" },
-                    pid: { type: "number" },
-                    outputDirectory: { type: "string" },
-                    message: { type: "string" },
-                    stderr: { type: "string" },
-                    stdout: { type: "string" },
-                    truncated: { type: "boolean" },
-                },
-                required: ["status", "pid", "outputDirectory", "message", "stderr", "stdout", "truncated"],
-                additionalProperties: false,
-            },
-        ],
-    },
-    toModelOutput: bashModelOutput,
-    async execute(input, ctx) {
-        "use workflow";
-        const ran = await runBash(input, ctx);
-        if (!ran.ok) {
-            throw new FatalError(ran.message);
-        }
-        const answer = await ctx.ask({
-            prompt: "bash has already run. Accept this output before the agent continues? Rejecting it does not undo the command.",
-            display: "confirmation",
-            allowFreeform: true,
-            options: [
-                { id: "approve", label: "Approve", style: "primary" },
-                { id: "deny", label: "Deny", style: "danger" },
-            ],
-        });
-        if (answer.status === "unavailable") {
-            return ran.output;
-        }
-        if (answer.status === "answered" && answer.optionId === "approve") {
-            return ran.output;
-        }
-        const note = answer.status === "answered" && answer.text ? ` ${answer.text}` : "";
-        throw new FatalError(`A person rejected this result.${note}`);
-    },
-});
-
-function bashModelOutput(output: BashToolOutput) {
-    const stderr = output.stderr ? `[stderr]\n${output.stderr}` : "";
-    const text = [output.stdout, stderr]
-        .filter((part) => part.length > 0)
-        .map((part) => (part.endsWith("\n") ? part : `${part}\n`))
-        .join("\n");
-    if (output.status === "running") {
-        return toolOutput.text(`${text}${output.message}`);
-    }
-    if (output.exitCode === 0) {
-        return toolOutput.text(text === "" ? "(no output)" : text);
-    }
-    return toolOutput.errorText(`${text}[exit code: ${output.exitCode}]`);
-}

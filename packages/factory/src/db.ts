@@ -1,6 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "./generated/prisma/client";
-import { isAllowedMcpUrl, isPrebuiltTool, toolGate, type AgentConfig, type FactoryData, type ToolGate } from "./index";
+import { isAllowedMcpUrl, isPluginId, isPrebuiltTool, toolGate, type AgentConfig, type FactoryData, type ToolGate } from "./index";
 
 // One client per process; kept on globalThis so dev hot reloads don't open new pools.
 const globalForDb = globalThis as { foundryDb?: PrismaClient };
@@ -164,6 +164,7 @@ export async function loadFactoryConfig(factoryId: string): Promise<AgentConfig[
             instructions: agent.instructions,
             skills,
             tools: agent.tools.filter(isPrebuiltTool),
+            plugins: agent.plugins.filter(isPluginId),
             mcps,
             toolGates,
         };

@@ -105,7 +105,7 @@ export function AgentCard({ data, selected }: NodeProps<AgentNode>) {
                         highlights={chipHighlights}
                         onSelectItem={onSelectItem}
                         onRemove={(item) => onDetach(agent, item)}
-                        empty={<span className="px-1 text-[11px] text-zinc-500">Drop skills, tools, or connections here</span>}
+                        empty={<span className="px-1 text-[11px] text-zinc-500">Drop skills, plugins, tools, or connections here</span>}
                     />
                 </div>
             </div>

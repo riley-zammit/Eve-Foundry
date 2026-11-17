@@ -23,8 +23,8 @@ model Factory {
     toolGates   ToolGate[]
 }
 
-// Approval for one tool in a factory. The key is a prebuilt id (`web_fetch`)
-// or a connection tool id (`connectionId:toolName`).
+// Approval for one tool in a factory. The key is a prebuilt id (`web_fetch`), a plugin
+// tool name (`ffmpeg`), or a connection tool id (`connectionId:toolName`).
 model ToolGate {
     factoryId String
     factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
@@ -47,6 +47,8 @@ model Agent {
     model        String
     instructions String            @default("")
     tools        String[]
+    // Plugin catalog ids. Each plugin brings its own tools and skills.
+    plugins      String[]          @default([])
     y            Float             @default(0)
     skills       AgentSkill[]
     connections  AgentConnection[]

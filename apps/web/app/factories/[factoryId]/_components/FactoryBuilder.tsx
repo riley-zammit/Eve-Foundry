@@ -266,6 +266,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
             model: DEFAULT_MODEL,
             instructions: "",
             tools: [],
+            plugins: [],
             skillIds: [],
             connectionIds: [],
             toolAllow: {},

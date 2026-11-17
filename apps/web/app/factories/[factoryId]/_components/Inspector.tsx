@@ -3,11 +3,14 @@
 import {
     CHANNEL_KINDS,
     isAllowedMcpUrl,
+    isPluginId,
     isPrebuiltTool,
     isResultApproval,
     isRunApproval,
     MODELS,
     ORCHESTRATOR_SLOT,
+    PLUGINS,
+    pluginOfTool,
     PREBUILT_TOOLS,
     toSlug,
     type AgentData,
@@ -22,7 +25,7 @@ import {
 } from "@foundry/factory";
 import { useEffect, useState, type ReactNode } from "react";
 import { searchConnectors, type ConnectConnector } from "../../connect";
-import { attachedItems, CHANNEL_LABELS, parseConnectionToolId, uniqueName, type Collection, type LibraryItem, type Selection } from "./builder";
+import { attachedItems, CHANNEL_LABELS, gateDetail, parseConnectionToolId, uniqueName, type Collection, type LibraryItem, type Selection } from "./builder";
 import { AttachedGroups } from "./ItemChip";
 
 // Saves an entity after `delay` ms (debounced per entity); 0 saves right away.
@@ -43,10 +46,17 @@ const inputClass = "w-full rounded-md border border-zinc-800 bg-zinc-900 px-2 py
 
 // Right sidebar: edits whatever is selected. With nothing selected, it shows the orchestrator.
 export function Inspector({ selection, ...props }: InspectorProps & { selection: Selection }) {
-    if (selection?.collection === "tools" || selection?.collection === "connectionTools") {
+    if (selection?.collection === "tools" || selection?.collection === "connectionTools" || selection?.collection === "pluginTools") {
         return (
             <aside className="flex w-96 shrink-0 flex-col gap-4 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4">
-                <ToolForm key={selection.id} toolKey={selection.id} remote={selection.collection === "connectionTools"} {...props} />
+                <ToolForm key={selection.id} toolKey={selection.id} kind={selection.collection} {...props} />
+            </aside>
+        );
+    }
+    if (selection?.collection === "plugins") {
+        return (
+            <aside className="flex w-[36rem] shrink-0 flex-col gap-4 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4">
+                <PluginForm key={selection.id} pluginId={selection.id} {...props} />
             </aside>
         );
     }
@@ -113,7 +123,7 @@ function AgentForm({ agent, factory, catalogs, onEdit, onRemove, onDetach, onSel
                         id: item.id,
                     })}
                     onRemove={(item) => onDetach(agent, item)}
-                    empty={<span className="text-xs text-zinc-600">Drag skills, tools, or connections from the library onto the card.</span>}
+                    empty={<span className="text-xs text-zinc-600">Drag skills, plugins, tools, or connections from the library onto the card.</span>}
                 />
             </Field>
             {!isOrchestrator && <DeleteButton label="Delete subagent" onClick={() => onRemove("agents", agent.id)} />}
@@ -133,31 +143,27 @@ const RESULT_OPTIONS: { value: ResultApproval; label: string }[] = [
     { value: "always", label: "Every result" },
 ];
 
+// Prebuilt tools can review results. Connection and plugin tools can only pause before they run.
 function ToolForm({
     toolKey,
-    remote,
+    kind,
     factory,
     onEditGate,
-}: InspectorProps & { toolKey: string; remote: boolean }) {
+}: InspectorProps & { toolKey: string; kind: "tools" | "connectionTools" | "pluginTools" }) {
     const gate = factory.toolGates[toolKey] ?? { run: "never" as const, result: "never" as const };
-    const parsed = remote ? parseConnectionToolId(toolKey) : null;
-    const connection = parsed ? factory.connections.find((item) => item.id === parsed.connectionId) : null;
-    if (remote && (!connection || !parsed?.tool)) {
+    const canReview = kind === "tools";
+    const heading = toolHeading(factory, toolKey, kind);
+    if (!heading) {
         return <p className="text-sm text-zinc-400">This tool is no longer in the factory.</p>;
     }
 
-    const title = remote ? parsed?.tool ?? toolKey : toolKey;
-    const detail = remote
-        ? `${connection?.name}. A tool this server publishes.`
-        : isPrebuiltTool(toolKey) ? PREBUILT_TOOLS[toolKey] : "A built-in tool.";
-
     function edit(next: ToolGate) {
-        onEditGate(toolKey, remote ? { ...next, result: "never" } : next);
+        onEditGate(toolKey, canReview ? next : { ...next, result: "never" });
     }
 
     return (
         <>
-            <Heading title={title} detail={detail} />
+            <Heading title={heading.title} detail={heading.detail} />
             <Field label="Before it runs">
                 <select
                     className={inputClass}
@@ -177,10 +183,10 @@ function ToolForm({
             <Field label="After it returns">
                 <select
                     className={inputClass}
-                    value={remote ? "never" : gate.result}
-                    disabled={remote}
+                    value={canReview ? gate.result : "never"}
+                    disabled={!canReview}
                     onChange={(event) => {
-                        if (!remote && isResultApproval(event.target.value)) {
+                        if (canReview && isResultApproval(event.target.value)) {
                             edit({ ...gate, result: event.target.value });
                         }
                     }}
@@ -189,15 +195,93 @@ function ToolForm({
                         <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
                 </select>
-                {remote ? (
-                    <span className="text-xs text-zinc-500">This server answers the call itself. Foundry can pause before it runs. It can't hold the result back.</span>
-                ) : (
+                {kind === "tools" && (
                     <span className="text-xs text-zinc-500">The tool has already run. You accept or reject what it produced before the agent continues. Use this when the tool drafts something, especially with a model.</span>
                 )}
-                {toolKey === "bash" && gate.result === "always" && (
-                    <span className="text-xs text-amber-400">The command has already run. Rejecting it only stops the agent from using the output.</span>
+                {kind === "connectionTools" && (
+                    <span className="text-xs text-zinc-500">This server answers the call itself. Foundry can pause before it runs. It can't hold the result back.</span>
+                )}
+                {kind === "pluginTools" && (
+                    <span className="text-xs text-zinc-500">Plugin tools can pause before they run. Reviewing their results isn't available yet.</span>
                 )}
             </Field>
+        </>
+    );
+}
+
+function toolHeading(factory: FactoryData, toolKey: string, kind: "tools" | "connectionTools" | "pluginTools") {
+    if (kind === "connectionTools") {
+        const { connectionId, tool } = parseConnectionToolId(toolKey);
+        const connection = factory.connections.find((item) => item.id === connectionId);
+        if (!connection || !tool) {
+            return null;
+        }
+        return {
+            title: tool,
+            detail: `${connection.name}. A tool this server publishes.`,
+        };
+    }
+    if (kind === "pluginTools") {
+        const owner = pluginOfTool(toolKey);
+        if (!owner || !isPluginId(owner.pluginId)) {
+            return null;
+        }
+        const plugin = PLUGINS[owner.pluginId];
+        return {
+            title: toolKey,
+            detail: `${plugin.title} plugin. ${owner.cli.description} Runs ${owner.cli.programs.join(", ")} in the sandbox.`,
+        };
+    }
+    return {
+        title: toolKey,
+        detail: isPrebuiltTool(toolKey) ? PREBUILT_TOOLS[toolKey] : "A built-in tool.",
+    };
+}
+
+// Plugins are read-only bundles. Approvals are set per tool; the skills ship as written.
+function PluginForm({ pluginId, factory, onSelect }: InspectorProps & { pluginId: string }) {
+    if (!isPluginId(pluginId)) {
+        return <p className="text-sm text-zinc-400">This plugin no longer exists.</p>;
+    }
+    const plugin = PLUGINS[pluginId];
+
+    return (
+        <>
+            <Heading title={plugin.title} detail={`${plugin.description}. Drag it onto an agent to add everything below.`} />
+            <Field label="Tools">
+                <div className="flex flex-col gap-1">
+                    {plugin.clis.map((cli) => {
+                        const gate = gateDetail(factory.toolGates[cli.name]);
+                        return (
+                            <button
+                                key={cli.name}
+                                type="button"
+                                onClick={() => onSelect({
+                                    collection: "pluginTools",
+                                    id: cli.name,
+                                })}
+                                className="rounded-md border border-zinc-800 px-2 py-1.5 text-left hover:border-zinc-600"
+                            >
+                                <span className="block text-sm text-zinc-100">{cli.name}</span>
+                                <span className="block text-xs text-zinc-500">{cli.description} Runs {cli.programs.join(", ")}.</span>
+                                <span className="block text-xs text-zinc-500">{gate || "Runs without asking. Click to set approvals."}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </Field>
+            <Field label="Skills">
+                <div className="flex flex-col gap-1">
+                    {plugin.skills.map((skill) => (
+                        <details key={skill.name} className="rounded-md border border-zinc-800 px-2 py-1.5">
+                            <summary className="cursor-pointer text-sm text-zinc-100">{skill.name}</summary>
+                            <p className="mt-1 text-xs text-zinc-500">{skill.description}</p>
+                            <pre className="mt-2 max-h-96 overflow-auto font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-zinc-400">{skill.content}</pre>
+                        </details>
+                    ))}
+                </div>
+            </Field>
+            <UsedBy factory={factory} itemId={pluginId} onSelect={onSelect} />
         </>
     );
 }
@@ -417,7 +501,7 @@ function SlugField({ label, value, taken, onChange }: { label: string; value: st
 }
 
 function UsedBy({ factory, itemId, onSelect }: { factory: FactoryData; itemId: string; onSelect: (selection: Selection) => void }) {
-    const users = factory.agents.filter((agent) => agent.skillIds.includes(itemId) || agent.connectionIds.includes(itemId));
+    const users = factory.agents.filter((agent) => agent.skillIds.includes(itemId) || agent.plugins.includes(itemId) || agent.connectionIds.includes(itemId));
 
     return (
         <Field label="Used by">

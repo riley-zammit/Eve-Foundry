@@ -1,3 +1,4 @@
+import { pluginOfSkill, pluginOfTool } from "@foundry/factory";
 import type { ConversationAgentSession, EveMessage, EveToolPart } from "eve/client";
 
 export type Highlight = "running" | "waiting" | "failed" | "done";
@@ -113,9 +114,17 @@ function chipHighlights(parts: readonly EveToolPart[], connections: { id: string
             if (skill) {
                 raise(chips, `skills:${skill.id}`, highlight);
             }
+            const pluginId = pluginOfSkill(capability.name);
+            if (pluginId) {
+                raise(chips, `plugins:${pluginId}`, highlight);
+            }
         }
         if (capability.kind === "tool") {
             raise(chips, `tools:${capability.name}`, highlight);
+            const owner = pluginOfTool(capability.name);
+            if (owner) {
+                raise(chips, `plugins:${owner.pluginId}`, highlight);
+            }
             const separator = capability.name.indexOf("__");
             if (separator > 0) {
                 const connectionName = capability.name.slice(0, separator);
