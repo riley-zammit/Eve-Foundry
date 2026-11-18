@@ -2,6 +2,7 @@
 
 import {
     CHANNEL_KINDS,
+    cliToolSpec,
     isAllowedMcpUrl,
     isPluginId,
     isPrebuiltTool,
@@ -17,6 +18,7 @@ import {
     type ChannelData,
     type ConnectionData,
     type FactoryData,
+    type PluginEnvVar,
     type ResultApproval,
     type RunApproval,
     type ScheduleData,
@@ -36,6 +38,7 @@ type InspectorProps = {
     catalogs: Record<string, string[]>;
     onEdit: EditEntity;
     onEditGate: (toolKey: string, gate: ToolGate) => void;
+    onEditPluginSecret: (pluginId: string, name: string, value: string | null) => void;
     onRemove: (collection: Collection, id: string) => void;
     onDetach: (agent: AgentData, item: LibraryItem) => void;
     onSelect: (selection: Selection) => void;
@@ -239,37 +242,81 @@ function toolHeading(factory: FactoryData, toolKey: string, kind: "tools" | "con
 }
 
 // Plugins are read-only bundles. Approvals are set per tool; the skills ship as written.
-function PluginForm({ pluginId, factory, onSelect }: InspectorProps & { pluginId: string }) {
+// Each tool opens to show exactly what the model sees and what it can run in the sandbox.
+function PluginForm({ pluginId, factory, onSelect, onEditPluginSecret }: InspectorProps & { pluginId: string }) {
     if (!isPluginId(pluginId)) {
         return <p className="text-sm text-zinc-400">This plugin no longer exists.</p>;
     }
     const plugin = PLUGINS[pluginId];
+    const setNames = factory.pluginSecrets[pluginId] ?? [];
 
     return (
         <>
             <Heading title={plugin.title} detail={`${plugin.description}. Drag it onto an agent to add everything below.`} />
-            <Field label="Tools">
+            {plugin.env.length > 0 && (
+                <div className="flex flex-col gap-1">
+                    <span className="text-xs font-medium text-zinc-400">Environment</span>
+                    <span className="text-xs text-zinc-500">Stored encrypted for this factory. Only this plugin&apos;s tools read them, while they run, so schedules work too. Values can be replaced but never shown again.</span>
+                    {plugin.env.map((envVar) => (
+                        <PluginEnvField
+                            key={envVar.name}
+                            envVar={envVar}
+                            isSet={setNames.includes(envVar.name)}
+                            onSave={(value) => onEditPluginSecret(pluginId, envVar.name, value)}
+                        />
+                    ))}
+                </div>
+            )}
+            {/* Not a Field: a <label> would forward clicks inside an open card to its button. */}
+            <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-zinc-400">Tools</span>
                 <div className="flex flex-col gap-1">
                     {plugin.clis.map((cli) => {
                         const gate = gateDetail(factory.toolGates[cli.name]);
+                        const spec = cliToolSpec(cli);
+                        const inputs = Object.entries(spec.inputs);
                         return (
-                            <button
-                                key={cli.name}
-                                type="button"
-                                onClick={() => onSelect({
-                                    collection: "pluginTools",
-                                    id: cli.name,
-                                })}
-                                className="rounded-md border border-zinc-800 px-2 py-1.5 text-left hover:border-zinc-600"
-                            >
-                                <span className="block text-sm text-zinc-100">{cli.name}</span>
-                                <span className="block text-xs text-zinc-500">{cli.description} Runs {cli.programs.join(", ")}.</span>
-                                <span className="block text-xs text-zinc-500">{gate || "Runs without asking. Click to set approvals."}</span>
-                            </button>
+                            <details key={cli.name} className="rounded-md border border-zinc-800 px-2 py-1.5">
+                                <summary className="cursor-pointer">
+                                    <span className="text-sm text-zinc-100">{cli.name}</span>
+                                    <span className="block text-xs text-zinc-500">{cli.description} Runs {cli.programs.join(", ")}.</span>
+                                    <span className="block text-xs text-zinc-500">{gate || "Runs without asking."}</span>
+                                </summary>
+                                <div className="mt-2 flex flex-col gap-3">
+                                    <Internals label="Description the model sees">
+                                        <p className="text-xs leading-relaxed text-zinc-400">{spec.description}</p>
+                                    </Internals>
+                                    <Internals label="Inputs">
+                                        {inputs.map(([name, input]) => (
+                                            <div key={name} className="text-xs">
+                                                <span className="font-mono text-zinc-200">{name}</span>
+                                                <span className="font-mono text-zinc-500"> {input.type}{input.isRequired ? "" : ", optional"}</span>
+                                                <p className="text-zinc-400">{input.description}</p>
+                                            </div>
+                                        ))}
+                                    </Internals>
+                                    <Internals label="Programs it can start">
+                                        <p className="font-mono text-xs text-zinc-400">{cli.programs.join(", ")}</p>
+                                    </Internals>
+                                    <Internals label="Sandbox packages">
+                                        <p className="font-mono text-xs text-zinc-400">{cli.aptPackages.join(", ")}</p>
+                                    </Internals>
+                                    <button
+                                        type="button"
+                                        onClick={() => onSelect({
+                                            collection: "pluginTools",
+                                            id: cli.name,
+                                        })}
+                                        className="self-start rounded-md border border-zinc-800 px-2 py-1 text-xs text-zinc-200 hover:border-zinc-600"
+                                    >
+                                        Set approvals
+                                    </button>
+                                </div>
+                            </details>
                         );
                     })}
                 </div>
-            </Field>
+            </div>
             <Field label="Skills">
                 <div className="flex flex-col gap-1">
                     {plugin.skills.map((skill) => (
@@ -283,6 +330,69 @@ function PluginForm({ pluginId, factory, onSelect }: InspectorProps & { pluginId
             </Field>
             <UsedBy factory={factory} itemId={pluginId} onSelect={onSelect} />
         </>
+    );
+}
+
+// Write-only: the value never comes back from the server, so the field only ever replaces it.
+function PluginEnvField({ envVar, isSet, onSave }: { envVar: PluginEnvVar; isSet: boolean; onSave: (value: string | null) => void }) {
+    const [draft, setDraft] = useState("");
+    const value = draft.trim();
+
+    function save() {
+        onSave(value);
+        setDraft("");
+    }
+
+    return (
+        <div className="flex flex-col gap-1.5 rounded-md border border-zinc-800 px-2 py-1.5">
+            <div className="flex items-center justify-between gap-2">
+                <span className="font-mono text-sm text-zinc-100">{envVar.name}</span>
+                <span className={`text-xs ${isSet ? "text-zinc-400" : "text-amber-400"}`}>{isSet ? "Set" : "Not set"}</span>
+            </div>
+            <span className="text-xs text-zinc-500">{envVar.description}</span>
+            <div className="flex gap-1">
+                <input
+                    type="password"
+                    autoComplete="off"
+                    spellCheck={false}
+                    className={inputClass}
+                    placeholder={isSet ? "Paste a new value to replace it" : "Paste the value"}
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter" && value) {
+                            save();
+                        }
+                    }}
+                />
+                <button
+                    type="button"
+                    onClick={save}
+                    disabled={!value}
+                    className="rounded-md border border-zinc-800 px-2 text-xs text-zinc-200 hover:border-zinc-600 disabled:opacity-40 disabled:hover:border-zinc-800"
+                >
+                    Save
+                </button>
+                {isSet && (
+                    <button
+                        type="button"
+                        onClick={() => onSave(null)}
+                        className="rounded-md border border-zinc-800 px-2 text-xs text-zinc-400 hover:border-red-900 hover:text-red-300"
+                    >
+                        Clear
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function Internals({ label, children }: { label: string; children: ReactNode }) {
+    return (
+        <div className="flex flex-col gap-1">
+            <span className="text-[11px] tracking-wide text-zinc-500 uppercase">{label}</span>
+            {children}
+        </div>
     );
 }
 

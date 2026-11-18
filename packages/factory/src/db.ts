@@ -50,6 +50,13 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
             channels: byCreation,
             schedules: byCreation,
             toolGates: true,
+            // Names only: the encrypted values stay out of the builder.
+            pluginSecrets: {
+                select: {
+                    pluginId: true,
+                    name: true,
+                },
+            },
         },
     });
     if (!factory) {
@@ -90,6 +97,10 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
         enabled,
         y,
     }));
+    const pluginSecrets: Record<string, string[]> = {};
+    for (const { pluginId, name } of factory.pluginSecrets) {
+        pluginSecrets[pluginId] = [...(pluginSecrets[pluginId] ?? []), name];
+    }
     return {
         id: factory.id,
         name: factory.name,
@@ -99,6 +110,7 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
         channels,
         schedules,
         toolGates: gatesFromRows(factory.toolGates),
+        pluginSecrets,
     };
 }
 

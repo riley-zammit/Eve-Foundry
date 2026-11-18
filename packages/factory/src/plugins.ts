@@ -19,11 +19,21 @@ export type PluginSkill = {
     content: string;
 };
 
+// A variable the plugin's CLIs read, usually a credential. Each CLI authenticates its own way,
+// so the plugin names exactly what it needs. The factory sets the value in the builder; it's
+// stored encrypted and only reaches this plugin's commands (packages/factory/src/secrets.ts).
+export type PluginEnvVar = {
+    name: string;
+    description: string;
+};
+
 export type Plugin = {
     title: string;
     description: string;
     clis: PluginCli[];
     skills: PluginSkill[];
+    // Every listed variable must be set before the plugin's tools run.
+    env: PluginEnvVar[];
 };
 
 const IMAGE_EDITING_SKILL = `# Image editing with ImageMagick
@@ -98,7 +108,7 @@ Re-encoding long videos can take minutes. Raise \`timeout\` for long inputs, and
 Check the output with \`ffprobe\`, then tell the person the output path, duration, and size.
 `;
 
-export const PLUGINS = {
+const PLUGIN_CATALOG = {
     image_editing: {
         title: "Image editing",
         description: "Resize, crop, convert, and annotate images with ImageMagick",
@@ -117,6 +127,7 @@ export const PLUGINS = {
                 content: IMAGE_EDITING_SKILL,
             },
         ],
+        env: [],
     },
     video_editing: {
         title: "Video editing",
@@ -136,13 +147,47 @@ export const PLUGINS = {
                 content: VIDEO_EDITING_SKILL,
             },
         ],
+        env: [],
     },
 } satisfies Record<string, Plugin>;
 
-export type PluginId = keyof typeof PLUGINS;
+export type PluginId = keyof typeof PLUGIN_CATALOG;
+
+// Typed as plain plugins, so a plugin with no env vars still reads as `PluginEnvVar[]`.
+export const PLUGINS: Record<PluginId, Plugin> = PLUGIN_CATALOG;
 
 export function isPluginId(value: string): value is PluginId {
     return Object.hasOwn(PLUGINS, value);
+}
+
+export const CLI_DEFAULT_TIMEOUT_SECONDS = 120;
+export const CLI_MAX_TIMEOUT_SECONDS = 600;
+export const CLI_MAX_SHOWN_IMAGES = 4;
+
+// What the model sees for a CLI's tool. The agent builds the tool from this (agent/lib/plugin-tools.ts)
+// and the builder shows it, so people can inspect exactly what a plugin hands the model.
+export function cliToolSpec(cli: PluginCli) {
+    const programs = cli.programs.join(", ");
+    return {
+        description: `${cli.description} Runs ${programs} in the sandbox, starting in /workspace. There is no shell: pass the program and each argument as separate items, so pipes, redirects, globs, and variables don't apply. Files people attach are under /workspace/.eve/attachments/.`,
+        inputs: {
+            command: {
+                type: "string[]",
+                isRequired: true,
+                description: `The program, then each argument as its own item. The program is one of: ${programs}.`,
+            },
+            show: {
+                type: `string[], up to ${CLI_MAX_SHOWN_IMAGES}`,
+                isRequired: false,
+                description: "Images to look at after the command finishes, such as its output. PNG, JPEG, GIF, or WebP up to 3 MiB.",
+            },
+            timeout: {
+                type: `integer, 1 to ${CLI_MAX_TIMEOUT_SECONDS}`,
+                isRequired: false,
+                description: `Seconds to wait before stopping the command. Defaults to ${CLI_DEFAULT_TIMEOUT_SECONDS}.`,
+            },
+        },
+    };
 }
 
 // The plugin a tool name belongs to, or null for prebuilt and connection tools.

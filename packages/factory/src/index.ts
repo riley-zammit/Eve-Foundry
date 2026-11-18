@@ -116,6 +116,8 @@ export type FactoryData = {
     schedules: ScheduleData[];
     // Keyed by prebuilt tool id, plugin tool name, or `${connectionId}:${toolName}`.
     toolGates: Record<string, ToolGate>;
+    // Per plugin id, the env var names that have a value. Values never leave the server.
+    pluginSecrets: Record<string, string[]>;
 };
 
 // --- Runtime config: what the eve agent reads each turn ---

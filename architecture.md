@@ -92,6 +92,7 @@ erDiagram
     SKILL ||--o{ AGENT_SKILL : "attached to"
     AGENT ||--o{ AGENT_CONNECTION : attaches
     CONNECTION ||--o{ AGENT_CONNECTION : "attached to"
+    FACTORY ||--o{ PLUGIN_SECRET : "sets env for plugins"
 
     FACTORY {
         string id PK "cuid"
@@ -149,6 +150,13 @@ erDiagram
         string task "prompt sent to the orchestrator"
         boolean enabled
         float y
+    }
+    PLUGIN_SECRET {
+        string factoryId PK, FK
+        string pluginId PK
+        string name PK "env var the plugin declares"
+        string encrypted "AES-256-GCM, v1.iv.tag.ciphertext"
+        datetime updatedAt
     }
 ```
 
@@ -241,7 +249,7 @@ Session state, which eve keeps:
 - Conversation history lives in eve's workflow store, not in Postgres. A `Chat` table can be added later for titles and listing.
 
 ### Planned additions
-- A vault entry behind `Connection.credentialRef`, resolved in the connection's `auth.getToken`.
+- A vault entry behind `Connection.credentialRef`, resolved in the connection's `auth.getToken`. Use the same approach as plugin credentials (see Sandboxes → Plugins): Vercel Connect where possible, otherwise encrypted in Postgres the same way.
 - `Usage` (factory, agent, model, tokens per turn), for quotas and billing.
 - `FactoryVersion` (immutable snapshots) if sessions need to stay on the config they started with.
 
@@ -249,6 +257,7 @@ Session state, which eve keeps:
 ### Setup
 - **Postgres:** Postgres 17 from Homebrew on `localhost:5432`, database `foundry`. `DATABASE_URL` lives in the root `.env.local`. `apps/web/.env.local` is a symlink to it. Both are gitignored, so recreate them on a new machine.
 - **Commands:** `npm install`, then `npm run db:migrate` (migrates and regenerates the Prisma client), then `npm run dev:web` (Next.js plus the eve agent). Pick a free port with `-p`; 3123 is taken by an unrelated server on this machine.
+- **`FOUNDRY_SECRETS_KEY`:** in `.env.local`, 32 random bytes in base64 (`openssl rand -base64 32`). Needed in every environment; changing it makes stored plugin secrets unreadable.
 - **Model credential:** none is set up. Every chat turn fails at the model call until you add `AI_GATEWAY_API_KEY` to `.env.local` or run `/login` in `npx eve dev`. The model IDs in `MODELS` haven't been checked against AI Gateway.
 - **Docs:** read the eve docs in `node_modules/eve/docs/` before writing eve code. Next.js 16 is newer than most training data, so check `node_modules/next/dist/docs/` too.
 
@@ -285,11 +294,18 @@ For the time being, we wrap sandbox capabilities in tools. There's no general `b
 ### Plugins
 A plugin bundles sandbox CLIs with the skills that teach an agent to use them. It's one library item: dragging it onto an agent attaches all of it, and the library row expands to show what's inside.
 
-- **Catalog:** `packages/factory/src/plugins.ts`, in code like prebuilt tools. `Agent.plugins` stores the ids. Today: `image_editing` (ImageMagick) and `video_editing` (ffmpeg). Only CLIs that need no credentials.
+- **Catalog:** `packages/factory/src/plugins.ts`, in code like prebuilt tools. `Agent.plugins` stores the ids. Today: `image_editing` (ImageMagick) and `video_editing` (ffmpeg). Neither needs credentials yet.
 - **Install:** `agent/sandbox.ts` installs every plugin's apt packages in the template's `prepare`, so sessions start with them. Adding a plugin means a rebuild. just-bash (dev without Docker) skips the install, and the tools say the program isn't installed.
 - **Tools:** each CLI becomes one `defineTool` (`agent/lib/plugin-tools.ts`). It takes `command: string[]`, checks the program against the CLI's allow list, and single-quotes every argument, so there's no shell to escape into. `show` returns output images to the model.
 - **Skills:** added after the factory's own skills, so a plugin skill wins a name clash.
 - **Gates:** keyed by tool name (`ffmpeg`). Only "before it runs" for now; result review needs a top-level workflow tool per CLI.
+- **Inspector:** clicking a plugin lists each tool exactly as the model gets it: description, inputs, allowed programs, packages. One source, `cliToolSpec`, feeds both the tool and the panel.
+- **Credentials:** a plugin declares the env vars its CLIs read (`env`), so any auth style fits.
+  - **Stored** per factory in Postgres (`PluginSecret`), so schedules work without sign-in. AES-256-GCM under `FOUNDRY_SECRETS_KEY` (`packages/factory/src/secrets.ts`), bound to factory/plugin/name. No external vault.
+  - **Trade-off:** env + DB leak = everything leaks; no audit; rotation needs a re-encrypt (`v1.` prefix). Upgrade path: KMS via Vercel OIDC inside `secrets.ts`. Vercel env vars ruled out (shared, deploy-time, size-limited).
+  - **Flow:** builder is write-only (sees names, never values). Each call loads fresh, passes env to that command only, redacts values in output, fails naming any missing var.
+  - **Per CLI:** prefer Vercel Connect where supported (`gh`; `principalType: "app"` for schedules). Block leaky subcommands (`auth`, `config`, `alias`, `extension`). Never run the CLI's own login.
+  - **Later:** Vercel Sandbox network-policy header transform, so the CLI never holds the secret.
 - **Not built yet:** returning output files to the person in the chat (it renders no files today), and live Homebrew search for long-tail CLIs, installed on first use.
 
 ## Monetization

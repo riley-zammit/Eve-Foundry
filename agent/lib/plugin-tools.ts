@@ -1,15 +1,13 @@
-import type { PluginCli } from "@foundry/factory";
+import { CLI_DEFAULT_TIMEOUT_SECONDS, CLI_MAX_SHOWN_IMAGES, CLI_MAX_TIMEOUT_SECONDS, cliToolSpec, PLUGINS, type PluginCli, type PluginId } from "@foundry/factory";
 import type { SandboxSession } from "eve/sandbox";
 import { defineTool, toolOutput, toolOutputPart } from "eve/tools";
 import { z } from "zod";
 
 // One scoped tool per plugin CLI. It starts only the CLI's own programs, and every argument is
-// quoted, so the model gets that program and nothing else: no general shell.
+// quoted, so the model gets that program and nothing else: no general shell. The plugin's env
+// vars (credentials) reach only that command, and their values are scrubbed from its output.
 
-const DEFAULT_TIMEOUT_SECONDS = 120;
-const MAX_TIMEOUT_SECONDS = 600;
 const MAX_OUTPUT_CHARS = 20_000;
-const MAX_SHOWN_IMAGES = 4;
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
 const IMAGE_TYPES: Record<string, string> = {
     png: "image/png",
@@ -19,21 +17,25 @@ const IMAGE_TYPES: Record<string, string> = {
     webp: "image/webp",
 };
 
-export function cliTool(cli: PluginCli) {
+export function cliTool(cli: PluginCli, pluginId: PluginId, factoryId: string) {
     const programs = cli.programs.join(", ");
+    const { description, inputs } = cliToolSpec(cli);
     return defineTool({
-        description: `${cli.description} Runs ${programs} in the sandbox, starting in /workspace. There is no shell: pass the program and each argument as separate items, so pipes, redirects, globs, and variables don't apply. Files people attach are under /workspace/.eve/attachments/.`,
+        description,
         inputSchema: z.object({
-            command: z.array(z.string()).min(1).describe(`The program, then each argument as its own item. The program is one of: ${programs}.`),
-            show: z.array(z.string()).max(MAX_SHOWN_IMAGES).optional().describe("Images to look at after the command finishes, such as its output. PNG, JPEG, GIF, or WebP up to 3 MiB."),
-            timeout: z.number().int().min(1).max(MAX_TIMEOUT_SECONDS).optional().describe(`Seconds to wait before stopping the command. Defaults to ${DEFAULT_TIMEOUT_SECONDS}.`),
+            command: z.array(z.string()).min(1).describe(inputs.command.description),
+            show: z.array(z.string()).max(CLI_MAX_SHOWN_IMAGES).optional().describe(inputs.show.description),
+            timeout: z.number().int().min(1).max(CLI_MAX_TIMEOUT_SECONDS).optional().describe(inputs.timeout.description),
         }),
         label: { start: ({ command }) => `Run ${command.join(" ")}` },
-        async execute({ command, show = [], timeout = DEFAULT_TIMEOUT_SECONDS }, ctx) {
+        async execute({ command, show = [], timeout = CLI_DEFAULT_TIMEOUT_SECONDS }, ctx) {
             const [program] = command;
             if (!cli.programs.includes(program)) {
                 throw new Error(`${cli.name} can only run ${programs}.`);
             }
+            // Before the sandbox, so a missing credential fails fast.
+            const env = await loadEnv(pluginId, factoryId);
+            const secretValues = Object.values(env);
             const sandbox = await ctx.getSandbox();
             // `program` passed the allow list above, so it's safe to put in the command.
             const installed = await sandbox.run({ command: `command -v ${program} && mkdir -p out` });
@@ -45,6 +47,7 @@ export function cliTool(cli: PluginCli) {
             try {
                 result = await sandbox.run({
                     command: quotedArgs.join(" "),
+                    env,
                     signal: AbortSignal.timeout(timeout * 1000),
                 });
             } catch (error) {
@@ -56,8 +59,8 @@ export function cliTool(cli: PluginCli) {
             const shown = await readImages(sandbox, show);
             return {
                 exitCode: result.exitCode,
-                stdout: truncate(result.stdout),
-                stderr: truncate(result.stderr),
+                stdout: truncate(redact(result.stdout, secretValues)),
+                stderr: truncate(redact(result.stderr, secretValues)),
                 images: shown.images,
                 notes: shown.notes,
             };
@@ -74,6 +77,31 @@ export function cliTool(cli: PluginCli) {
             return toolOutput.content([toolOutputPart.text(text), ...imageParts]);
         },
     });
+}
+
+// Read fresh on every call, so a changed value applies right away and nothing caches it.
+async function loadEnv(pluginId: PluginId, factoryId: string) {
+    const plugin = PLUGINS[pluginId];
+    if (plugin.env.length === 0) {
+        return {};
+    }
+    const names = plugin.env.map((envVar) => envVar.name);
+    const { loadPluginEnv } = await import("@foundry/factory/secrets");
+    const env = await loadPluginEnv(factoryId, pluginId, names);
+    const missing = names.filter((name) => !env[name]);
+    if (missing.length > 0) {
+        throw new Error(`${missing.join(", ")} isn't set. Someone needs to add it under Environment in the ${plugin.title} plugin.`);
+    }
+    return env;
+}
+
+// A CLI can echo its own credential (`gh auth token`), so the model never sees the values.
+function redact(text: string, secretValues: string[]) {
+    let redacted = text;
+    for (const value of secretValues) {
+        redacted = redacted.replaceAll(value, "[redacted]");
+    }
+    return redacted;
 }
 
 // Single quotes keep every argument literal. A quote inside one closes, escapes, and reopens.

@@ -110,8 +110,9 @@ export function factorySkills(slot: number) {
 
 export function factoryTools(slot: number) {
     return defineDynamicTools(async (ctx) => {
+        const factoryId = factoryIdOf(ctx);
         const agent = await loadAgentConfig(ctx, slot);
-        if (!agent) {
+        if (!factoryId || !agent) {
             return null;
         }
         const prebuiltEntries = agent.tools.map((toolId) => {
@@ -123,10 +124,12 @@ export function factoryTools(slot: number) {
             return [toolId, withRunApproval(tool, gate.run, toolId)] as const;
         });
         // Plugin tools only pause before they run; there's no reviewed version yet.
-        const clis = agent.plugins.flatMap((pluginId) => PLUGINS[pluginId].clis);
-        const pluginEntries = clis.map((cli) => {
-            const gate = gateFor(agent.toolGates, cli.name);
-            return [cli.name, withRunApproval(cliTool(cli), gate.run, cli.name)] as const;
+        const pluginEntries = agent.plugins.flatMap((pluginId) => {
+            const { clis } = PLUGINS[pluginId];
+            return clis.map((cli) => {
+                const gate = gateFor(agent.toolGates, cli.name);
+                return [cli.name, withRunApproval(cliTool(cli, pluginId, factoryId), gate.run, cli.name)] as const;
+            });
         });
         const toolEntries = [...prebuiltEntries, ...pluginEntries];
         if (toolEntries.length === 0) {

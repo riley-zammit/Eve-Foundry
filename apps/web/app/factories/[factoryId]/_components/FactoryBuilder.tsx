@@ -18,7 +18,7 @@ import { activeTurn, openInteractions } from "eve/events";
 import { useEveAgent } from "eve/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { deleteItem, saveAgent, saveChannel, saveConnection, saveSchedule, saveSkill, saveToolGate } from "../../actions";
+import { deleteItem, saveAgent, saveChannel, saveConnection, savePluginSecret, saveSchedule, saveSkill, saveToolGate } from "../../actions";
 import { listMcpTools } from "../../connect";
 import type { CatalogConnector } from "../../openclaw";
 import { canvasActivity } from "./activity";
@@ -133,6 +133,23 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
             return { ...current, toolGates };
         });
         queueSave(`toolGate:${toolKey}`, () => saveToolGate(factory.id, toolKey, gate), SAVE_DELAY_MS);
+    }
+
+    // Only the name is kept in state. The value goes straight to the server, and null clears it.
+    function editPluginSecret(pluginId: string, name: string, value: string | null) {
+        setFactory((current) => {
+            const setNames = current.pluginSecrets[pluginId] ?? [];
+            const otherNames = setNames.filter((item) => item !== name);
+            const nextNames = value === null ? otherNames : [...otherNames, name];
+            return {
+                ...current,
+                pluginSecrets: {
+                    ...current.pluginSecrets,
+                    [pluginId]: nextNames,
+                },
+            };
+        });
+        queueSave(`pluginSecret:${pluginId}:${name}`, () => savePluginSecret(factory.id, pluginId, name, value), 0);
     }
 
     function remove(collection: Collection, id: string) {
@@ -650,6 +667,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
                         selection={selection}
                         onEdit={edit}
                         onEditGate={editGate}
+                        onEditPluginSecret={editPluginSecret}
                         onRemove={remove}
                         onDetach={detach}
                         onSelect={select}

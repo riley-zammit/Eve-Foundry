@@ -8,6 +8,7 @@ import {
     isResultApproval,
     isRunApproval,
     ORCHESTRATOR_SLOT,
+    PLUGINS,
     toSlug,
     type AgentData,
     type ChannelData,
@@ -17,6 +18,7 @@ import {
     type ToolGate,
 } from "@foundry/factory";
 import { getDb } from "@foundry/factory/db";
+import { deletePluginSecret, storePluginSecret } from "@foundry/factory/secrets";
 import { redirect } from "next/navigation";
 
 // A factory starts as its orchestrator plus the web chat channel.
@@ -231,6 +233,30 @@ export async function deleteItem(factoryId: string, collection: "agents" | "skil
     if (collection === "schedules") {
         await db.schedule.deleteMany({ where });
     }
+}
+
+const MAX_SECRET_LENGTH = 16_384;
+
+// Sets one env var a plugin declares, or clears it with null. The value is encrypted before
+// it's stored, and nothing sends it back to the builder.
+export async function savePluginSecret(factoryId: string, pluginId: string, name: string, value: string | null) {
+    if (!isPluginId(pluginId)) {
+        throw new Error(`Unknown plugin: ${pluginId}`);
+    }
+    const plugin = PLUGINS[pluginId];
+    const declaredNames = plugin.env.map((envVar) => envVar.name);
+    if (!declaredNames.includes(name)) {
+        throw new Error(`${plugin.title} doesn't read ${name}.`);
+    }
+    const trimmed = value?.trim() ?? "";
+    if (!trimmed) {
+        await deletePluginSecret(factoryId, pluginId, name);
+        return;
+    }
+    if (trimmed.length > MAX_SECRET_LENGTH) {
+        throw new Error(`${name} is too long.`);
+    }
+    await storePluginSecret(factoryId, pluginId, name, trimmed);
 }
 
 // Both gates off deletes the row, so a factory with no approvals stores nothing.

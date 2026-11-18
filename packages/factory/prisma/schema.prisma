@@ -11,16 +11,31 @@ datasource db {
 // (a check constraint in the migration enforces the range). Channels and schedules belong
 // to the factory, so they can only ever trigger the orchestrator.
 model Factory {
-    id          String       @id @default(cuid())
-    name        String
-    createdAt   DateTime     @default(now())
-    updatedAt   DateTime     @updatedAt
-    agents      Agent[]
-    skills      Skill[]
-    connections Connection[]
-    channels    Channel[]
-    schedules   Schedule[]
-    toolGates   ToolGate[]
+    id            String         @id @default(cuid())
+    name          String
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    agents        Agent[]
+    skills        Skill[]
+    connections   Connection[]
+    channels      Channel[]
+    schedules     Schedule[]
+    toolGates     ToolGate[]
+    pluginSecrets PluginSecret[]
+}
+
+// A value for an env var a plugin declares, such as an API token. Factory-level, so scheduled
+// turns can use it without anyone signing in. `encrypted` is AES-256-GCM under
+// FOUNDRY_SECRETS_KEY (src/secrets.ts); the builder only ever learns which names are set.
+model PluginSecret {
+    factoryId String
+    factory   Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    pluginId  String
+    name      String
+    encrypted String
+    updatedAt DateTime @updatedAt
+
+    @@id([factoryId, pluginId, name])
 }
 
 // Approval for one tool in a factory. The key is a prebuilt id (`web_fetch`), a plugin
