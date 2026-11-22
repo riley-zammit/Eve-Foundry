@@ -8,15 +8,22 @@ import {
     isResultApproval,
     isRunApproval,
     ORCHESTRATOR_SLOT,
+    parseFolders,
     PLUGINS,
+    PREBUILT_TOOLS,
+    reservedToolNames,
     toSlug,
     type AgentData,
     type ChannelData,
     type ConnectionData,
+    type LibraryFolder,
     type ScheduleData,
     type SkillData,
+    type ToolCopyData,
     type ToolGate,
+    type ToolSettings,
 } from "@foundry/factory";
+import { signOut } from "@foundry/factory/auth";
 import { getDb } from "@foundry/factory/db";
 import { deletePluginSecret, storePluginSecret } from "@foundry/factory/secrets";
 import { redirect } from "next/navigation";
@@ -63,6 +70,14 @@ export async function saveAgent(factoryId: string, agent: AgentData) {
         },
         select: { id: true },
     });
+    const toolCopies = await db.toolCopy.findMany({
+        where: {
+            factoryId,
+            id: { in: agent.tools },
+        },
+        select: { id: true },
+    });
+    const toolCopyIds = toolCopies.map(({ id }) => id);
     const skillLinks = skills.map(({ id }) => ({ skillId: id }));
     const connectionLinks = connections.map(({ id }) => {
         const allow = agent.toolAllow[id];
@@ -77,7 +92,7 @@ export async function saveAgent(factoryId: string, agent: AgentData) {
         description: agent.description,
         model: agent.model,
         instructions: agent.instructions,
-        tools: agent.tools.filter(isPrebuiltTool),
+        tools: agent.tools.filter((toolId) => isPrebuiltTool(toolId) || toolCopyIds.includes(toolId)),
         plugins: agent.plugins.filter(isPluginId),
         y: agent.y,
     };
@@ -135,12 +150,23 @@ export async function saveSkill(factoryId: string, skill: SkillData) {
     });
 }
 
+// The sign-in isn't saved here: only the sign-in flow writes it. A new URL signs the connection
+// out, so its tokens can't reach another server.
 export async function saveConnection(factoryId: string, connection: ConnectionData) {
     const fields = {
         name: toSlug(connection.name) || "connection",
         url: connection.url.trim(),
-        credentialRef: connection.connector,
     };
+    const saved = await getDb().connection.findFirst({
+        where: {
+            id: connection.id,
+            factoryId,
+        },
+        select: { url: true },
+    });
+    if (saved && saved.url !== fields.url) {
+        await signOut(factoryId, connection.id);
+    }
     await getDb().connection.upsert({
         where: {
             id: connection.id,
@@ -152,6 +178,30 @@ export async function saveConnection(factoryId: string, connection: ConnectionDa
             factoryId,
         },
         update: fields,
+    });
+}
+
+// A copy keeps the tool it was made from. Only its name changes.
+export async function saveToolCopy(factoryId: string, copy: ToolCopyData) {
+    if (!isPrebuiltTool(copy.base)) {
+        throw new Error(`Unknown tool: ${copy.base}`);
+    }
+    const name = toSlug(copy.name);
+    if (!name || reservedToolNames().includes(name)) {
+        throw new Error(`"${copy.name}" can't be a tool name.`);
+    }
+    await getDb().toolCopy.upsert({
+        where: {
+            id: copy.id,
+            factoryId,
+        },
+        create: {
+            id: copy.id,
+            factoryId,
+            base: copy.base,
+            name,
+        },
+        update: { name },
     });
 }
 
@@ -200,8 +250,16 @@ export async function saveSchedule(factoryId: string, schedule: ScheduleData) {
     });
 }
 
+// Folders are saved as one list, so the latest save always wins.
+export async function saveFolders(factoryId: string, folders: LibraryFolder[]) {
+    await getDb().factory.update({
+        where: { id: factoryId },
+        data: { folders: parseFolders(folders) },
+    });
+}
+
 // Deleting a library item cascades to its attachments. The orchestrator can't be deleted.
-export async function deleteItem(factoryId: string, collection: "agents" | "skills" | "connections" | "channels" | "schedules", id: string) {
+export async function deleteItem(factoryId: string, collection: "agents" | "skills" | "connections" | "toolCopies" | "channels" | "schedules", id: string) {
     const db = getDb();
     const where = {
         id,
@@ -219,6 +277,8 @@ export async function deleteItem(factoryId: string, collection: "agents" | "skil
         await db.skill.deleteMany({ where });
     }
     if (collection === "connections") {
+        // The credential row cascades, but a Vercel Connect grant has to be revoked.
+        await signOut(factoryId, id);
         await db.connection.deleteMany({ where });
         await db.toolGate.deleteMany({
             where: {
@@ -226,6 +286,35 @@ export async function deleteItem(factoryId: string, collection: "agents" | "skil
                 toolKey: { startsWith: `${id}:` },
             },
         });
+    }
+    // Agents list tools as plain ids, so nothing cascades: detach the copy by hand.
+    if (collection === "toolCopies") {
+        const agents = await db.agent.findMany({
+            where: {
+                factoryId,
+                tools: { has: id },
+            },
+            select: {
+                id: true,
+                tools: true,
+            },
+        });
+        const detachCopy = agents.map((agent) => db.agent.update({
+            where: { id: agent.id },
+            data: { tools: agent.tools.filter((toolId) => toolId !== id) },
+        }));
+        const keyedToCopy = {
+            where: {
+                factoryId,
+                toolKey: id,
+            },
+        };
+        await db.$transaction([
+            ...detachCopy,
+            db.toolGate.deleteMany(keyedToCopy),
+            db.toolSetting.deleteMany(keyedToCopy),
+            db.toolCopy.deleteMany({ where }),
+        ]);
     }
     if (collection === "channels") {
         await db.channel.deleteMany({ where });
@@ -259,12 +348,64 @@ export async function savePluginSecret(factoryId: string, pluginId: string, name
     await storePluginSecret(factoryId, pluginId, name, trimmed);
 }
 
+const MAX_TOOL_DESCRIPTION_LENGTH = 10_000;
+
+// Settings for a prebuilt tool or a copy. Empty fields use the catalog's, and both empty deletes
+// the row. A tool without a model never stores one.
+export async function saveToolSettings(factoryId: string, toolKey: string, settings: ToolSettings) {
+    const db = getDb();
+    const copy = await db.toolCopy.findFirst({
+        where: {
+            factoryId,
+            id: toolKey,
+        },
+        select: { base: true },
+    });
+    const base = copy?.base ?? toolKey;
+    if (!isPrebuiltTool(base)) {
+        throw new Error(`Unknown tool: ${toolKey}`);
+    }
+    const description = settings.description.trim().slice(0, MAX_TOOL_DESCRIPTION_LENGTH);
+    const model = PREBUILT_TOOLS[base].model ? settings.model.trim() : "";
+    if (!description && !model) {
+        await db.toolSetting.deleteMany({
+            where: {
+                factoryId,
+                toolKey,
+            },
+        });
+        return;
+    }
+    const fields = {
+        description,
+        model,
+    };
+    await db.toolSetting.upsert({
+        where: { factoryId_toolKey: { factoryId, toolKey } },
+        create: {
+            ...fields,
+            factoryId,
+            toolKey,
+        },
+        update: fields,
+    });
+}
+
 // Both gates off deletes the row, so a factory with no approvals stores nothing.
-// Only prebuilt tools have a reviewed version. Connection and plugin tools can only pause before the call.
+// Only prebuilt tools and their copies have a reviewed version. Connection and plugin tools can
+// only pause before the call.
 export async function saveToolGate(factoryId: string, toolKey: string, gate: ToolGate) {
     const db = getDb();
     const run = isRunApproval(gate.run) ? gate.run : "never";
-    const canReview = isPrebuiltTool(toolKey) && isResultApproval(gate.result);
+    const copy = await db.toolCopy.findFirst({
+        where: {
+            factoryId,
+            id: toolKey,
+        },
+        select: { id: true },
+    });
+    const hasReviewedVersion = isPrebuiltTool(toolKey) || copy !== null;
+    const canReview = hasReviewedVersion && isResultApproval(gate.result);
     const result = canReview ? gate.result : "never";
     if (run === "never" && result === "never") {
         await db.toolGate.deleteMany({

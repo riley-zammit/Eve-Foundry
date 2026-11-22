@@ -23,7 +23,8 @@ Later: compile a factory's config into a standalone eve project for export or de
 - **Build-time vs runtime:** tool code, subagent directories, and channels are fixed at build time. Users configure and compose; they don't ship code into the runtime.
 - **Subagents:** use a fixed number of generic slots (`agent/subagents/subagent_N/`) whose files are all dynamic. Slot count and nesting depth are capped. A deeper or larger setup can call another factory as a remote agent.
 - **Channels:** every channel is installed; a factory's enabled flag gates incoming messages in channel auth/hooks. v1 uses Foundry-owned bots (e.g., one Slack app across many workspaces, with a bot token per `teamId`). Bring-your-own bots later need custom channels with per-factory routes.
-- **User MCPs:** supported. Store credentials in a vault and resolve them in `auth.getToken`, never in memos or prompts. Block private/metadata IPs and require https. Set `instanceKey` per configured MCP. Treat MCP tools as untrusted and use approvals for writes. OAuth MCPs are limited to services we support through Vercel Connect, unless we build our own OAuth provider.
+- **User MCPs:** supported. Credentials are resolved in `auth.getToken`, never put in memos, prompts, or the sandbox. Block private/metadata IPs and require https. Set `instanceKey` per configured MCP. Treat MCP tools as untrusted and use approvals for writes.
+- **Connection sign-in:** happens in the builder, never in a chat, so agents never handle tokens and scheduled turns can use the sign-in. A sign-in belongs to the connection, not to whoever is chatting (`principalType: "app"`). See [Connection sign-in](#connection-sign-in).
 - **Tenant isolation:** all config loading goes through one tenant-scoped loader. A bug there leaks data across factories, so test it heavily.
 - **Shared blast radius:** a bad deploy affects every tenant, and deploys reset memo caches. Per-tenant quotas protect against noisy neighbors and feed token billing.
 - **Prompt cache:** switching models mid-session reduces cache reuse.
@@ -31,15 +32,32 @@ Later: compile a factory's config into a standalone eve project for export or de
 - **`web_search` per factory:** eve's `web_search` is a provider tool and can only be static, so it can't be switched on per factory. We'll build our own as a `defineTool`.
 
 ## Implementation (v1)
-- **Layout:** npm workspaces. The root is the eve agent (`agent/`). `apps/web` is the Next.js builder. `packages/factory` holds the Prisma schema and client, the shared types and constants (`src/index.ts`), and the database reads (`src/db.ts`).
+- **Layout:** npm workspaces. The root is the eve agent (`agent/`). `apps/web` is the Next.js builder. `packages/factory` holds the Prisma schema and client, the shared types and constants (`src/index.ts`), the database reads (`src/db.ts`), secret encryption (`src/secrets.ts`), and connection sign-in (`src/auth/`).
 - **Storage:** Postgres via Prisma, in the tables under [Data model](#data-model). The builder's server actions (`apps/web/app/factories/actions.ts`) do the writes.
 - **Hosting:** Next.js hosts the agent (`withEve`, `eveRoot: "../.."`). The builder's chat calls `/eve/v1/*` on the same origin.
 - **Factory selection:** the chat sends an `x-foundry-factory` header. The eve channel's `onMessage` checks that the factory exists and copies its ID into the session's auth attributes. Dynamic files read it from `auth.initiator`, so it's pinned for the whole session and inherited by subagent sessions.
 - **Live edits:** the builder autosaves. The agent memoizes the factory per turn, so edits apply from the next message.
-- **Wired up:** model, instructions, skills, prebuilt tools (`web_fetch`), plugins (see [Sandboxes](#sandboxes)), MCP connections (https only, no localhost or IP literals), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
-- **Connector catalog:** the Connections **+** opens a browser of OpenClaw's official connectors on ClawHub (`apps/web/app/factories/openclaw.ts`, cached for hours). Only the official list is offered, never community packages. Adding one creates a connection with the server's URL; OAuth connectors still need a Vercel Connect connector to sign in, and API-key connectors are disabled until there's a vault. Icons go through `/connector-icons/[hash]` because ClawHub serves them same-origin only. Custom URLs still work.
+- **Wired up:** model, instructions, skills, prebuilt tools (`web_fetch`, `decide`), plugins (see [Sandboxes](#sandboxes)), MCP connections (https only, no localhost or IP literals), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
+- **Connector catalog:** the Connections **+** opens one list of services from two sources (`apps/web/app/factories/connector-catalog/`). The picker never says which source a service came from.
+  - **Vercel Connect:** the MCP services Connect signs in to with its own OAuth client (about 520). Finding them needs Connect's per-service detail, which needs a Vercel login, so they're a committed snapshot refreshed with `npm run sync:connect` in `apps/web`.
+  - **ClawHub:** OpenClaw's official connectors only, never community packages. Loaded live and kept in the shared remote cache for hours. Each card links back to its ClawHub listing, as ClawHub asks.
+  - **Duplicates:** a service on both keeps Connect's version. Two entries are the same service when their MCP hosts or names match.
+  - **Channels** (Slack, Discord, Teams, Telegram) stay out of the catalog; they come from eve.
+  - The page starts loading the catalog without waiting on it, so the picker is usually ready when it opens.
+  - Adding a connector creates a connection with the server's URL; OAuth connectors are then signed in from the inspector. API-key connectors (servers whose manifest reads a token from a header) are disabled until header credentials are built. Icons go through `/connector-icons/[hash]`: Connect's from the snapshot, ClawHub's proxied because ClawHub serves them same-origin only. Custom URLs still work.
 - **Saved but not live:** channels (the orchestrator's Chat button always works) and schedules.
-- **Not built yet:** `web_search` (see above), `browser_use` (needs a real sandbox: Docker or Vercel), MCP auth, and rendering of approvals/questions/sign-ins in the chat.
+- **Not built yet:** `web_search` (see above), `browser_use` (needs a real sandbox: Docker or Vercel), API-key/header auth for MCPs, and rendering of approvals/questions in the chat.
+
+### Connection sign-in
+One module, `packages/factory/src/auth/` (`@foundry/factory/auth`), handles all three sign-in methods, tried in this order:
+1. **`vercel-connect`** (`auth/vercel-connect.ts`): Connect provisions a managed OAuth connector for the server URL (`POST /v1/connect/connectors/managed/oauth`, UID `host/foundry-<urlhash>`), runs the OAuth, and keeps the tokens. The subject is the connection (`foundry-connection-<id>`) until there are accounts. Needs the Vercel OIDC token, so locally it needs `vercel link` and `vercel env pull`. Without one, Foundry falls back to its own client.
+2. **`client-metadata`** (`auth/oauth.ts`): Foundry's own OAuth client, identified by the document at `/oauth/client-metadata.json` (its URL is the client id). Only on a public https origin, and only for servers that advertise `client_id_metadata_document_supported`.
+3. **`dynamic-registration`** (`auth/oauth.ts`): Foundry registers itself at the server's `registration_endpoint` once per issuer and redirect URI, and caches the result in `RegisteredClient`.
+
+- **Flow:** the inspector's Sign in button opens `/oauth/start` in a popup. It discovers the server (401 `WWW-Authenticate`, RFC 9728 resource metadata, then RFC 8414/OIDC metadata), keeps the attempt (PKCE verifier, client, state) in an encrypted, httpOnly cookie scoped to the callback, and redirects to the consent page. `/oauth/callback` exchanges the code, stores the credential, and tells the builder over the `foundry:sign-in` BroadcastChannel. The builder only ever sees a `SignInStatus`.
+- **Safety:** every URL a server hands back must pass `isAllowedMcpUrl`, and nothing follows redirects. The issuer must match its metadata, and the resource must be a prefix of the server URL. Tokens are only sent to the exact URL that signed in. Saving a new URL signs the connection out, and deleting a connection revokes its Connect grant.
+- **Runtime:** `agent/lib/factory.ts` gives signed-in connections `auth: { principalType: "app", getToken, evict }`. `getToken` calls `connectionToken`, which refreshes under a `SELECT … FOR UPDATE` row lock, so concurrent turns refresh once. Servers that rotate refresh tokens revoke the whole grant when an old one is reused. A rejected refresh sets `needsReconnect`, and calls then fail with `ConnectionAuthorizationFailedError` (`signed_out`) until someone signs in again. `instanceKey` includes `signedInAt`, so a new sign-in gets a fresh client.
+- **Coverage:** all 50 OAuth servers in the ClawHub catalog passed discovery. 16 accept a client metadata document and 34 need dynamic registration.
 
 ## Data model
 ### Principles
@@ -92,7 +110,10 @@ erDiagram
     SKILL ||--o{ AGENT_SKILL : "attached to"
     AGENT ||--o{ AGENT_CONNECTION : attaches
     CONNECTION ||--o{ AGENT_CONNECTION : "attached to"
+    CONNECTION ||--o| CONNECTION_CREDENTIAL : "signed in with"
     FACTORY ||--o{ PLUGIN_SECRET : "sets env for plugins"
+    FACTORY ||--o{ TOOL_COPY : "renames prebuilt tools"
+    FACTORY ||--o{ TOOL_SETTING : "configures prebuilt tools and copies"
 
     FACTORY {
         string id PK "cuid"
@@ -108,7 +129,7 @@ erDiagram
         string description "subagents: when to delegate"
         string model "AI Gateway id"
         string instructions
-        string[] tools "prebuilt catalog ids"
+        string[] tools "prebuilt catalog ids and tool copy ids"
         string[] plugins "plugin catalog ids"
         float y "lane position; orchestrator ignores it"
     }
@@ -125,7 +146,24 @@ erDiagram
         string factoryId FK
         string name "slug, unique per factory"
         string url "https only"
-        string credentialRef "vault key, nullable"
+    }
+    CONNECTION_CREDENTIAL {
+        string connectionId PK, FK
+        string method "vercel-connect | client-metadata | dynamic-registration"
+        string serverUrl "the URL it signed in to; tokens go nowhere else"
+        string connector "Vercel Connect connector id, nullable"
+        string encrypted "own-OAuth tokens and client, AES-256-GCM, nullable"
+        datetime expiresAt "access token, nullable"
+        boolean needsReconnect "the server rejected a refresh"
+        datetime signedInAt
+    }
+    REGISTERED_CLIENT {
+        string issuer PK
+        string redirectUri PK
+        string clientId
+        string encryptedSecret "nullable"
+        string authMethod
+        datetime createdAt
     }
     AGENT_SKILL {
         string agentId PK, FK
@@ -151,6 +189,18 @@ erDiagram
         boolean enabled
         float y
     }
+    TOOL_COPY {
+        string id PK
+        string factoryId FK
+        string base "prebuilt catalog id it runs"
+        string name "what the model calls; slug, unique per factory"
+    }
+    TOOL_SETTING {
+        string factoryId PK, FK
+        string toolKey PK "prebuilt id or tool copy id"
+        string description "empty uses the catalog's"
+        string model "AI Gateway id; empty uses the catalog's"
+    }
     PLUGIN_SECRET {
         string factoryId PK, FK
         string pluginId PK
@@ -160,18 +210,23 @@ erDiagram
     }
 ```
 
-- **Deletes:** deleting a factory cascades to everything. Deleting an agent, skill, or connection cascades to its attachment rows only.
+- **Deletes:** deleting a factory cascades to everything. Deleting an agent, skill, or connection cascades to its attachment rows only (and a connection's credential). `Agent.tools` is a plain id list, so deleting a tool copy removes its id from agents and drops its gate and settings by hand.
 - **Positions:** only `y` is stored. The lane fixes `x`, and the orchestrator is always at the origin.
 - **Saving:** each entity saves on its own through an upsert server action (`saveAgent`, `saveSkill`, …, `deleteItem`), 600ms after its last edit. The builder generates IDs, so new items show up instantly. Next.js runs a client's actions in order, so a create always lands before an attach. An agent's save replaces its attachments with only this factory's items.
 - **Library scope:** items belong to one factory.
 - **Channel settings** (e.g. a Slack `teamId`) get a column when the first non-web channel goes live.
 
 ### Prebuilt tool catalog (code)
-| Id | Backed by | Notes |
-|---|---|---|
-| `web_fetch` | eve `web_fetch` | |
-| `web_search` | planned: our own `defineTool` | eve's provider tool can't be toggled per factory |
-| `browser_use` | planned | Needs a real sandbox |
+`packages/factory/src/prebuilt-tools.ts` holds each tool's library summary, default description, and, for a tool that calls a model, the AI Gateway model type and default model. A factory can change the description and model per tool in the inspector (`ToolSetting`). The code itself is fixed.
+
+| Id | Backed by | Model | Notes |
+|---|---|---|---|
+| `web_fetch` | eve `web_fetch` | none | |
+| `decide` | our `defineTool` calling `decide` from `eve/ai` | evaluation, default `typesafe-ai/jev` | Typed boolean/choice/score questions about text; returns answers with probabilities. Evaluation models only run in tools like this. They return no text, so the agent model picker leaves them out. |
+| `web_search` | planned: our own `defineTool` | | eve's provider tool can't be toggled per factory |
+| `browser_use` | planned | | Needs a real sandbox |
+
+**Tool copies.** The inspector's Duplicate button copies any prebuilt tool, or a copy of one, into a `ToolCopy` row. A copy runs the same code under its own name. It starts with the source's settings and gate and can be renamed or deleted afterward. The model calls it by `name`. Agents attach it by `id`, and its settings and gate are keyed by `id`, so a rename keeps them. The point is per-copy settings: description, model, and approvals. Copy names can't take a prebuilt id, a plugin tool name, or `subagent_N`, which eve also uses for tool names. The runtime gives each copy its base tool. `loadFactoryConfig` fills in catalog defaults, and a plain tool gets its description and model when it's defined for the turn. A copy with result review spreads the shared reviewed workflow tool, which keeps eve's brand and compiled entry point, and sets its description and an approval that reads the copy's gate. A workflow can't close over settings, so its step looks up the model with `loadToolModel(factoryId, ctx.toolName)`.
 
 ### Compiled: what the runtime reads
 `loadFactoryConfig` runs one Prisma query (agents → attached skills and connections) and returns one `AgentConfig` per agent. Each dynamic file picks its agent by slot. There's no graph walking or name deduplication, because the schema already guarantees those rules. The only filtering left drops unknown tools and MCP URLs that fail the safety check.
@@ -185,7 +240,7 @@ classDiagram
         string model
         string instructions
         Skill[] skills
-        PrebuiltTool[] tools
+        Tool[] tools
         PluginId[] plugins
         Mcp[] mcps
     }
@@ -197,14 +252,24 @@ classDiagram
     class Mcp {
         string name
         string url, https only
+        number signedInAt, null when not signed in
+    }
+    class Tool {
+        string key, gate key: prebuilt id or copy id
+        string name, what the model calls
+        PrebuiltTool base
+        string description, catalog default filled in
+        string model, null for tools without one
     }
     class PrebuiltTool {
         <<enumeration>>
         web_fetch
+        decide
     }
     AgentConfig *-- Skill
     AgentConfig *-- Mcp
-    AgentConfig --> PrebuiltTool
+    AgentConfig *-- Tool
+    Tool --> PrebuiltTool
 ```
 
 ### Request flow
@@ -249,7 +314,8 @@ Session state, which eve keeps:
 - Conversation history lives in eve's workflow store, not in Postgres. A `Chat` table can be added later for titles and listing.
 
 ### Planned additions
-- A vault entry behind `Connection.credentialRef`, resolved in the connection's `auth.getToken`. Use the same approach as plugin credentials (see Sandboxes → Plugins): Vercel Connect where possible, otherwise encrypted in Postgres the same way.
+- Header/API-key credentials for MCP connections, stored in `ConnectionCredential` like the OAuth tokens.
+- Per-user sign-ins once there are accounts: the Connect subject becomes the user, and chat sign-in through eve's interactive authorization can sit on the same storage.
 - `Usage` (factory, agent, model, tokens per turn), for quotas and billing.
 - `FactoryVersion` (immutable snapshots) if sessions need to stay on the config they started with.
 
@@ -268,7 +334,8 @@ Session state, which eve keeps:
 - **Unsaved edits on leave:** edits made less than 600ms before leaving the page are lost, because pending saves aren't flushed. A failed save shows "Save failed" until reload.
 - **No automated tests:** everything was checked by hand in headless Chrome and with SQL queries. The tenant-scoped loader and the save actions should get tests first.
 - **Git:** nothing after eve's initial commit has been committed.
-- **Shared Connect identity (tech debt):** MCP connections get Vercel Connect tokens with `principalType: "app"`, so every factory that uses a given connector acts as the same account. That's acceptable while Foundry has one user. Once it has accounts, tokens need to be scoped per factory or per user.
+- **Connection sign-ins aren't per user:** each connection has one sign-in that every chat and schedule in its factory uses. That's acceptable while Foundry has one user.
+- **Sign-in tested with a fake server only:** discovery ran against the real catalog servers. The callback, storage, and refresh lock were tested against a stubbed OAuth server (one-off script, not checked in). Neither the Connect path nor a real consent screen has been tried, because the repo isn't `vercel link`ed and needs a person to approve.
 
 ### Gotchas learned
 - **Dynamic tools:** they must return `defineTool` values. Provider tools such as `webSearch()` fail the turn with `DefinitionFailedError`.
@@ -284,7 +351,7 @@ Session state, which eve keeps:
   2. Our own `web_search` tool.
   3. Rendering approvals and questions in the chat.
   4. Wiring schedules (`defineDynamicSchedules`) and channel gating.
-  5. MCP credentials (`Connection.credentialRef`), plus DNS-rebinding protection.
+  5. Header/API-key MCP credentials, plus DNS-rebinding protection.
   6. Tests for `loadFactoryConfig` and the save actions.
   7. Fixing lint.
 

@@ -5,23 +5,43 @@ import {
     CHANNEL_KINDS,
     DEFAULT_MODEL,
     FACTORY_HEADER,
+    isPrebuiltTool,
     ORCHESTRATOR_SLOT,
+    reservedToolNames,
+    SIGN_IN_CHANNEL,
     SUBAGENT_SLOTS,
     toSlug,
     type AgentData,
     type FactoryData,
+    type LibraryFolder,
     type ScheduleData,
+    type SignInMessage,
+    type SignInStatus,
     type ToolGate,
+    type ToolSettings,
 } from "@foundry/factory";
 import { Background, Controls, ReactFlow, useReactFlow, type Edge, type NodeChange, type NodeMouseHandler } from "@xyflow/react";
 import { activeTurn, openInteractions } from "eve/events";
 import { useEveAgent } from "eve/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { deleteItem, saveAgent, saveChannel, saveConnection, savePluginSecret, saveSchedule, saveSkill, saveToolGate } from "../../actions";
-import { listMcpTools } from "../../connect";
-import type { CatalogConnector } from "../../openclaw";
-import { canvasActivity } from "./activity";
+import {
+    deleteItem,
+    saveAgent,
+    saveChannel,
+    saveConnection,
+    saveFolders,
+    savePluginSecret,
+    saveSchedule,
+    saveSkill,
+    saveToolCopy,
+    saveToolGate,
+    saveToolSettings,
+} from "../../actions";
+import { listMcpTools, signOutOfConnection } from "../../connect";
+import type { GatewayModel } from "../../models";
+import type { Catalog, CatalogConnector } from "../../connector-catalog";
+import { agentTraces, canvasActivity } from "./activity";
 import { AgentCard, type AgentNode } from "./AgentCard";
 import { ConnectorCatalog } from "./ConnectorCatalog";
 import {
@@ -40,13 +60,16 @@ import { FactoryChat } from "./FactoryChat";
 import { FanoutCard, type FanoutNode } from "./FanoutCard";
 import { Inspector, type EditEntity } from "./Inspector";
 import { Library } from "./Library";
+import { DEFAULT_TIME, describeCron, toCron } from "./schedule";
 import { TriggerCard, type TriggerNode } from "./TriggerCard";
+import { useStoredState } from "./useStoredState";
 
 const SAVE_DELAY_MS = 600;
 const SAVERS = {
     agents: saveAgent,
     skills: saveSkill,
     connections: saveConnection,
+    toolCopies: saveToolCopy,
     channels: saveChannel,
     schedules: saveSchedule,
 };
@@ -58,13 +81,27 @@ const nodeTypes = {
 
 type CanvasNode = AgentNode | TriggerNode | FanoutNode;
 
+// The right panel's width in pixels. Dragging its edge can widen it up to half the window.
+const PANEL_DEFAULT_WIDTH = 448;
+const PANEL_MIN_WIDTH = 320;
+
 // The builder holds the whole factory in state and saves each entity on its own, debounced.
 // The canvas is derived from that state: users never draw edges, and cards stay in their lanes.
-export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData }) {
+export function FactoryBuilder({
+    initialFactory,
+    models,
+    catalog,
+}: {
+    initialFactory: FactoryData;
+    models: GatewayModel[];
+    catalog: Promise<Catalog>;
+}) {
     const [factory, setFactory] = useState(initialFactory);
     const [selection, setSelection] = useState<Selection>(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [panelWidth, setPanelWidth] = useStoredState("foundry:panel-width", PANEL_DEFAULT_WIDTH);
     const [sizes, setSizes] = useState<Record<string, { width: number; height: number }>>({});
     const [saveState, setSaveState] = useState<"saved" | "saving" | "error">("saved");
     const [catalogs, setCatalogs] = useState<Record<string, string[]>>({});
@@ -135,6 +172,27 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
         queueSave(`toolGate:${toolKey}`, () => saveToolGate(factory.id, toolKey, gate), SAVE_DELAY_MS);
     }
 
+    function editToolSettings(toolKey: string, settings: ToolSettings) {
+        setFactory((current) => {
+            const toolSettings = { ...current.toolSettings };
+            if (!settings.description && !settings.model) {
+                delete toolSettings[toolKey];
+            } else {
+                toolSettings[toolKey] = settings;
+            }
+            return { ...current, toolSettings };
+        });
+        queueSave(`toolSettings:${toolKey}`, () => saveToolSettings(factory.id, toolKey, settings), SAVE_DELAY_MS);
+    }
+
+    function editFolders(folders: LibraryFolder[]) {
+        setFactory((current) => ({
+            ...current,
+            folders,
+        }));
+        queueSave("folders", () => saveFolders(factory.id, folders), SAVE_DELAY_MS);
+    }
+
     // Only the name is kept in state. The value goes straight to the server, and null clears it.
     function editPluginSecret(pluginId: string, name: string, value: string | null) {
         setFactory((current) => {
@@ -152,6 +210,31 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
         queueSave(`pluginSecret:${pluginId}:${name}`, () => savePluginSecret(factory.id, pluginId, name, value), 0);
     }
 
+    // Sign-ins aren't saved from here. The sign-in flow writes them, and this only mirrors them.
+    function setSignIn(connectionId: string, signIn: SignInStatus | null) {
+        setFactory((current) => ({
+            ...current,
+            connections: current.connections.map((connection) => (connection.id === connectionId ? { ...connection, signIn } : connection)),
+        }));
+    }
+
+    function signOut(connectionId: string) {
+        setSignIn(connectionId, null);
+        queueSave(`signIn:${connectionId}`, () => signOutOfConnection(factory.id, connectionId), 0);
+    }
+
+    // The sign-in popup reports here when it's done. It only says how the connection signed in.
+    useEffect(() => {
+        const channel = new BroadcastChannel(SIGN_IN_CHANNEL);
+        channel.onmessage = (event: MessageEvent<SignInMessage>) => {
+            const { connectionId, signIn } = event.data;
+            setSignIn(connectionId, signIn);
+        };
+        return () => channel.close();
+        // setSignIn only calls setFactory, which never changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     function remove(collection: Collection, id: string) {
         setFactory((current) => {
             const items = current[collection] as { id: string }[];
@@ -162,13 +245,14 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
             // The database drops a deleted item's attachments; mirror that here.
             next.agents = next.agents.map((agent) => ({
                 ...agent,
+                tools: agent.tools.filter((toolId) => toolId !== id),
                 skillIds: agent.skillIds.filter((skillId) => skillId !== id),
                 connectionIds: agent.connectionIds.filter((connectionId) => connectionId !== id),
                 toolAllow: Object.fromEntries(Object.entries(agent.toolAllow).filter(([connectionId]) => connectionId !== id)),
             }));
-            if (collection === "connections") {
-                next.toolGates = Object.fromEntries(Object.entries(next.toolGates).filter(([key]) => !key.startsWith(`${id}:`)));
-            }
+            // A connection's gates are keyed `${id}:tool`, and a tool copy's gate and settings by its id.
+            next.toolGates = Object.fromEntries(Object.entries(next.toolGates).filter(([key]) => key !== id && !key.startsWith(`${id}:`)));
+            next.toolSettings = Object.fromEntries(Object.entries(next.toolSettings).filter(([key]) => key !== id));
             return next;
         });
         setSelection(null);
@@ -267,6 +351,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
     function select(next: Selection) {
         setSelection(next);
         setIsChatOpen(false);
+        setIsEditing(false);
     }
 
     function addSubagent() {
@@ -309,6 +394,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
             collection: "skills",
             id: skill.id,
         });
+        setIsEditing(true);
     }
 
     // With no catalog entry, this adds a blank connection for a custom URL.
@@ -319,13 +405,44 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
             id: crypto.randomUUID(),
             name: uniqueName(baseName, takenNames),
             url: fromCatalog?.url ?? "",
-            connector: null,
+            signIn: null,
         };
         setIsCatalogOpen(false);
         edit("connections", connection, 0);
         select({
             collection: "connections",
             id: connection.id,
+        });
+        // A catalog connector already has its URL. A custom one needs filling in.
+        setIsEditing(!fromCatalog);
+    }
+
+    // The copy starts with the source's settings and gate. Server actions run in order, so the
+    // copy exists before they save.
+    function duplicateTool(toolId: string) {
+        const source = factory.toolCopies.find((copy) => copy.id === toolId);
+        const base = source?.base ?? toolId;
+        if (!isPrebuiltTool(base)) {
+            return;
+        }
+        const copyNames = factory.toolCopies.map((copy) => copy.name);
+        const copy = {
+            id: crypto.randomUUID(),
+            name: uniqueName(source?.name ?? base, [...reservedToolNames(), ...copyNames]),
+            base,
+        };
+        edit("toolCopies", copy, 0);
+        const settings = factory.toolSettings[toolId];
+        if (settings) {
+            editToolSettings(copy.id, settings);
+        }
+        const gate = factory.toolGates[toolId];
+        if (gate) {
+            editGate(copy.id, gate);
+        }
+        select({
+            collection: "tools",
+            id: copy.id,
         });
     }
 
@@ -354,7 +471,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
         const schedule = {
             id: crypto.randomUUID(),
             name: "Daily task",
-            cron: "0 9 * * *",
+            cron: toCron(DEFAULT_TIME),
             task: "",
             enabled: true,
             y: nextLaneY(triggers),
@@ -366,11 +483,17 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
         });
     }
 
-    const catalogKey = factory.connections.map((connection) => `${connection.id}:${connection.url}:${connection.connector ?? ""}`).join("|");
+    // A new sign-in can show tools the server hides from anonymous callers, so it lists again.
+    const catalogKey = factory.connections.map((connection) => `${connection.id}:${connection.url}:${connection.signIn?.signedInAt ?? ""}`).join("|");
     useEffect(() => {
         let cancelled = false;
         for (const connection of factory.connections) {
-            void listMcpTools({ url: connection.url, connector: connection.connector }).then((result) => {
+            const input = {
+                factoryId: factory.id,
+                connectionId: connection.id,
+                url: connection.url,
+            };
+            void listMcpTools(input).then((result) => {
                 if (cancelled) {
                     return;
                 }
@@ -442,6 +565,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
         busy: working || runningScheduleId !== null,
         connections: factory.connections,
         skills: factory.skills,
+        toolCopies: factory.toolCopies,
         slots: SUBAGENT_SLOTS,
     });
 
@@ -464,6 +588,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
             data: {
                 agent,
                 isOrchestrator,
+                modelTags: models.find((model) => model.id === agent.model)?.tags ?? [],
                 attached: attachedItems(agent, factory, catalogs),
                 highlight: isOrchestrator ? activity.orchestrator : activity.slots[agent.slot]?.highlight ?? null,
                 chipHighlights: isOrchestrator ? activity.orchestratorChips : activity.slots[agent.slot]?.chips ?? {},
@@ -501,7 +626,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
     const scheduleNodes = factory.schedules.map((schedule) => triggerNode(schedule.id, schedule.y, {
         collection: "schedules",
         title: schedule.name || "Schedule",
-        subtitle: schedule.cron,
+        subtitle: describeCron(schedule.cron),
         enabled: schedule.enabled,
         running: runningScheduleId === schedule.id,
         canRun: schedule.task.trim().length > 0 && session.status !== "resuming",
@@ -638,6 +763,7 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
                     onAddSubagent={addSubagent}
                     onAddChannel={addChannel}
                     onAddSchedule={addSchedule}
+                    onEditFolders={editFolders}
                     catalogs={catalogs}
                     catalogErrors={catalogErrors}
                 />
@@ -660,27 +786,56 @@ export function FactoryBuilder({ initialFactory }: { initialFactory: FactoryData
                         <FitFanout active={fanoutNodes.length > 0} />
                     </ReactFlow>
                 </div>
-                {!isChatOpen && (
-                    <Inspector
-                        factory={factory}
-                        catalogs={catalogs}
-                        selection={selection}
-                        onEdit={edit}
-                        onEditGate={editGate}
-                        onEditPluginSecret={editPluginSecret}
-                        onRemove={remove}
-                        onDetach={detach}
-                        onSelect={select}
-                        onRunSchedule={(schedule) => void runSchedule(schedule)}
+                {/* The window can shrink after a drag, so the cap is also CSS. */}
+                <div className="relative flex shrink-0" style={{ width: panelWidth, maxWidth: "50vw" }}>
+                    <div
+                        role="separator"
+                        aria-orientation="vertical"
+                        aria-label="Resize panel"
+                        onPointerDown={(event) => {
+                            event.preventDefault();
+                            event.currentTarget.setPointerCapture(event.pointerId);
+                        }}
+                        onPointerMove={(event) => {
+                            if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+                                return;
+                            }
+                            const width = window.innerWidth - event.clientX;
+                            const maxWidth = window.innerWidth / 2;
+                            setPanelWidth(Math.round(Math.min(Math.max(width, PANEL_MIN_WIDTH), maxWidth)));
+                        }}
+                        className="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize transition-colors hover:bg-zinc-600/40"
                     />
-                )}
-                {/* Kept mounted while hidden so the conversation survives switching panels. */}
-                <div className={isChatOpen ? "contents" : "hidden"}>
-                    <FactoryChat agent={session} onClose={() => setIsChatOpen(false)} />
+                    {!isChatOpen && (
+                        <Inspector
+                            factory={factory}
+                            models={models}
+                            catalogs={catalogs}
+                            selection={selection}
+                            onEdit={edit}
+                            onEditGate={editGate}
+                            onDuplicateTool={duplicateTool}
+                            onEditToolSettings={editToolSettings}
+                            onEditPluginSecret={editPluginSecret}
+                            onSignOut={signOut}
+                            onRemove={remove}
+                            onDetach={detach}
+                            onSelect={select}
+                            onRunSchedule={(schedule) => void runSchedule(schedule)}
+                            isEditing={isEditing}
+                            onEditingChange={setIsEditing}
+                            traceOf={(slot) => agentTraces(session, slot)}
+                        />
+                    )}
+                    {/* Kept mounted while hidden so the conversation survives switching panels. */}
+                    <div className={isChatOpen ? "contents" : "hidden"}>
+                        <FactoryChat agent={session} onClose={() => setIsChatOpen(false)} />
+                    </div>
                 </div>
             </div>
             {isCatalogOpen && (
                 <ConnectorCatalog
+                    catalog={catalog}
                     addedUrls={factory.connections.map((connection) => connection.url)}
                     onAdd={addConnection}
                     onAddCustom={() => addConnection()}
@@ -703,3 +858,4 @@ function FitFanout({ active }: { active: boolean }) {
     }, [active, fitView]);
     return null;
 }
+

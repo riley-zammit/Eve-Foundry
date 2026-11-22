@@ -1,24 +1,27 @@
 import { DEFAULT_MODEL, ORCHESTRATOR_SLOT, PLUGINS, type PrebuiltTool, type RunApproval, type ToolGate } from "@foundry/factory";
 import { defineAgent, defineDynamic, type DynamicModelContext } from "eve";
-import { defineMcpClientConnection, defineDynamic as defineDynamicConnections } from "eve/connections";
+import { ConnectionAuthorizationFailedError, defineMcpClientConnection, defineDynamic as defineDynamicConnections } from "eve/connections";
 import { defineInstructions, defineDynamic as defineDynamicInstructions } from "eve/instructions";
 import { defineSkill, defineDynamic as defineDynamicSkills } from "eve/skills";
 import { defineDynamic as defineDynamicTools, defineTool, type ToolDefinition } from "eve/tools";
+import type { ApprovalPolicy } from "eve/tools/approval";
 import webFetch from "eve/tools/web_fetch";
+import { decideTool } from "./decide";
 import { connectionHasRunGate, connectionRunPolicy, reviewedRunApproval, runPolicy } from "./gates";
 import { cliTool } from "./plugin-tools";
-import { reviewedWebFetch } from "./reviewed-tools";
+import { reviewedDecide, reviewedWebFetch } from "./reviewed-tools";
 
-// Stable policies on the shared workflow tools. The workflow module itself stays free of
-// the database; this read happens before the workflow starts.
-reviewedWebFetch.approval = (ctx) => reviewedRunApproval(ctx, "web_fetch");
-
-// Every catalog tool needs an entry here, or typecheck fails. `reviewed` is the workflow
-// version used when a person accepts the result after it runs.
+// Every catalog tool needs an entry here, or typecheck fails. `tool` takes the factory's model
+// for tools that call one. `reviewed` is the workflow version used when a person accepts the
+// result after it runs; its step reads the model itself.
 const PREBUILT_TOOL_DEFS = {
     web_fetch: {
-        tool: webFetch,
+        tool: () => webFetch,
         reviewed: reviewedWebFetch,
+    },
+    decide: {
+        tool: (model: string | null) => decideTool(model),
+        reviewed: reviewedDecide,
     },
 } satisfies Record<PrebuiltTool, unknown>;
 
@@ -34,6 +37,14 @@ function withRunApproval<T extends ToolDefinition<any, any>>(tool: T, run: RunAp
     return defineTool({
         ...tool,
         approval: runPolicy(run, name),
+    } as T);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- takes any built-in tool
+function withDescription<T extends ToolDefinition<any, any>>(tool: T, description: string) {
+    return defineTool({
+        ...tool,
+        description,
     } as T);
 }
 
@@ -55,10 +66,21 @@ async function loadAgentConfig(ctx: DynamicModelContext, slot: number) {
     return agents.find((agent) => agent.slot === slot) ?? null;
 }
 
+// OpenAI models only stream readable reasoning when asked for a summary. The builder's
+// Advanced tab shows it. Other providers ignore the option.
+const MODEL_OPTIONS = {
+    providerOptions: {
+        openai: { reasoningSummary: "auto" },
+    },
+};
+
 export function factoryModel() {
     return defineDynamic(async (ctx: DynamicModelContext) => {
         const agent = await loadAgentConfig(ctx, ORCHESTRATOR_SLOT);
-        return agent?.model || DEFAULT_MODEL;
+        return {
+            model: agent?.model || DEFAULT_MODEL,
+            modelOptions: MODEL_OPTIONS,
+        };
     });
 }
 
@@ -71,6 +93,7 @@ export function factorySubagent(slot: number) {
         return defineAgent({
             description: `${agent.name}: ${agent.description}`,
             model: agent.model || DEFAULT_MODEL,
+            modelOptions: MODEL_OPTIONS,
         });
     });
 }
@@ -115,13 +138,23 @@ export function factoryTools(slot: number) {
         if (!factoryId || !agent) {
             return null;
         }
-        const prebuiltEntries = agent.tools.map((toolId) => {
-            const gate = gateFor(agent.toolGates, toolId);
-            const { tool, reviewed } = PREBUILT_TOOL_DEFS[toolId];
+        // A copy runs its base tool's code under its own name, description, model, and gate.
+        const prebuiltEntries = agent.tools.map(({ key, name, base, description, model }) => {
+            const gate = gateFor(agent.toolGates, key);
+            const { tool, reviewed } = PREBUILT_TOOL_DEFS[base];
             if (gate.result === "always") {
-                return [toolId, reviewed] as const;
+                // The spread keeps eve's workflow brand and entry point, so every copy runs the
+                // one compiled workflow. The gate is read when the call starts, never in the workflow.
+                const approval: ApprovalPolicy = (ctx) => reviewedRunApproval(ctx, key);
+                const configuredReviewed = {
+                    ...reviewed,
+                    description,
+                    approval,
+                };
+                return [name, configuredReviewed] as const;
             }
-            return [toolId, withRunApproval(tool, gate.run, toolId)] as const;
+            const described = withDescription(tool(model), description);
+            return [name, withRunApproval(described, gate.run, name)] as const;
         });
         // Plugin tools only pause before they run; there's no reviewed version yet.
         const pluginEntries = agent.plugins.flatMap((pluginId) => {
@@ -148,8 +181,9 @@ function gateFor(gates: Record<string, ToolGate>, toolKey: string): ToolGate {
 
 export function factoryConnections(slot: number) {
     return defineDynamicConnections(async (ctx) => {
+        const factoryId = factoryIdOf(ctx);
         const agent = await loadAgentConfig(ctx, slot);
-        if (!agent || agent.mcps.length === 0) {
+        if (!factoryId || !agent || agent.mcps.length === 0) {
             return null;
         }
         // An empty allow list exposes nothing, so the connection stays off until a tool is added back.
@@ -157,16 +191,14 @@ export function factoryConnections(slot: number) {
         if (visible.length === 0) {
             return null;
         }
-        const { connect } = await import("@vercel/connect/eve");
-        const factoryId = factoryIdOf(ctx);
         const connectionEntries = visible.map((mcp) => [
             mcp.name,
             defineMcpClientConnection({
                 url: mcp.url,
                 description: `MCP server ${mcp.name}`,
-                instanceKey: `${factoryId}:${slot}:${mcp.name}`,
-                // Foundry has no signed-in user, so Connect tokens are the app's.
-                ...(mcp.connector ? { auth: connect({ connector: mcp.connector, principalType: "app" }) } : {}),
+                // A new sign-in may be another account, so it gets its own client and token cache.
+                instanceKey: `${factoryId}:${slot}:${mcp.name}:${mcp.signedInAt ?? "public"}`,
+                ...(mcp.signedInAt ? { auth: connectionAuth(factoryId, mcp) } : {}),
                 ...(mcp.allowedTools ? { tools: { allow: [...mcp.allowedTools] } } : {}),
                 // The server runs the call itself, so this can only pause before it starts.
                 ...(connectionHasRunGate(agent.toolGates, mcp.id) ? { approval: connectionRunPolicy(mcp.id, mcp.name) } : {}),
@@ -174,4 +206,38 @@ export function factoryConnections(slot: number) {
         ]);
         return Object.fromEntries(connectionEntries);
     });
+}
+
+// Tokens come from the builder's sign-in (@foundry/factory/auth), read for each call and only
+// for the URL they were issued for. They're the factory's, not the person chatting's, so
+// scheduled turns can use them too. Nobody can sign in from a chat, so a lost sign-in fails the
+// call and the model says so.
+function connectionAuth(factoryId: string, mcp: { id: string; name: string; url: string }) {
+    return {
+        principalType: "app" as const,
+        async getToken() {
+            const { connectionToken, isNotSignedIn } = await import("@foundry/factory/auth");
+            try {
+                return await connectionToken({
+                    factoryId,
+                    connectionId: mcp.id,
+                    url: mcp.url,
+                });
+            } catch (error) {
+                if (!isNotSignedIn(error)) {
+                    throw error;
+                }
+                throw new ConnectionAuthorizationFailedError(mcp.name, {
+                    reason: "signed_out",
+                    retryable: false,
+                    message: `${mcp.name} is signed out. Someone needs to sign in to it again from the connection in the Foundry builder.`,
+                });
+            }
+        },
+        // The server rejected the token, so the next getToken refreshes it.
+        async evict() {
+            const { forgetConnectionToken } = await import("@foundry/factory/auth");
+            await forgetConnectionToken(factoryId, mcp.id).catch(() => undefined);
+        },
+    };
 }

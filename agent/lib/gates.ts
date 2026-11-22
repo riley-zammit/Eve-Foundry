@@ -28,8 +28,8 @@ export function runPolicy<T = unknown>(mode: RunApproval, toolName: string): App
     return askNever as ApprovalPolicy<T>;
 }
 
-// The workflow tool's approval is a stable function, so it reads the current row
-// instead of closing over the turn that offered the tool.
+// For the reviewed workflow tools. It reads the current row when the call starts instead
+// of closing over the turn that offered the tool.
 export async function reviewedRunApproval(ctx: GateContext, toolKey: string): Promise<ApprovalStatus> {
     try {
         const gate = await readGate(ctx, toolKey);

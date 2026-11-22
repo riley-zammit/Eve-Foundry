@@ -36,7 +36,7 @@ export function FactoryChat({ agent, onClose }: { agent: UseEveAgentReturn; onCl
     }
 
     return (
-        <aside className="flex w-96 shrink-0 flex-col border-l border-zinc-800 bg-zinc-950">
+        <aside className="flex min-w-0 flex-1 flex-col border-l border-zinc-800 bg-zinc-950">
             <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-2">
                 <div>
                     <div className="text-sm font-medium text-violet-300">Chat with the orchestrator</div>

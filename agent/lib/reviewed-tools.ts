@@ -1,24 +1,17 @@
-import { defineWorkflowTool } from "eve/tools";
+import { PREBUILT_TOOLS } from "@foundry/factory";
+import { defineWorkflowTool, type WorkflowToolContext } from "eve/tools";
 import type { WebFetchToolInput } from "eve/tools/web_fetch";
 import { FatalError } from "eve/workflow";
-import { runWebFetch } from "./reviewed-steps";
+import { decideInputSchema } from "./decide-spec";
+import { runDecide, runWebFetch } from "./reviewed-steps";
 
 // Result review asks after the tool has already run. The consts stay at the top level:
-// a workflow tool built inside `defineDynamic` does not compile. The before-it-runs
-// policy is attached in factory.ts, so this module never imports the database.
-
-const WEB_FETCH_DESCRIPTION = `Fetch a webpage and return its content in the requested format. Use this to retrieve and analyze content from URLs.
-
-Usage notes:
-- The URL must be a fully-formed valid URL starting with https://
-- HTML responses are automatically converted to markdown or plain text based on the requested format
-- Format options: "markdown" (default), "text", or "html"
-- Default timeout is 30 seconds (max 120 seconds)
-- Maximum response size is 5 MB; content is further capped at the shared tool-output budget (50 KB / 2000 lines)
-- This tool is read-only and does not modify any files`;
+// a workflow tool built inside `defineDynamic` does not compile. factory.ts spreads each one
+// with the factory's description and the before-it-runs policy, so this module never imports
+// the database.
 
 export const reviewedWebFetch = defineWorkflowTool({
-    description: WEB_FETCH_DESCRIPTION,
+    description: PREBUILT_TOOLS.web_fetch.description,
     label: { start: (input: WebFetchToolInput) => `Fetch ${input.url}` },
     inputSchema: {
         type: "object",
@@ -57,22 +50,41 @@ export const reviewedWebFetch = defineWorkflowTool({
         if (!ran.ok) {
             throw new FatalError(ran.message);
         }
-        const answer = await ctx.ask({
-            prompt: "web_fetch has already run. Accept this result before the agent continues?",
-            display: "confirmation",
-            allowFreeform: true,
-            options: [
-                { id: "approve", label: "Approve", style: "primary" },
-                { id: "deny", label: "Deny", style: "danger" },
-            ],
-        });
-        if (answer.status === "unavailable") {
-            return ran.output;
-        }
-        if (answer.status === "answered" && answer.optionId === "approve") {
-            return ran.output;
-        }
-        const note = answer.status === "answered" && answer.text ? ` ${answer.text}` : "";
-        throw new FatalError(`A person rejected this result.${note}`);
+        return acceptResult(ctx, ran.output);
     },
 });
+
+export const reviewedDecide = defineWorkflowTool({
+    description: PREBUILT_TOOLS.decide.description,
+    inputSchema: decideInputSchema,
+    async execute(input, ctx) {
+        "use workflow";
+        const ran = await runDecide(input, ctx);
+        if (!ran.ok) {
+            throw new FatalError(ran.message);
+        }
+        return acceptResult(ctx, ran.output);
+    },
+});
+
+// Runs in the workflow body. With no one to ask, the result goes through. `toolName` is the
+// name the agent called, so a renamed copy asks under its own name.
+async function acceptResult<T>(ctx: WorkflowToolContext, output: T) {
+    const answer = await ctx.ask({
+        prompt: `${ctx.toolName} has already run. Accept this result before the agent continues?`,
+        display: "confirmation",
+        allowFreeform: true,
+        options: [
+            { id: "approve", label: "Approve", style: "primary" },
+            { id: "deny", label: "Deny", style: "danger" },
+        ],
+    });
+    if (answer.status === "unavailable") {
+        return output;
+    }
+    if (answer.status === "answered" && answer.optionId === "approve") {
+        return output;
+    }
+    const note = answer.status === "answered" && answer.text ? ` ${answer.text}` : "";
+    throw new FatalError(`A person rejected this result.${note}`);
+}

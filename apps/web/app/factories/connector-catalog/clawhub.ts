@@ -1,26 +1,30 @@
-"use server";
-
 import { isAllowedMcpUrl } from "@foundry/factory";
 import { cacheLife } from "next/cache";
+import type { CatalogConnector } from ".";
 
-// OpenClaw's official connector catalog on ClawHub: remote MCP servers that OpenClaw
-// curates and publishes as bundle plugins. ClawHub allows third-party catalogs on its
-// public read API, as long as we link back to each listing and cache the results.
+// OpenClaw's official connectors on ClawHub: remote MCP servers that OpenClaw curates and
+// publishes as bundle plugins. ClawHub allows third-party catalogs on its public read API, as long
+// as we cache the results, link back to each listing, and don't imply ClawHub endorses Foundry.
 
 const CLAWHUB = "https://clawhub.ai";
 
-export type CatalogAuth = "oauth" | "api-key" | "none";
-
-export type CatalogConnector = {
-    id: string;
-    name: string;
-    title: string;
-    summary: string;
-    category: string;
-    icon: string | null;
-    url: string;
-    auth: CatalogAuth;
-    listingUrl: string;
+// ClawHub's categories, mapped onto the catalog's (Vercel Connect's).
+const CATEGORY_LABELS: Record<string, string> = {
+    "data-analytics": "Analytics",
+    "developer-tools": "Developer tools",
+    "documents-files": "Productivity",
+    "finance-payments": "Commerce",
+    "inbox-collaboration": "Communication",
+    infrastructure: "Developer tools",
+    media: "Content",
+    models: "AI",
+    productivity: "Productivity",
+    research: "Data",
+    "sales-marketing": "Commerce",
+    scheduling: "Productivity",
+    security: "Developer tools",
+    voice: "AI",
+    web: "Data",
 };
 
 type CatalogPackage = {
@@ -34,26 +38,17 @@ type CatalogPackage = {
 type ManifestServer = {
     url?: unknown;
     auth?: unknown;
+    headers?: unknown;
 };
 
-export async function listCatalogConnectors(): Promise<{ connectors: CatalogConnector[]; error?: string }> {
-    try {
-        const connectors = await loadCatalog();
-        return { connectors };
-    } catch (error) {
-        const message = error instanceof Error ? error.message : "ClawHub is unavailable.";
-        return { connectors: [], error: message };
-    }
-}
-
-// A failed load throws, so only a complete catalog is cached.
-async function loadCatalog() {
-    "use cache";
+// A failed load throws, so only a complete list is cached. The remote cache is shared by every
+// instance, so a cold one doesn't wait on ClawHub.
+export async function loadClawHubConnectors() {
+    "use cache: remote";
     cacheLife("hours");
     const packages = await officialPackages();
     const perPackage = await Promise.all(packages.map(packageConnectors));
-    const connectors = perPackage.flat();
-    return connectors.toSorted((left, right) => left.title.localeCompare(right.title));
+    return perPackage.flat();
 }
 
 async function officialPackages() {
@@ -74,15 +69,21 @@ async function officialPackages() {
     return packages;
 }
 
-// Each package's manifest lists its MCP servers. Packages without a usable https server are skipped.
+// Each package's manifest lists its MCP servers. Packages without a usable https server are
+// skipped, and so are channels: those come from eve.
 async function packageConnectors(pkg: CatalogPackage): Promise<CatalogConnector[]> {
+    if (pkg.categories.includes("channels")) {
+        return [];
+    }
     const url = new URL(`/api/v1/packages/${encodeURIComponent(pkg.name)}/file`, CLAWHUB);
     url.searchParams.set("path", "openclaw.plugin.json");
     const manifest = await clawhubJson(url) as { mcpServers?: Record<string, ManifestServer> };
     const servers = Object.entries(manifest.mcpServers ?? {});
     const connectors: CatalogConnector[] = [];
     for (const [serverName, server] of servers) {
-        const auth = server.auth ?? "none";
+        // A server that reads a token from a header, like PostHog's, needs an API key even when
+        // its manifest declares no auth.
+        const auth = server.headers ? "api-key" : server.auth ?? "none";
         if (typeof server.url !== "string" || !isAllowedMcpUrl(server.url) || !isCatalogAuth(auth)) {
             continue;
         }
@@ -91,11 +92,11 @@ async function packageConnectors(pkg: CatalogPackage): Promise<CatalogConnector[
             name: serverName,
             title: servers.length > 1 ? `${pkg.displayName} (${serverName})` : pkg.displayName,
             summary: pkg.summary,
-            category: pkg.categories[0] ?? "other",
+            category: CATEGORY_LABELS[pkg.categories[0] ?? ""] ?? "Other",
             icon: iconPath(pkg.icon),
             url: server.url,
             auth,
-            listingUrl: `${CLAWHUB}/plugins/${encodeURIComponent(pkg.name)}`,
+            detailsUrl: `${CLAWHUB}/plugins/${encodeURIComponent(pkg.name)}`,
         });
     }
     return connectors;
@@ -115,6 +116,6 @@ function iconPath(icon: string | null) {
     return hash ? `/connector-icons/${hash}` : null;
 }
 
-function isCatalogAuth(value: unknown): value is CatalogAuth {
+function isCatalogAuth(value: unknown): value is CatalogConnector["auth"] {
     return value === "oauth" || value === "api-key" || value === "none";
 }

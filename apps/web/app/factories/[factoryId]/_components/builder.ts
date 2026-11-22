@@ -2,11 +2,11 @@ import { isPluginId, PLUGINS, type AgentData, type FactoryData, type ToolGate } 
 
 // Shared vocabulary for the builder's components.
 
-export type Collection = "agents" | "skills" | "connections" | "channels" | "schedules";
+export type Collection = "agents" | "skills" | "connections" | "toolCopies" | "channels" | "schedules";
 
 // What the inspector shows. null means the orchestrator.
 // Tools and plugins are catalog entries, not saved entities, so they stay out of `Collection`.
-// A plugin tool's id is its tool name.
+// A tool copy is selected as a tool, by its id. A plugin tool's id is its tool name.
 export type Selection = {
     collection: Collection | "tools" | "connectionTools" | "plugins" | "pluginTools";
     id: string;
@@ -28,7 +28,8 @@ export function gateDetail(gate: ToolGate | undefined) {
 }
 
 // A library item that can be dropped onto an agent.
-// Prebuilt tools and plugins are catalog ids. A connection tool id is `${connectionId}:${toolName}`.
+// Prebuilt tools and plugins are catalog ids, and a tool copy is its own id.
+// A connection tool id is `${connectionId}:${toolName}`.
 export type LibraryItem = {
     collection: "skills" | "plugins" | "connections" | "tools" | "connectionTools";
     id: string;
@@ -75,7 +76,7 @@ export function attachedItems(agent: AgentData, factory: FactoryData, catalogs: 
     const toolItems = agent.tools.map((tool) => ({
         collection: "tools" as const,
         id: tool,
-        name: tool,
+        name: toolName(factory, tool),
     }));
     const connectionItems = connections.map(({ id, name }) => ({
         collection: "connections" as const,
@@ -92,6 +93,12 @@ export function attachedItems(agent: AgentData, factory: FactoryData, catalogs: 
         }));
     });
     return [...skillItems, ...pluginItems, ...toolItems, ...connectionItems, ...connectionToolItems];
+}
+
+// A prebuilt tool's id is its name. A copy has its own.
+export function toolName(factory: FactoryData, toolId: string) {
+    const copy = factory.toolCopies.find((item) => item.id === toolId);
+    return copy?.name ?? toolId;
 }
 
 export const ITEM_COLORS = {
@@ -127,6 +134,12 @@ export const CHANNEL_LABELS: Record<string, string> = {
 };
 
 export const DRAG_MIME = "application/foundry-item";
+
+// Set next to DRAG_MIME so a folder can tell, mid-drag, whether the item belongs in its section.
+// Drag types are lowercased by the browser.
+export function sectionDragType(collection: LibraryItem["collection"]) {
+    return `${DRAG_MIME}-${collection.toLowerCase()}`;
+}
 
 // Cards sit in fixed lanes: triggers feed in from the left, subagents hang off the right.
 export const LANE_X = {

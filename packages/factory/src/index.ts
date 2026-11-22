@@ -1,33 +1,27 @@
 // Shapes and rules shared by the builder (apps/web) and the runtime (agent/).
 
-import type { PluginId } from "./plugins";
+import { PLUGINS, type PluginId } from "./plugins";
+import { PREBUILT_TOOLS, type PrebuiltTool } from "./prebuilt-tools";
 
 export * from "./plugins";
+export * from "./prebuilt-tools";
 
 // Header the web chat sends to tell the shared eve agent which factory to run.
 export const FACTORY_HEADER = "x-foundry-factory";
 
-export const MODELS = [
-    "openai/gpt-6-luna-fast",
-    "openai/gpt-6-sol",
-    "anthropic/claude-opus-5.5",
-    "google/gemini-3.5-flash",
-    "zai/glm-5.2",
-];
-export const DEFAULT_MODEL = MODELS[0];
+// Any AI Gateway language model id works; the builder lists them from the gateway.
+export const DEFAULT_MODEL = "openai/gpt-6-luna-fast";
 
 // Slot 0 is the orchestrator. The runtime declares agent/subagents/subagent_1..3.
 export const ORCHESTRATOR_SLOT = 0;
 export const SUBAGENT_SLOTS = [1, 2, 3];
 
-// Prebuilt tools live in code; each maps to an eve built-in tool in agent/lib/factory.ts.
-// eve's `web_search` is a provider tool that can only be static, so it can't be toggled per
-// factory. TODO: add our own web_search as a defineTool (e.g. calling Exa directly).
-// There's no general shell: sandbox programs come from plugins, one scoped tool per CLI.
-export const PREBUILT_TOOLS = {
-    web_fetch: "Read a web page",
-};
-export type PrebuiltTool = keyof typeof PREBUILT_TOOLS;
+// Names a tool copy can't take. Subagents are listed because eve gives them tool names too.
+export function reservedToolNames() {
+    const pluginToolNames = Object.values(PLUGINS).flatMap((plugin) => plugin.clis.map((cli) => cli.name));
+    const subagentNames = SUBAGENT_SLOTS.map((slot) => `subagent_${slot}`);
+    return [...Object.keys(PREBUILT_TOOLS), ...pluginToolNames, ...subagentNames];
+}
 
 // How a tool asks a person. `run` is before the call. `result` is after it returns.
 export const RUN_APPROVALS = ["never", "once", "always", "auto"] as const;
@@ -86,9 +80,56 @@ export type ConnectionData = {
     id: string;
     name: string;
     url: string;
-    // Vercel Connect connector uid. Null for a public MCP server.
-    connector: string | null;
+    // Read-only here: the sign-in flow sets it, and saves ignore it. Null when nobody has signed in
+    // to the current URL, which is fine for a public server.
+    signIn: SignInStatus | null;
 };
+
+// How a connection signed in. src/auth explains each method.
+export const SIGN_IN_METHODS = ["vercel-connect", "client-metadata", "dynamic-registration"] as const;
+export type SignInMethod = (typeof SIGN_IN_METHODS)[number];
+
+export function isSignInMethod(value: string): value is SignInMethod {
+    return (SIGN_IN_METHODS as readonly string[]).includes(value);
+}
+
+// What the builder knows about a sign-in. The tokens never leave the server.
+export type SignInStatus = {
+    method: SignInMethod;
+    signedInAt: number;
+    // The server rejected a refresh, so calls fail until someone signs in again.
+    needsReconnect: boolean;
+};
+
+// The sign-in popup reports to the builder on this BroadcastChannel. A channel still works when
+// the server's pages cut the popup off from `window.opener`.
+export const SIGN_IN_CHANNEL = "foundry:sign-in";
+export type SignInMessage = {
+    connectionId: string;
+    signIn: SignInStatus;
+};
+
+// A prebuilt tool under its own name. Agents attach it by id, and the model sees `name`.
+export type ToolCopyData = {
+    id: string;
+    name: string;
+    base: PrebuiltTool;
+};
+
+// What a factory changed about a prebuilt tool or a copy. Empty means the catalog's default.
+export type ToolSettings = {
+    description: string;
+    model: string;
+};
+
+// The description and model a tool actually runs with.
+export function effectiveToolSettings(base: PrebuiltTool, saved: ToolSettings | undefined) {
+    const spec = PREBUILT_TOOLS[base];
+    return {
+        description: saved?.description || spec.description,
+        model: saved?.model || spec.model?.default || null,
+    };
+}
 
 export type ChannelData = {
     id: string;
@@ -106,6 +147,42 @@ export type ScheduleData = {
     y: number;
 };
 
+// Library sections that can hold folders. Folders only organize the builder's sidebar;
+// agents never see them. An item sits in at most one folder of its own section.
+export const FOLDER_COLLECTIONS = ["skills", "plugins", "tools", "connections"] as const;
+export type FolderCollection = (typeof FOLDER_COLLECTIONS)[number];
+
+export type LibraryFolder = {
+    id: string;
+    collection: FolderCollection;
+    name: string;
+    itemIds: string[];
+};
+
+// Folders arrive as JSON from the database or the builder, so drop anything malformed.
+export function parseFolders(value: unknown): LibraryFolder[] {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+    return value.flatMap((folder) => {
+        const isFolder = folder
+            && typeof folder.id === "string"
+            && typeof folder.name === "string"
+            && FOLDER_COLLECTIONS.includes(folder.collection)
+            && Array.isArray(folder.itemIds);
+        if (!isFolder) {
+            return [];
+        }
+        const itemIds: string[] = folder.itemIds.filter((id: unknown) => typeof id === "string");
+        return [{
+            id: folder.id,
+            collection: folder.collection,
+            name: folder.name.slice(0, 80),
+            itemIds,
+        }];
+    });
+}
+
 export type FactoryData = {
     id: string;
     name: string;
@@ -114,10 +191,14 @@ export type FactoryData = {
     connections: ConnectionData[];
     channels: ChannelData[];
     schedules: ScheduleData[];
-    // Keyed by prebuilt tool id, plugin tool name, or `${connectionId}:${toolName}`.
+    toolCopies: ToolCopyData[];
+    // Keyed by prebuilt tool id or tool copy id.
+    toolSettings: Record<string, ToolSettings>;
+    // Keyed by prebuilt tool id, tool copy id, plugin tool name, or `${connectionId}:${toolName}`.
     toolGates: Record<string, ToolGate>;
     // Per plugin id, the env var names that have a value. Values never leave the server.
     pluginSecrets: Record<string, string[]>;
+    folders: LibraryFolder[];
 };
 
 // --- Runtime config: what the eve agent reads each turn ---
@@ -133,13 +214,22 @@ export type AgentConfig = {
         description: string;
         content: string;
     }[];
-    tools: PrebuiltTool[];
+    // `key` is what the tool's gate is stored under: the prebuilt id, or the copy's id.
+    // `description` and `model` already have the catalog defaults filled in.
+    tools: {
+        key: string;
+        name: string;
+        base: PrebuiltTool;
+        description: string;
+        model: string | null;
+    }[];
     plugins: PluginId[];
     mcps: {
         id: string;
         name: string;
         url: string;
-        connector: string | null;
+        // When someone last signed in to this URL. Null for a public server.
+        signedInAt: number | null;
         allowedTools: string[] | null;
     }[];
     toolGates: Record<string, ToolGate>;
@@ -151,10 +241,6 @@ export function toSlug(raw: string) {
     const safeChars = lowered.replace(/[^a-z0-9_-]+/g, "_");
     const startsWithLetter = safeChars.replace(/^[^a-z]+/, "");
     return startsWithLetter.slice(0, 36);
-}
-
-export function isPrebuiltTool(value: string): value is PrebuiltTool {
-    return Object.hasOwn(PREBUILT_TOOLS, value);
 }
 
 // User-supplied MCP URLs: https only, and no localhost or IP literals (basic SSRF guard).

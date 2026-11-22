@@ -12,7 +12,8 @@ const HIGHLIGHT_RING: Record<Highlight, string> = {
 };
 
 // A library item attached to an agent, shown on agent cards and in the inspector.
-// `nodrag` keeps React Flow from treating clicks on it as a card drag.
+// `nodrag` keeps React Flow from treating clicks on it as a card drag, and `cursor-default` keeps
+// the card's grab hand off it.
 export function ItemChip({
     item,
     name,
@@ -28,7 +29,7 @@ export function ItemChip({
 }) {
     const ring = highlight ? HIGHLIGHT_RING[highlight] : "";
     return (
-        <span className={`nodrag inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 py-0.5 pr-1 pl-2 text-xs text-zinc-200 ${ring}`}>
+        <span className={`nodrag inline-flex cursor-default items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 py-0.5 pr-1 pl-2 text-xs text-zinc-200 ${ring}`}>
             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ITEM_COLORS[item.collection] }} />
             <button
                 type="button"

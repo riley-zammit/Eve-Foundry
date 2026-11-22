@@ -6,7 +6,8 @@
     "exports": {
         ".": "./src/index.ts",
         "./db": "./src/db.ts",
-        "./secrets": "./src/secrets.ts"
+        "./secrets": "./src/secrets.ts",
+        "./auth": "./src/auth/index.ts"
     },
     "scripts": {
         "generate": "prisma generate",
@@ -15,7 +16,9 @@
     },
     "dependencies": {
         "@prisma/adapter-pg": "7.10.1",
-        "@prisma/client": "7.10.1"
+        "@prisma/client": "7.10.1",
+        "@vercel/connect": "2.7.0",
+        "@vercel/oidc": "4.0.5"
     },
     "devDependencies": {
         "prisma": "7.10.1"

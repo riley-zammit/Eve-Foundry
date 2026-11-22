@@ -1,5 +1,7 @@
 import type { ToolContext, WorkflowStepToolContext } from "eve/tools";
 import webFetch, { type WebFetchToolInput, type WebFetchToolOutput } from "eve/tools/web_fetch";
+import { runDecision, type DecideOutput } from "./decide";
+import type { DecideInput } from "./decide-spec";
 
 // Steps own the real call. A replay after the person answers reuses the step result,
 // so the fetch does not run a second time. Errors stay inside the step:
@@ -18,6 +20,28 @@ export async function runWebFetch(input: WebFetchToolInput, ctx: WorkflowStepToo
     } catch (error) {
         return { ok: false, message: errorText(error, "web_fetch failed.") };
     }
+}
+
+export async function runDecide(input: DecideInput, ctx: WorkflowStepToolContext): Promise<StepResult<DecideOutput>> {
+    "use step";
+    try {
+        const model = await loadModel(ctx);
+        const output = await runDecision(input, model, ctx.abortSignal);
+        return { ok: true, output };
+    } catch (error) {
+        return { ok: false, message: errorText(error, "decide failed.") };
+    }
+}
+
+// The workflow is shared by every copy of a tool, so the step looks up the model by the name
+// the agent called.
+async function loadModel(ctx: WorkflowStepToolContext) {
+    const factoryId = ctx.session.auth.initiator?.attributes.factoryId;
+    if (typeof factoryId !== "string") {
+        throw new Error("This session has no factory.");
+    }
+    const { loadToolModel } = await import("@foundry/factory/db");
+    return loadToolModel(factoryId, ctx.toolName);
 }
 
 function isStream(value: unknown): value is AsyncIterable<unknown> {

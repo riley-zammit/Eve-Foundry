@@ -1,0 +1,4682 @@
+[
+    {
+        "service": "0xarchive",
+        "name": "0xArchive",
+        "description": "Get real-time and historical market data from Hyperliquid and Lighter.",
+        "category": "data",
+        "url": "https://mcp.0xarchive.io/mcp",
+        "website": "https://0xarchive.io",
+        "iconHash": "7500ca16fc4e22db986a213da5eed179f39662cd7b1846c3bde38e69b787d54f"
+    },
+    {
+        "service": "2chat",
+        "name": "2Chat",
+        "description": "Send and manage WhatsApp and SMS messages.",
+        "category": "communication",
+        "url": "https://mcp.2chat.io/mcp",
+        "website": null,
+        "iconHash": "d75b39cc4cfd3f15bd8c1e982bfe3cfba72b3edfd7f569a6b64da9c97047b1eb"
+    },
+    {
+        "service": "3min",
+        "name": "3Min",
+        "description": "Create and host JSON API endpoints without building a backend.",
+        "category": "developer-tools",
+        "url": "https://3minapi.com/api/mcp",
+        "website": "https://3minapi.com",
+        "iconHash": "4ae5c32c934bb3fe3659e02f76a941c51da8ceaf603e121e7297f946d503bca1"
+    },
+    {
+        "service": "adaptlypost",
+        "name": "AdaptlyPost",
+        "description": "Schedule and publish social media posts and read post analytics.",
+        "category": "content",
+        "url": "https://mcp.adaptlypost.com/mcp",
+        "website": "https://adaptlypost.com",
+        "iconHash": "f4d58ca7584d1c18be4d366d438157fb89ab5cb549a445d507dd6beb0e5a3433"
+    },
+    {
+        "service": "adobe",
+        "name": "Adobe",
+        "description": "Create and edit designs with Adobe Express.",
+        "category": "content",
+        "url": "https://express-mcp-service.adobe.io/mcp",
+        "website": "https://adobe.io",
+        "iconHash": "b873d661038617fcd868bbfae2bcfa9efd06b9bb33418202d1a3d759da95d434"
+    },
+    {
+        "service": "adrio",
+        "name": "Adrio",
+        "description": "Create and launch Meta ad creatives and manage media buying.",
+        "category": "ai",
+        "url": "https://api.adrio.ai",
+        "website": "https://adrio.ai",
+        "iconHash": "c5bc5e0550c1ed1c3d3875d7f957cf5bc639077d6fa833bb9175de4f039cb5f6"
+    },
+    {
+        "service": "affonso",
+        "name": "Affonso",
+        "description": "Manage affiliate programs, referrals, commissions, and payouts.",
+        "category": "commerce",
+        "url": "https://api.affonso.io/mcp",
+        "website": "https://affonso.io",
+        "iconHash": "4861fefd8f1c15f90684be7dd1e57f73d4bd3b3717014606018d06a4db3baa3f"
+    },
+    {
+        "service": "agent-loadout",
+        "name": "Agent Loadout",
+        "description": "Give AI agents email inboxes, a credential vault, cards, and machines.",
+        "category": "developer-tools",
+        "url": "https://agent-loadout.com",
+        "website": "https://agent-loadout.com",
+        "iconHash": "2422854cce23afb786196819b1723b04b9fd7b02ed2e184f84d304d96b6b25da"
+    },
+    {
+        "service": "agentcard",
+        "name": "Agentcard",
+        "description": "Issue virtual cards for AI agents and place orders they pay for.",
+        "category": "commerce",
+        "url": "https://mcp.agentcard.sh/mcp",
+        "website": "https://agentcard.sh",
+        "iconHash": "9bde71f93cb0ddea04fd8ad2f0a038b05dbe7fd11db15133ca71c6f1ce4ea877"
+    },
+    {
+        "service": "agentmail",
+        "name": "AgentMail",
+        "description": "Email inboxes for AI agents",
+        "category": "communication",
+        "url": "https://mcp.agentmail.to/mcp",
+        "website": "https://agentmail.to",
+        "iconHash": "f7f9ba846ce2d6f9f4053569118feaedf3c8f5905a8f7cf75d433882e078416c"
+    },
+    {
+        "service": "agentphone",
+        "name": "AgentPhone",
+        "description": "Give AI agents phone numbers for messages and voice calls.",
+        "category": "communication",
+        "url": "https://mcp.agentphone.ai/mcp",
+        "website": "https://agentphone.ai",
+        "iconHash": "022fc54fa38d9bce3be2e807ec612efe0c0b2393e446be67d83187254c271103"
+    },
+    {
+        "service": "ai-agent",
+        "name": "AI Agent",
+        "description": "Manage tickets, run agents and workflows, query tables, and search knowledge.",
+        "category": "ai",
+        "url": "https://aiagent.app/mcp",
+        "website": "https://aiagent.app",
+        "iconHash": "2631c2605add6cbfe4ed824d14b3187811a0421e3e60827b189e163e4f445148"
+    },
+    {
+        "service": "ai-content-drop",
+        "name": "AI Content Drop",
+        "description": "Generate AI videos and images from 50+ models with one credit balance.",
+        "category": "content",
+        "url": "https://aicontentdrop.com/mcp",
+        "website": "https://aicontentdrop.com",
+        "iconHash": "dd8607e39389ef4b90411267600b200ede9532d282c78a769fb4dd126d259c7e"
+    },
+    {
+        "service": "ai-ml-api",
+        "name": "AI/ML API",
+        "description": "Access AI models for text generation, image processing, and other tasks.",
+        "category": "ai",
+        "url": "https://mcp.aimlapi.com/mcp",
+        "website": null,
+        "iconHash": "c64d67bd3e1c3736e0236a4ac3eae05bd7839d0b679ae4bf66e8ec93747490f1"
+    },
+    {
+        "service": "aide",
+        "name": "Aide",
+        "description": "Search knowledge, look up Shopify orders, and reply to support conversations.",
+        "category": "communication",
+        "url": "https://app-api.aide.app/mcp",
+        "website": "https://aide.app",
+        "iconHash": "50a77c4016f4e711df7ceed597ec489192f6a59392e2b9f50c5bb4a799a15909"
+    },
+    {
+        "service": "aidelly",
+        "name": "Aidelly",
+        "description": "Draft, schedule, and publish social posts, manage approvals and inbox, and read analytics.",
+        "category": "content",
+        "url": "https://app.aidelly.ai/mcp",
+        "website": "https://www.aidelly.ai",
+        "iconHash": "5b99c38d48390564b6ce98a033a8557282cd8ac4ea37fb3b1a3842e4920959e7"
+    },
+    {
+        "service": "airefs",
+        "name": "Airefs",
+        "description": "Track how ChatGPT and Google AI Overviews mention and cite your brand.",
+        "category": "analytics",
+        "url": "https://mcp.getairefs.com/mcp",
+        "website": "https://getairefs.com",
+        "iconHash": "24e4482768c9175c5b92c0c32bb883ce6a5baa7e992c8874e235ab5f8b245e3e"
+    },
+    {
+        "service": "airtable",
+        "name": "Airtable",
+        "description": "Organize and automate data across bases, tables, and records.",
+        "category": "productivity",
+        "url": "https://mcp.airtable.com/mcp",
+        "website": null,
+        "iconHash": "a20d7ec656ead287e5c5d739759f872bd4a17465c2754d56f83cbd25d9dcffa8"
+    },
+    {
+        "service": "akta",
+        "name": "Akta",
+        "description": "Research companies, enrich profiles, and build targeted company lists.",
+        "category": "analytics",
+        "url": "https://mcp.akta.pro/mcp",
+        "website": "https://playground.akta.pro/dashboard/manage/api-keys",
+        "iconHash": "ebbc31ac512fb551d774a951b35364c43f30b59b66f4050d1fdc8a8620a4f8e0"
+    },
+    {
+        "service": "alpha-vantage",
+        "name": "Alpha Vantage",
+        "description": "Retrieve historical and real-time financial market data.",
+        "category": "analytics",
+        "url": "https://mcp.alphavantage.co/mcp",
+        "website": null,
+        "iconHash": "ffa28f2a1da39fecadc52fbaddb954188a7e4f1cf5174b871b7c03ba3f805509"
+    },
+    {
+        "service": "altoviz",
+        "name": "Altoviz",
+        "description": "Manage invoices, payments, and expenses.",
+        "category": "commerce",
+        "url": "https://mcp.altoviz.com",
+        "website": null,
+        "iconHash": "38db0e416d8b023d1ccb73fe2edc878a7b3259801bba033bbde44eb164fc6d9e"
+    },
+    {
+        "service": "amplitude",
+        "name": "Amplitude",
+        "description": "Explore product analytics and user behavior.",
+        "category": "analytics",
+        "url": "https://mcp.amplitude.com/mcp",
+        "website": "https://amplitude.com",
+        "iconHash": "f61511548339ec3c3f847eede2932f6795364eb3e6ff6961356163cc9cf29819"
+    },
+    {
+        "service": "angelcam",
+        "name": "Angelcam",
+        "description": "View cameras, snapshots, stream URLs, recordings, and incidents from Angelcam.",
+        "category": "data",
+        "url": "https://mcp.angelcam.com/readonly",
+        "website": "https://www.angelcam.com",
+        "iconHash": "95623d1d8b10c4ef9c33e12d4a067ab49032e587cd094ed2aac390fc031694d5"
+    },
+    {
+        "service": "anvil-crm",
+        "name": "Anvil CRM",
+        "description": "Search and update accounts, contacts, deals, and pipelines.",
+        "category": "productivity",
+        "url": "https://app.anvilcrm.com/api/mcp",
+        "website": "https://anvilcrm.com",
+        "iconHash": "1007be5c2e9417450c3dc9de711333fd815b3712e1167d42ce44f6f298d1929d"
+    },
+    {
+        "service": "apex-leadshark",
+        "name": "Apex by LeadShark",
+        "description": "Run LinkedIn research, engagement, and messaging with approval gates and logs.",
+        "category": "productivity",
+        "url": "https://apex.leadshark.io/mcp",
+        "website": "https://apex.new",
+        "iconHash": "223b29457677c196db9a4d03747610fc5dd809d284f0f888baed4374efec33e8"
+    },
+    {
+        "service": "apify",
+        "name": "Apify",
+        "description": "Run web scraping and automation actors.",
+        "category": "ai",
+        "url": "https://mcp.apify.com/",
+        "website": null,
+        "iconHash": "e9a5b0e5d169d4e966f35cb68ed6302c23b22face8ca63f47e7df33c74d30048"
+    },
+    {
+        "service": "apiverve",
+        "name": "APIVerve",
+        "description": "Access APIs for data lookup, validation, and conversion.",
+        "category": "developer-tools",
+        "url": "https://api.apiverve.com/v1/mcp",
+        "website": null,
+        "iconHash": "ff1d67ccdfe0db725e06671719b1fd60739553ac86c16dd139d6e9e2103e4cbf"
+    },
+    {
+        "service": "apollo",
+        "name": "Apollo",
+        "description": "Find sales contacts, manage outreach, and track sales pipelines.",
+        "category": "productivity",
+        "url": "https://mcp.apollo.io/mcp",
+        "website": null,
+        "iconHash": "8d101a59becfe6994b820a65c039c9b357d7ebb92d569a937a89d20a0dcdf73c"
+    },
+    {
+        "service": "apphitlist",
+        "name": "AppHitlist",
+        "description": "Find top-earning App Store apps, chart movers, long-running ads, and review complaints.",
+        "category": "analytics",
+        "url": "https://apphitlist.com/api/mcp",
+        "website": "https://apphitlist.com",
+        "iconHash": "403338f502ca67da9e9af4b68c804954d1e315dd53736f711fe7da51b9bbd663"
+    },
+    {
+        "service": "arcjet",
+        "name": "Arcjet",
+        "description": "Discover AI agents and enforce security policy on their actions.",
+        "category": "developer-tools",
+        "url": "https://api.arcjet.com/mcp",
+        "website": "https://arcjet.com",
+        "iconHash": "6ed6e475fd8feb796a0c61c6841d2d5a0f4d4a6a8b9600c3e54de93e85827b0e"
+    },
+    {
+        "service": "argorant",
+        "name": "Argorant",
+        "description": "Search B2B people and companies, find work emails and phones, and run email campaigns.",
+        "category": "data",
+        "url": "https://mcp.argorant.com/mcp",
+        "website": "https://argorant.com",
+        "iconHash": "35deedcdd7855fface3081585f85c342fa543d1bc7827dc5f0babf48a591126e"
+    },
+    {
+        "service": "ashby",
+        "name": "Ashby",
+        "description": "Manage job postings, candidates, and hiring analytics.",
+        "category": "productivity",
+        "url": "https://mcp.ashbyhq.com/mcp/v1",
+        "website": null,
+        "iconHash": "ca166203947f95a335e06aa2ec5a9eb862dde760ba0fca6c95119a754e9ce20d"
+    },
+    {
+        "service": "ask-gina",
+        "name": "Ask Gina",
+        "description": "Research crypto markets, perpetuals, prediction markets, and portfolios.",
+        "category": "analytics",
+        "url": "https://askgina.ai/ai/gina/mcp",
+        "website": "https://askgina.ai",
+        "iconHash": "c838c747d792698d93967a6c5abb51c26142706e41f4f213bb50d587cdb6c3ad"
+    },
+    {
+        "service": "aster",
+        "name": "Aster",
+        "description": "Call your organization's Aster agents, search knowledge bases, and query data stores.",
+        "category": "ai",
+        "url": "https://www.asteragents.com/mcp-server",
+        "website": "https://www.asteragents.com",
+        "iconHash": "949118a962922831a032c08854f3789c3c9684fe4b58fd3765931c270f8dc3c4"
+    },
+    {
+        "service": "athenahq",
+        "name": "AthenaHQ",
+        "description": "Track brand visibility, citations, and competitors in AI search answers.",
+        "category": "analytics",
+        "url": "https://api.athenahq.ai/api/mcp",
+        "website": "https://www.athenahq.ai",
+        "iconHash": "afa040faf8230d58eeb1736f70a07f0ecae29a4f4b3de08ca9dc8b2f6c54cd5f"
+    },
+    {
+        "service": "atlabs",
+        "name": "Atlabs",
+        "description": "Generate story videos, images, and music with consistent characters and styles.",
+        "category": "ai",
+        "url": "https://mcp.atlabs.ai/mcp",
+        "website": "https://atlabs.ai",
+        "iconHash": "48bb190b7ec20425fd6404ba833b712340885c9511c7e57510f0ebbd3f652707"
+    },
+    {
+        "service": "attio",
+        "name": "Attio",
+        "description": "Work with CRM records and relationships.",
+        "category": "commerce",
+        "url": "https://mcp.attio.com/mcp",
+        "website": "https://attio.com",
+        "iconHash": "d9bbadc9c4c26565cde568f3cfbbaae05edd3d82903bebeb4110e54a6624a6bb"
+    },
+    {
+        "service": "audioscrape",
+        "name": "Audioscrape",
+        "description": "Search transcripts of podcasts, public meetings, court hearings, and your own recordings.",
+        "category": "data",
+        "url": "https://mcp.audioscrape.com",
+        "website": "https://www.audioscrape.com",
+        "iconHash": "96741c9a0ac83000f25458cdeeb9ff16335e981044b0bfe97f39a3377b1166bd"
+    },
+    {
+        "service": "avoma",
+        "name": "Avoma",
+        "description": "Record, transcribe, and analyze meetings, calls, and sales conversations.",
+        "category": "ai",
+        "url": "https://mcp.avoma.com/mcp",
+        "website": null,
+        "iconHash": "b3b77c7d14c1037e15fe9949ec238d63717ef2910e422b728de5f6264bacbcdf"
+    },
+    {
+        "service": "aweber",
+        "name": "AWeber",
+        "description": "Manage email lists, subscribers, and campaigns.",
+        "category": "communication",
+        "url": "https://mcp.aweber.com/mcp",
+        "website": "https://aweber.com",
+        "iconHash": "c59a293fb4d6f8151ca6ec399584540139d443699419d252c6aed38eeb0135cf"
+    },
+    {
+        "service": "axiom",
+        "name": "Axiom",
+        "description": "Query logs, traces, and observability data.",
+        "category": "analytics",
+        "url": "https://mcp.axiom.co/mcp",
+        "website": "https://axiom.co",
+        "iconHash": "489ad2bfce7893c9751fb10c0d37f0b31512f545fce70b2422bc38f2b7855570"
+    },
+    {
+        "service": "banger",
+        "name": "Banger",
+        "description": "Send product email, broadcasts, and journeys from your own domain.",
+        "category": "communication",
+        "url": "https://api.bangermail.com/mcp",
+        "website": "https://bangermail.com",
+        "iconHash": "959eac22d2cd91ead3566ac9de093e4f0f98a7446c86150fb2ae8c99aaceb7ac"
+    },
+    {
+        "service": "bannerbear",
+        "name": "Bannerbear",
+        "description": "Generate images and videos from reusable marketing templates.",
+        "category": "content",
+        "url": "https://mcp.bannerbear.com/",
+        "website": null,
+        "iconHash": "bec7f1e9499f3cf1a2374b1afa9203b0cdaf7dfb4eb41dcd785a5320a67000aa"
+    },
+    {
+        "service": "baozi",
+        "name": "Baozi",
+        "description": "Study Chinese for the HSK exam: look up words, practice reading, and review due words.",
+        "category": "productivity",
+        "url": "https://hsk.cards/mcp",
+        "website": "https://hsk.cards",
+        "iconHash": "3b940f6d4256b73417dc4b14d2c409db855705088cb04e840c684a564a938b93"
+    },
+    {
+        "service": "base44",
+        "name": "Base44",
+        "description": "Build and manage apps in your Base44 workspace.",
+        "category": "developer-tools",
+        "url": "https://app.base44.com/mcp",
+        "website": "https://base44.com",
+        "iconHash": "a1e921b0cbf6a945cdd2cb2256e602973f1ab9924c0cc664e7449449b6d4c38f"
+    },
+    {
+        "service": "batchedits",
+        "name": "BatchEdits",
+        "description": "Edit many videos at once.",
+        "category": "content",
+        "url": "https://batchedits.com/api/mcp",
+        "website": "https://batchedits.com",
+        "iconHash": "11ef104814676ada6fa62c478584237cd930700affc74bada1b738e0d8529144"
+    },
+    {
+        "service": "beautiful-ai",
+        "name": "Beautiful.ai",
+        "description": "Create, edit, organize, and export presentations and slide templates.",
+        "category": "content",
+        "url": "https://openai-mcp-696419881849.us-central1.run.app/mcp",
+        "website": "https://www.beautiful.ai",
+        "iconHash": "ed91e43b2dd7fee530a0f7e180383b40bc5f85b857ea3fe78b88458f58fa8525"
+    },
+    {
+        "service": "beehiiv",
+        "name": "beehiiv",
+        "description": "Publish newsletters and manage subscribers and automations.",
+        "category": "content",
+        "url": "https://mcp.beehiiv.com/mcp",
+        "website": "https://www.beehiiv.com",
+        "iconHash": "34fc62ca6c3fbdbddf621bca59a5a4bd3b5b471a18f6da71da09f24efa35e54a"
+    },
+    {
+        "service": "better-design",
+        "name": "Better Design",
+        "description": "Give coding agents design systems, UI principles, icons, and UI review.",
+        "category": "developer-tools",
+        "url": "https://better-design.com/api/mcp",
+        "website": "https://better-design.com",
+        "iconHash": "5fd66ca85ad0cb3a5f14bfa2971158fce66759a882d011579f708cc1567419b8"
+    },
+    {
+        "service": "better-stack",
+        "name": "Better Stack",
+        "description": "Investigate logs, uptime, incidents, and telemetry.",
+        "category": "developer-tools",
+        "url": "https://mcp.betterstack.com",
+        "website": "https://betterstack.com",
+        "iconHash": "7c054dc50b1fe611571056bf8da439da608deac905c63f6db782a319e6832782"
+    },
+    {
+        "service": "bidaya",
+        "name": "Bidaya",
+        "description": "Search a firm's proposals, people, projects, and public RFPs, and manage its pursuits.",
+        "category": "productivity",
+        "url": "https://api.bidaya.ai/mcp",
+        "website": "https://bidaya.ai",
+        "iconHash": "d65bd20cece8d7c091a1dbc2c56f8d25f35d4e10c50a40619add1b5e5d9277b3"
+    },
+    {
+        "service": "biorender",
+        "name": "BioRender",
+        "description": "Find scientific illustrations and create figures.",
+        "category": "content",
+        "url": "https://mcp.services.biorender.com/mcp",
+        "website": "https://biorender.com",
+        "iconHash": "c47c452a4e7253666d131a3eca687d670fe5d998f49c7a15c30804385c3ee37c"
+    },
+    {
+        "service": "bird",
+        "name": "Bird",
+        "description": "Send email, SMS, WhatsApp and voice messages, and verify users.",
+        "category": "communication",
+        "url": "https://mcp.bird.com",
+        "website": "https://bird.com",
+        "iconHash": "a8353c0ae1a449c083a6eab4932ec7e10819ae0b7b8b7115c1a998a026124a90"
+    },
+    {
+        "service": "bitly",
+        "name": "Bitly",
+        "description": "Shorten links, generate QR codes, and track performance.",
+        "category": "content",
+        "url": "https://api-ssl.bitly.com/v4/mcp",
+        "website": null,
+        "iconHash": "be5f86afccb065458ddda8638c0eb651bf1d56719b185e66f575419cc9745b4c"
+    },
+    {
+        "service": "bitquery",
+        "name": "Bitquery",
+        "description": "Query historical and real-time blockchain data.",
+        "category": "analytics",
+        "url": "https://mcp.bitquery.io/mcp",
+        "website": null,
+        "iconHash": "7b4519f5cc2fa704c053c04379dc88d94f11464d2d4bbe5f30e6358d96d3bd8d"
+    },
+    {
+        "service": "blossom-research",
+        "name": "Blossom Research",
+        "description": "Search psychedelic research papers, clinical trials, patents, and stakeholder profiles.",
+        "category": "data",
+        "url": "https://www.moreblossom.com/mcp",
+        "website": "https://www.moreblossom.com",
+        "iconHash": "fb5585a7431efdd1c0ecabd3e2d66a0cf601998f77366c3eea16d16a1bd4e08f"
+    },
+    {
+        "service": "boki",
+        "name": "Boki",
+        "description": "Run marketing research, content, and distribution with AI agents.",
+        "category": "ai",
+        "url": "https://app.boki.io",
+        "website": "https://www.boki.io",
+        "iconHash": "a98ec14abc35a80e5fa20e9e2a27f6a4fccf38528c0ca7bd8ecd09b8086e79cc"
+    },
+    {
+        "service": "boltwright",
+        "name": "BoltWright",
+        "description": "Read customers, sites, equipment, jobs, and schedules for an HVAC service shop.",
+        "category": "productivity",
+        "url": "https://app.boltwright.com/mcp",
+        "website": "https://boltwright.com",
+        "iconHash": "86223fdb23e589dd51bee4b73575c0b2a40b39ce2ccc974db7ead4bd0a7a2198"
+    },
+    {
+        "service": "bounty-board",
+        "name": "Bounty Board",
+        "description": "Publish HTML5 games to the Arcade and create gaming creator campaigns.",
+        "category": "content",
+        "url": "https://www.bountyboard.gg/api/mcp",
+        "website": "https://www.bountyboard.gg",
+        "iconHash": "35d8911ae9e33016338ad5cd88dc678b469f0edd7e6fbb6f813a567be2a778ca"
+    },
+    {
+        "service": "brand24",
+        "name": "Brand24",
+        "description": "Analyze brand mentions and social listening data.",
+        "category": "analytics",
+        "url": "https://mcp.brand24.com/v1/mcp",
+        "website": "https://brand24.com",
+        "iconHash": "a3bc04eb7737b5578001b351216fe30d20f2b2db13ea26dcfe9e0a8f116c6e37"
+    },
+    {
+        "service": "brandfetch",
+        "name": "Brandfetch",
+        "description": "Retrieve logos, brand colors, and company assets.",
+        "category": "content",
+        "url": "https://mcp.brandfetch.io/mcp",
+        "website": null,
+        "iconHash": "f9988abc019b9c7764b68e8e71998381833ad3123a667bc4672fc50550fdcdca"
+    },
+    {
+        "service": "breezy-hr",
+        "name": "Breezy HR",
+        "description": "Manage recruiting pipelines, candidates, and job postings.",
+        "category": "productivity",
+        "url": "https://mcp.breezy.hr/mcp",
+        "website": null,
+        "iconHash": "7f9b3400bea39a2a386654c1bab299772b5ba557cc844411bba4ab131a9d3989"
+    },
+    {
+        "service": "brew",
+        "name": "Brew",
+        "description": "Design, send, and automate on-brand emails and read their results.",
+        "category": "communication",
+        "url": "https://brew.new/api/mcp",
+        "website": "https://brew.new",
+        "iconHash": "593fb523617c5a43430f33f60348d631dfbe4e3f0d1367a915759bf9c36b2385"
+    },
+    {
+        "service": "brex",
+        "name": "Brex",
+        "description": "Manage cards, expenses, and financial workflows.",
+        "category": "commerce",
+        "url": "https://api.brex.com/mcp",
+        "website": null,
+        "iconHash": "ae2c4e8dc4c584fd1354b9fe2f6b5c258887a4928016456e1d3aed82934bba03"
+    },
+    {
+        "service": "brightdata",
+        "name": "Bright Data",
+        "description": "Collect web data using scraping, proxy, and dataset APIs.",
+        "category": "ai",
+        "url": "https://mcp.brightdata.com/mcp",
+        "website": null,
+        "iconHash": "8a7bce9f1fca77950f91549239f91fe99fde3150bb6a6c2d786813f9752cbf94"
+    },
+    {
+        "service": "brighthire",
+        "name": "BrightHire",
+        "description": "Search interviews, review candidate summaries, and analyze hiring data.",
+        "category": "productivity",
+        "url": "https://app.brighthire.ai/mcp/v1",
+        "website": "https://brighthire.com",
+        "iconHash": "dead9bab44b668c3e48f54493499f485a6d0022ee0c8e3b601839d6f9d3e3bf6"
+    },
+    {
+        "service": "brix",
+        "name": "Brix",
+        "description": "Manage digital signage screens, content, schedules, and proof-of-play reports.",
+        "category": "productivity",
+        "url": "https://api.brixsignage.com/v1/mcp",
+        "website": "https://brixsignage.com",
+        "iconHash": "ca85ed437d7b71b6f0900a7cdd028a03a9c47557ae47ca57e92d57ddca589814"
+    },
+    {
+        "service": "brouky",
+        "name": "Brouky",
+        "description": "Search European startups, funding rounds, investors, and portfolios.",
+        "category": "data",
+        "url": "https://api.brouky.tech/functions/v1/mcp",
+        "website": "https://brouky.tech",
+        "iconHash": "81326582c1615e55eacfd95245f949d9e46c9ae24091a877ae74473a21e2f9c0"
+    },
+    {
+        "service": "browserless",
+        "name": "Browserless",
+        "description": "Run browser automation on hosted headless browsers.",
+        "category": "developer-tools",
+        "url": "https://mcp.browserless.io/mcp",
+        "website": null,
+        "iconHash": "e0b2b30d05232c9331ea3d4f8e1fd2354a2e392d8e4faeeab37c44a640bfd4f9"
+    },
+    {
+        "service": "btx",
+        "name": "BTX",
+        "description": "Read customers, support conversations, issues, and product telemetry by project.",
+        "category": "communication",
+        "url": "https://btx.so/mcp",
+        "website": "https://btx.so",
+        "iconHash": "9fa80426b844b7b3f86c92c0ca0171eff7bf0ad653ef795f1ca25be7df20ce49"
+    },
+    {
+        "service": "bugbug",
+        "name": "Bugbug",
+        "description": "Create and run automated tests for web applications.",
+        "category": "developer-tools",
+        "url": "https://mcp.bugbug.io/mcp",
+        "website": null,
+        "iconHash": "1789fc82386382ab7bae358dcf394bb880a740ccc97941bf78a2bd3b77b5bf35"
+    },
+    {
+        "service": "bugherd",
+        "name": "BugHerd",
+        "description": "Collect visual website feedback and track bugs.",
+        "category": "productivity",
+        "url": "https://mcp.bugherd.com/mcp",
+        "website": null,
+        "iconHash": "cbb84d82e8d69145a9dd445501fcedb4fbe14c0a7fab98a131fe40e3a17ac678"
+    },
+    {
+        "service": "bulkpublish",
+        "name": "BulkPublish",
+        "description": "Schedule and publish social media posts across networks.",
+        "category": "content",
+        "url": "https://mcp.bulkpublish.com/mcp",
+        "website": "https://www.bulkpublish.com",
+        "iconHash": "d113ff852577bb7d4683ad186f0005aaa4f1b058a4b6678dd9553dc31e1e774a"
+    },
+    {
+        "service": "buzzfy",
+        "name": "Buzzfy",
+        "description": "Read Instagram insights, reply to comments, and publish reels and posts.",
+        "category": "content",
+        "url": "https://mcp.buzzfy.co/mcp",
+        "website": "https://buzzfy.co",
+        "iconHash": "9210c84e82baa3543c4301893cd7c125e6230f8489c039c969903b7c103ff195"
+    },
+    {
+        "service": "cadencz",
+        "name": "Cadencz",
+        "description": "Plan, write, and schedule social media posts with your approval.",
+        "category": "content",
+        "url": "https://api.cadencz.com/mcp",
+        "website": "https://cadencz.com",
+        "iconHash": "8ebf5599ec106703f46e86118e8bd341efffe071eb77f9f7a23e80e0d74b386d"
+    },
+    {
+        "service": "callbox",
+        "name": "Callbox",
+        "description": "Search and organize recorded Google Meet and Teams calls, transcripts, and speakers.",
+        "category": "productivity",
+        "url": "https://api.callbox.cc/mcp",
+        "website": "https://callbox.cc",
+        "iconHash": "ca5feed23b8f00d5a3377a3c7228932a93d77c4423a11da04aff0292ee0bc671"
+    },
+    {
+        "service": "callingly",
+        "name": "Callingly",
+        "description": "Connect sales teams with new leads through calls and texts.",
+        "category": "communication",
+        "url": "https://api.callingly.com/mcp",
+        "website": null,
+        "iconHash": "d6d27e2d4cdd1b1d2c2e7b979279e077d2fa58be0cfe2fd1a7d458ffe4388cf2"
+    },
+    {
+        "service": "candid",
+        "name": "Candid",
+        "description": "Research nonprofits and funders.",
+        "category": "data",
+        "url": "https://mcp.candid.org/mcp",
+        "website": null,
+        "iconHash": "460ff9136bd1d09db252212a357eb2126f57576c5495d295cc5b9fa90e78b75d"
+    },
+    {
+        "service": "canvora",
+        "name": "Canvora",
+        "description": "Create, edit, localize, and export on-brand carousels, posts, ads, and presentations.",
+        "category": "content",
+        "url": "https://api.canvora.ai/mcp",
+        "website": "https://canvora.ai",
+        "iconHash": "68fff33dece4155f9bc56e9300178a40cca22dabf372224e499914f1cd8bd228"
+    },
+    {
+        "service": "capacities",
+        "name": "Capacities",
+        "description": "Organize notes and knowledge with objects, links, and spaces.",
+        "category": "content",
+        "url": "https://api.capacities.io/mcp",
+        "website": "https://capacities.io",
+        "iconHash": "d068f675fefc1ba5e66e97c5a2375db19ce3ebc53b8ca05a80af4813a3905a26"
+    },
+    {
+        "service": "caro",
+        "name": "Caro",
+        "description": "Look up headcount, people, org structure, and approvals.",
+        "category": "productivity",
+        "url": "https://mcp.carohq.com/mcp",
+        "website": "https://carohq.com",
+        "iconHash": "71db749655a3c4e2a63c42bccba49a76d2d6da1f0823c1e8d50d4cdbc54d6331"
+    },
+    {
+        "service": "carsxe",
+        "name": "CarsXE",
+        "description": "Look up vehicle specifications, recalls, values, and history.",
+        "category": "developer-tools",
+        "url": "https://mcp.carsxe.com/mcp",
+        "website": "https://docs.carsxe.com/docs/get-started",
+        "iconHash": "b36a5dbfedb19cea71143c4d57c3296ceda3e223e4254009478a39ad932a1262"
+    },
+    {
+        "service": "carta-crm",
+        "name": "Carta CRM",
+        "description": "Manage investors, contacts, deals, and notes for investment teams.",
+        "category": "analytics",
+        "url": "https://mcp.app.carta.com/mcp",
+        "website": "https://carta.com/",
+        "iconHash": "e5c5b34588918646f6576fffb78927671cfe17afc30cb2466d0db761f0604784"
+    },
+    {
+        "service": "catchr",
+        "name": "Catchr",
+        "description": "Query marketing data from Google Ads, Meta Ads, Google Analytics, LinkedIn Ads, and more.",
+        "category": "analytics",
+        "url": "https://api.catchr.io/mcp",
+        "website": "https://catchr.io",
+        "iconHash": "45f3b58ba23a2844c3c99fd61102ea2502a8c7e3065f41c6c4f76a386cea3468"
+    },
+    {
+        "service": "cb-insights",
+        "name": "CB Insights",
+        "description": "Research private companies, investors, transactions, and technology markets.",
+        "category": "analytics",
+        "url": "https://mcp.cbinsights.com",
+        "website": "https://cbinsights.com",
+        "iconHash": "4ecaa2d17080de1e73eb2e45a0aca2e07ad09d30124c94a58f37ff5bd6eae292"
+    },
+    {
+        "service": "celigo",
+        "name": "Celigo",
+        "description": "Integration platform as a service (iPaaS) for connecting applications and automating workflows.",
+        "category": "developer-tools",
+        "url": "https://api.integrator.io/celigo-mcp",
+        "website": null,
+        "iconHash": "1653375ab7cf827725d80628728cb9cbb79328590e2a8fe5e3057441dbd46366"
+    },
+    {
+        "service": "certifier",
+        "name": "Certifier",
+        "description": "Create, issue, and manage digital certificates and badges.",
+        "category": "productivity",
+        "url": "https://api.certifier.io/v1/mcp",
+        "website": null,
+        "iconHash": "0688d67779ae132553436d4b2b814d5c30293970e50658476220ef43f80b2f00"
+    },
+    {
+        "service": "chatbase",
+        "name": "Chatbase",
+        "description": "Build and manage AI support agents, training sources, conversations, and help desk tickets.",
+        "category": "ai",
+        "url": "https://mcp.chatbase.co/api/mcp",
+        "website": "https://www.chatbase.co",
+        "iconHash": "33457b5f777f47a2ff4b7f0cc3f1d43aee3eda32de567190e7a510f3abee40b9"
+    },
+    {
+        "service": "chatobserver",
+        "name": "Chatobserver",
+        "description": "Track AI visibility, mentions, sentiment, and cited sources.",
+        "category": "analytics",
+        "url": "https://mcp.chatobserver.com/mcp",
+        "website": "https://chatobserver.com",
+        "iconHash": "6e2be32989e90fd1869b41b0d1d827d6673166f1a78fd5071d326eacf10ab5e5"
+    },
+    {
+        "service": "checkout-page",
+        "name": "Checkout Page",
+        "description": "Create checkout pages and forms, and manage payments, subscriptions, customers, and coupons.",
+        "category": "commerce",
+        "url": "https://mcp.checkoutpage.com",
+        "website": "https://checkoutpage.com",
+        "iconHash": "ca0ee0d6153bf3f35cb2f4311c235bb2b26b5e842e86d6db52542d775eefad45"
+    },
+    {
+        "service": "checkoutjoy",
+        "name": "CheckoutJoy",
+        "description": "Manage checkout products, coupons, widgets, webhooks, and settings.",
+        "category": "commerce",
+        "url": "https://mcp.checkoutjoy.com/mcp",
+        "website": "https://checkoutjoy.com",
+        "iconHash": "7f82e9c89189e4814d8664337243e9388add7db4c0ebad3bb51fcd06b9292aaa"
+    },
+    {
+        "service": "checkvist",
+        "name": "Checkvist",
+        "description": "Organize hierarchical lists, tasks, tags, and notes.",
+        "category": "other",
+        "url": "https://checkvist.com/mcp",
+        "website": null,
+        "iconHash": "474b1632c71a02e4598704bc8616921a0fe29ed7a32af9dcd604894a9d34bccd"
+    },
+    {
+        "service": "chief",
+        "name": "Chief",
+        "description": "Track and manage your AI agents and see what needs your attention.",
+        "category": "productivity",
+        "url": "https://mcp.chiefisnext.com/mcp",
+        "website": "https://chiefisnext.com",
+        "iconHash": "0d361bab80e83db4efca05ad08ffbd1709092d78abcaffed60bfd9090fe52bed"
+    },
+    {
+        "service": "chisel-tide",
+        "name": "Chisel Tide",
+        "description": "Read customers, service visits, routes, work orders, and invoices for pool service.",
+        "category": "productivity",
+        "url": "https://app.chiseltide.com/api/agent/v1/mcp",
+        "website": "https://chiseltide.com",
+        "iconHash": "1c294eb32bb84d7bed9d61045c3758edd9f7c8106141a346acabb345a24274ca"
+    },
+    {
+        "service": "circleback",
+        "name": "Circleback",
+        "description": "Search meetings, transcripts, calendar events, and emails, and manage action items.",
+        "category": "productivity",
+        "url": "https://circleback.ai/api/mcp",
+        "website": "https://circleback.ai",
+        "iconHash": "5240f5ca1689b1095ceab65aea22a1c1e5843f8a34579b0b5bc43769d9fc75cc"
+    },
+    {
+        "service": "clarify",
+        "name": "Clarify",
+        "description": "Clarify is an AI-native CRM for sales teams.",
+        "category": "communication",
+        "url": "https://api.clarify.ai/mcp",
+        "website": "https://clarify.ai",
+        "iconHash": "f1f09c22f83ab260e53aa7a8e32f8618731399cf04973389914bf66eda89df7b"
+    },
+    {
+        "service": "clay",
+        "name": "Clay",
+        "description": "Enrich company and contact data.",
+        "category": "commerce",
+        "url": "https://api.clay.com/v3/mcp",
+        "website": "https://clay.com",
+        "iconHash": "2296d76b07e88cd8a3d1d7ece57e1e1069d7edc28a9ee320432dc49911bd8218"
+    },
+    {
+        "service": "cleotic",
+        "name": "Cleotic",
+        "description": "Monitor AI search visibility and deliver content to your CMS.",
+        "category": "content",
+        "url": "https://mcp.cleotic.ai",
+        "website": "https://cleotic.ai",
+        "iconHash": "d323f238033eb21e7dc3d068ab149cbed38fabab1411faae6eadb0440748aeeb"
+    },
+    {
+        "service": "clerkchat",
+        "name": "ClerkChat",
+        "description": "Build, train, and run AI customer support agents for your website and messaging apps.",
+        "category": "communication",
+        "url": "https://mcp.clerkchat.co/mcp",
+        "website": "https://clerkchat.co",
+        "iconHash": "49b1adad5889c75bf3783158ab39040f7ed8bd9ed892d42c9b64b5ff00c1cdc8"
+    },
+    {
+        "service": "clickhouse",
+        "name": "ClickHouse",
+        "description": "Query and explore cloud data.",
+        "category": "data",
+        "url": "https://mcp.clickhouse.cloud/mcp",
+        "website": null,
+        "iconHash": "4de52b4a6f629b27c3e0b0556cfab5be4526b823921a8962ee0686630749590d"
+    },
+    {
+        "service": "clip-studio-ai",
+        "name": "Clip Studio AI",
+        "description": "Generate videos, ads, and short-form clips from prompts, stories, and images.",
+        "category": "content",
+        "url": "https://clipstudio.ai/api/mcp",
+        "website": "https://clipstudio.ai",
+        "iconHash": "b6fd37992b5efe15b7a08459e8e28a936cb56227cb8d36246440e1932c75a43e"
+    },
+    {
+        "service": "close",
+        "name": "Close",
+        "description": "Manage sales contacts, calls, emails, and outreach in a CRM.",
+        "category": "productivity",
+        "url": "https://mcp.close.com/mcp",
+        "website": null,
+        "iconHash": "ee204a691d5098dc0dae7c56d6390a602c5ec2f1f478f8d4e1352650b461f282"
+    },
+    {
+        "service": "cloudconvert",
+        "name": "CloudConvert",
+        "description": "Convert documents, images, audio, video, and other files between formats.",
+        "category": "data",
+        "url": "https://mcp.cloudconvert.com",
+        "website": null,
+        "iconHash": "acf952481fbc0a5e1cb907e25b2a0b6975ce528b9c75d6aa59d0fad7a60a1407"
+    },
+    {
+        "service": "cloudflare",
+        "name": "Cloudflare",
+        "description": "Build applications with compute, storage, and AI.",
+        "category": "developer-tools",
+        "url": "https://mcp.cloudflare.com/mcp",
+        "website": null,
+        "iconHash": "006ac8e153c1f7aacab40eb49673b003b9e82bbffd975ca0a22ead61154d2b84"
+    },
+    {
+        "service": "cloudinary",
+        "name": "Cloudinary",
+        "description": "Manage, transform, and deliver images and videos.",
+        "category": "content",
+        "url": "https://asset-management.mcp.cloudinary.com/sse",
+        "website": null,
+        "iconHash": "53e9376992c915f9230b37509d11d2b1fc3a67e900e8a7499fbc7c8524055938"
+    },
+    {
+        "service": "coda",
+        "name": "Coda",
+        "description": "Create, search, and update docs and tables.",
+        "category": "productivity",
+        "url": "https://coda.io/apis/mcp",
+        "website": null,
+        "iconHash": "ba08a2c384f556f28ad6e398d6d9cb11a40b3e5d5a1fdafcb6b4bcd118f2e7a5"
+    },
+    {
+        "service": "coinmarketcap",
+        "name": "CoinMarketCap",
+        "description": "Access current and historical cryptocurrency and exchange data.",
+        "category": "analytics",
+        "url": "https://mcp.coinmarketcap.com/mcp",
+        "website": null,
+        "iconHash": "26c887d4958d9275f68842e383896d67808f08e6321b89d519f1aae9ea2837f1"
+    },
+    {
+        "service": "common-room",
+        "name": "Common Room",
+        "description": "Explore buyer signals and customer intelligence.",
+        "category": "commerce",
+        "url": "https://mcp.commonroom.io/mcp",
+        "website": "https://commonroom.io",
+        "iconHash": "39b1decc1f792b7c858c6898cd08de2a90b3bac264d2d51b07bf343367da30aa"
+    },
+    {
+        "service": "companycam",
+        "name": "CompanyCam",
+        "description": "Document jobsites with photos and share project updates with teams.",
+        "category": "productivity",
+        "url": "https://api.companycam.com/public_api/mcp",
+        "website": null,
+        "iconHash": "b7456311ac9ac4a9615bf9d335f256ea894f9147f2110c94bc37e15f84fcc393"
+    },
+    {
+        "service": "content-studio",
+        "name": "ContentStudio",
+        "description": "Publish social content, manage social inboxes, and track analytics.",
+        "category": "content",
+        "url": "https://mcp.contentstudio.io/v1/mcp",
+        "website": null,
+        "iconHash": "17300f550bbd1b30280f527be18963846336bce067096f8a05b892df2f676a5d"
+    },
+    {
+        "service": "context-dev",
+        "name": "Context.dev",
+        "description": "Extract, monitor, and analyze structured web data.",
+        "category": "developer-tools",
+        "url": "https://mcp.context.dev/mcp",
+        "website": "https://www.context.dev",
+        "iconHash": "3dbe8add3ae844148318148c45379e24897ffbb93c7dd68c14b964bdbcc5ce5d"
+    },
+    {
+        "service": "context7-mcp",
+        "name": "Context7 MCP",
+        "description": "Retrieve version-specific library documentation and code examples for prompts.",
+        "category": "developer-tools",
+        "url": "https://mcp.context7.com/mcp/oauth",
+        "website": null,
+        "iconHash": "776e665581cb6669a7108c061a9bf58bb918cf9b5b27c639e129766fe9a11be3"
+    },
+    {
+        "service": "contract-lily",
+        "name": "Contract Lily",
+        "description": "Check UK tenancy and job terms: deposits, rent increases, notice, holiday, and pay.",
+        "category": "productivity",
+        "url": "https://api.contractlily.com/mcp",
+        "website": "https://contractlily.com",
+        "iconHash": "1d9a6005d0051b95383c3ba73ca403c5a6fe883b60230bfc5c11e41dbb8808f1"
+    },
+    {
+        "service": "conversion-tools",
+        "name": "Conversion Tools",
+        "description": "Convert documents, images, audio, and data between file formats.",
+        "category": "productivity",
+        "url": "https://mcp.conversiontools.io/mcp",
+        "website": null,
+        "iconHash": "17dc80cd0c353f6f14509694aacf2f14584d441f2ef37e26fbe1052e3fcc6d56"
+    },
+    {
+        "service": "cookieyes",
+        "name": "CookieYes",
+        "description": "Manage cookie consent banners and GDPR and CCPA compliance settings.",
+        "category": "productivity",
+        "url": "https://app.cookieyes.com/mcp",
+        "website": "https://www.cookieyes.com",
+        "iconHash": "e57b5d3a0bc945f7074f536bf7409d94bc4820600cd9159127286055261b87c0"
+    },
+    {
+        "service": "coresignal",
+        "name": "Coresignal",
+        "description": "Search public employee data for recruiting, research, and sales.",
+        "category": "ai",
+        "url": "https://mcp.coresignal.com/mcp/v2",
+        "website": "https://dashboard.coresignal.com/sign-in",
+        "iconHash": "5db1b4663c0c1fd5c29901d5bab88c2a04edd3d522d90b3bc05d0bc58a5a8ac1"
+    },
+    {
+        "service": "cospark",
+        "name": "Cospark",
+        "description": "Research ad references and generate images, video ads, UGC, and voiceovers.",
+        "category": "content",
+        "url": "https://api.cospark.so/mcp",
+        "website": "https://www.cospark.so",
+        "iconHash": "06bcf074acfbea88cad185220124bae1ade6ff8d68dbe085058de06525969fbd"
+    },
+    {
+        "service": "coupler-io",
+        "name": "Coupler.io",
+        "description": "Explore business data from your connected data flows.",
+        "category": "data",
+        "url": "https://mcp.coupler.io/mcp",
+        "website": "https://coupler.io",
+        "iconHash": "1cf103ef2dc1da280de9c593ab560e2d6c7bb64405d82b3772316d1dadcf0da0"
+    },
+    {
+        "service": "create-prints",
+        "name": "Create Prints",
+        "description": "Create and order physical wall art with AI.",
+        "category": "commerce",
+        "url": "https://mcp.createprints.ai/mcp",
+        "website": "https://www.createprints.ai",
+        "iconHash": "48e9339275baa3ef0c69120c5f64452d7a8db4ad5781f903c73f0e127e4a42a2"
+    },
+    {
+        "service": "creatomate",
+        "name": "Creatomate",
+        "description": "Generate videos, images, and GIFs from reusable templates.",
+        "category": "content",
+        "url": "https://api.creatomate.com/mcp",
+        "website": null,
+        "iconHash": "22b164c7becd91d8023349051b6dfacc8599a14ffc63343688ae020d4e3bc2ca"
+    },
+    {
+        "service": "croma",
+        "name": "Croma",
+        "description": "Query company registries, court records, sanctions, and filings.",
+        "category": "data",
+        "url": "https://api.croma.run/mcp",
+        "website": "https://usecroma.com",
+        "iconHash": "aa610c680c164c6947d5ea9df4e9a3cab680352512f97d66f356887c61ac3a74"
+    },
+    {
+        "service": "crossbeam",
+        "name": "Crossbeam",
+        "description": "Explore partner overlaps and ecosystem data.",
+        "category": "communication",
+        "url": "https://mcp.crossbeam.com/mcp",
+        "website": "https://crossbeam.com",
+        "iconHash": "c2605b5ff263d58356babf327835077a8b42ae08bf475b5705a3860f8c7f5ef4"
+    },
+    {
+        "service": "crustdata",
+        "name": "CrustData",
+        "description": "Search and enrich company and professional profiles.",
+        "category": "productivity",
+        "url": "https://install.crustdata.com/mcp",
+        "website": null,
+        "iconHash": "3001d6ff3c88e2df03cc55c8cd2779453dc49107fd1a2dc20c50c1a6ed45962f"
+    },
+    {
+        "service": "cube",
+        "name": "Cube",
+        "description": "Connect financial data and spreadsheets for planning, analysis, and reporting.",
+        "category": "analytics",
+        "url": "https://mcp.cubesoftware.com/",
+        "website": "https://cubesoftware.com",
+        "iconHash": "4e3da4a3e03a281802fc08211b6edb9aa2a6c1af10c4fe8f0b480f3aa1fe9197"
+    },
+    {
+        "service": "customjs",
+        "name": "CustomJS",
+        "description": "Run JavaScript automations and generate PDFs, screenshots, and hosted pages.",
+        "category": "developer-tools",
+        "url": "https://mcp.customjs.space/customjs/mcp",
+        "website": null,
+        "iconHash": "180f92f1b6203f5aa1c076861e6ab499d3fe38b191a5e0fc7d05d45341e56e8a"
+    },
+    {
+        "service": "dabloons",
+        "name": "Dabloons",
+        "description": "Post and work bounties where AI agents review PRs, reproduce bugs, and test.",
+        "category": "developer-tools",
+        "url": "https://dabloons.net/mcp",
+        "website": "https://dabloons.net",
+        "iconHash": "6b5dbe845ab6b051a1e60ab6553a8a4e3ca12d2487ac447532e4ec084c575935"
+    },
+    {
+        "service": "daffy",
+        "name": "Daffy",
+        "description": "Manage charitable giving through a donor-advised fund.",
+        "category": "commerce",
+        "url": "https://public.daffy.org/mcp",
+        "website": null,
+        "iconHash": "21b111d92bf52cb333673e9911ff3255838f68bca838adaea52564cb4a12b8df"
+    },
+    {
+        "service": "daloopa",
+        "name": "Daloopa",
+        "description": "Access company financial models, fundamentals, filings, and market data.",
+        "category": "analytics",
+        "url": "https://mcp.daloopa.com/server/mcp",
+        "website": "https://daloopa.com",
+        "iconHash": "5f5544c05b4599624285f3bc683a060a9655f165d4fbcd042ecb20ace34d0df5"
+    },
+    {
+        "service": "dart",
+        "name": "Dart",
+        "description": "Manage projects, tasks, and documents with AI assistance.",
+        "category": "productivity",
+        "url": "https://mcp.dartai.com/mcp",
+        "website": null,
+        "iconHash": "5a13b2e84b1886c38d6414c23404e4ca3ae93e7c2cc850f08ddb643a823e2ccc"
+    },
+    {
+        "service": "data-legion",
+        "name": "Data Legion",
+        "description": "Enrich and search B2B person and company data.",
+        "category": "data",
+        "url": "https://api.datalegion.ai/mcp",
+        "website": "https://www.datalegion.ai",
+        "iconHash": "a26dfe2c2de0f3dab204738ef678edb6aaabde5e2486db595fea484ab4e4f579"
+    },
+    {
+        "service": "databox",
+        "name": "Databox",
+        "description": "Build reports and track business metrics across connected data sources.",
+        "category": "analytics",
+        "url": "https://mcp.databox.com/mcp",
+        "website": null,
+        "iconHash": "29be78f150b44ea679c1352478386d8492f5e25633312640bf9a41e7c372e147"
+    },
+    {
+        "service": "datadog",
+        "name": "Datadog",
+        "description": "Monitor infrastructure, applications, and logs.",
+        "category": "developer-tools",
+        "url": "https://mcp.datadoghq.com/v1/mcp",
+        "website": null,
+        "iconHash": "7a689757b5bf7118b550f98009a5cefb18d4e630ea3a19fa262033ed6eaa3f01"
+    },
+    {
+        "service": "dearfax",
+        "name": "DearFax",
+        "description": "Send, receive, and track faxes.",
+        "category": "communication",
+        "url": "https://app.dearfax.com/api/mcp",
+        "website": "https://dearfax.com",
+        "iconHash": "f0bc9842c1580a882555c8180712a778068df88cb780be198c54aece6408a124"
+    },
+    {
+        "service": "deepnia",
+        "name": "Deepnia",
+        "description": "Create AI images, short videos, and voice-overs, and publish them to social networks.",
+        "category": "content",
+        "url": "https://deepnia.com/mcp",
+        "website": "https://deepnia.com",
+        "iconHash": "0129da54eded07f49162b493591474a7c4703ea645b6a8c47cff6d7de36f0082"
+    },
+    {
+        "service": "deformity",
+        "name": "Deformity",
+        "description": "Build AI conversational forms and surveys, and analyze responses.",
+        "category": "productivity",
+        "url": "https://deformity.ai/api/mcp",
+        "website": "https://deformity.ai",
+        "iconHash": "1993b851ecbd5d02488a46e78ff74112729f995d2cdfdf8c3d52dbce6592e763"
+    },
+    {
+        "service": "details",
+        "name": "Details",
+        "description": "Find curated website designs and inspect their motion and source code.",
+        "category": "developer-tools",
+        "url": "https://api.details.so/mcp",
+        "website": "https://www.details.so",
+        "iconHash": "fe35c987380975853023d2c00f628e2be4cfe5c2ed448eb1d60d1ed20507af8c"
+    },
+    {
+        "service": "dex",
+        "name": "Dex",
+        "description": "Manage contacts, relationship notes, and reminders.",
+        "category": "communication",
+        "url": "https://mcp.getdex.com/mcp",
+        "website": "https://getdex.com",
+        "iconHash": "9ad0b6d47d448c6c901c4e8a773e743b2cd4ea69b8ab884710d6f2868866d0bf"
+    },
+    {
+        "service": "dialpad",
+        "name": "Dialpad",
+        "description": "Manage business calls, messages, meetings, and contact center workflows.",
+        "category": "communication",
+        "url": "https://mcp-public.us.karehq.com/mcp",
+        "website": null,
+        "iconHash": "dac2b2cbacc6b0b85eee5b2bcd3ea64570514ca74527a35f534affa60aa0f499"
+    },
+    {
+        "service": "didit",
+        "name": "Didit",
+        "description": "Verify identities and businesses, screen risks, and prevent fraud.",
+        "category": "developer-tools",
+        "url": "https://mcp.didit.me/mcp",
+        "website": "https://business.didit.me",
+        "iconHash": "28e5a8f99ab5814ab9276694248dc26234993a288f6437950de6106bb475186c"
+    },
+    {
+        "service": "digitalk2",
+        "name": "DigitalK2",
+        "description": "Prepare K2 annual reports for Swedish limited companies from SIE files.",
+        "category": "productivity",
+        "url": "https://mcp.digitalk2.se/mcp",
+        "website": "https://www.digitalk2.se",
+        "iconHash": "6257105abc682cf2b0d26ad7a9a2cc9a4915c7868a831e7f0de0f3db40032fe4"
+    },
+    {
+        "service": "dnsfilter",
+        "name": "DNSFilter",
+        "description": "Filter DNS traffic and protect networks from online threats.",
+        "category": "developer-tools",
+        "url": "https://mcp.dnsfilter.com/mcp",
+        "website": null,
+        "iconHash": "b9a11d40137f326ed166f88bb05582880468069d3c77280f8fd6a97aae9a3f45"
+    },
+    {
+        "service": "docsautomator",
+        "name": "Docsautomator",
+        "description": "Generate documents from reusable templates and structured data.",
+        "category": "productivity",
+        "url": "https://mcp.docsautomator.co/mcp",
+        "website": "https://app.docsautomator.co/settings",
+        "iconHash": "30c05b92296bb3b0e7348ad464fb6df1842f10322b91f022312de7d80f6be4e2"
+    },
+    {
+        "service": "docsbot-ai",
+        "name": "DocsBot AI",
+        "description": "Build AI chatbots trained on your documentation.",
+        "category": "ai",
+        "url": "https://mcp.docsbot.ai",
+        "website": null,
+        "iconHash": "7aba26f8d6d3bf0217e834593a2f2becfc6a3b5308fd255b2d9a4dc6f1b6a23e"
+    },
+    {
+        "service": "docspring",
+        "name": "DocSpring",
+        "description": "Fill PDF and Word templates, generate documents, and collect e-signatures.",
+        "category": "productivity",
+        "url": "https://mcp.docspring.com/mcp",
+        "website": "https://docspring.com",
+        "iconHash": "660c7b860f1e74aca8bd94443ef755deef83733d3ebc944bd9c44e79e5831620"
+    },
+    {
+        "service": "dwellir",
+        "name": "Dwellir",
+        "description": "Find blockchain RPC endpoints, inspect usage, manage keys, and run read-only RPC calls.",
+        "category": "developer-tools",
+        "url": "https://mcp.dwellir.com/mcp",
+        "website": "https://www.dwellir.com",
+        "iconHash": "ea70bf2120417e88a9ead3eb3ce9f2d99e42d523aec50b72d09180de9820bcdf"
+    },
+    {
+        "service": "dynamic-document-api",
+        "name": "Dynamic Document API",
+        "description": "Render PDFs and images from templates, HTML, or Markdown, and create e-invoices.",
+        "category": "developer-tools",
+        "url": "https://mcp.dynamicdocumentapi.com/mcp",
+        "website": "https://dynamicdocumentapi.com",
+        "iconHash": "eb01965d5cf3782cdfa9e194f5d2bf7e9571ae6432dbd96d20b1d86578f325d2"
+    },
+    {
+        "service": "dynamoi",
+        "name": "Dynamoi",
+        "description": "Promote songs on Spotify and videos on YouTube, manage Smart Links, and track results.",
+        "category": "content",
+        "url": "https://dynamoi.com/mcp",
+        "website": "https://dynamoi.com",
+        "iconHash": "5b557de6c89938e9b4a9bf630ea67cc454a88a5826486ed4140d7cbe222f4287"
+    },
+    {
+        "service": "egnyte",
+        "name": "Egnyte",
+        "description": "Access and analyze business content.",
+        "category": "productivity",
+        "url": "https://mcp-server.egnyte.com/mcp",
+        "website": null,
+        "iconHash": "1afafabdb4706aff30387076c577f4e1ca864b8266653e941734809927743ddd"
+    },
+    {
+        "service": "embat",
+        "name": "Embat",
+        "description": "Review cash, debt, payments, and accounting data.",
+        "category": "commerce",
+        "url": "https://tellme.embat.io/mcp",
+        "website": null,
+        "iconHash": "3f1ebdf232d8ff83751527fd3131c7fb8230e507a38f663f702c76817913baeb"
+    },
+    {
+        "service": "enigma",
+        "name": "Enigma",
+        "description": "Research business identities, activity, and financial health.",
+        "category": "analytics",
+        "url": "https://mcp.enigma.com/http",
+        "website": null,
+        "iconHash": "7e60dab43f855c8c55fef2c58e85eeb55491c285b65c53d7dcc938fc7f77b9d0"
+    },
+    {
+        "service": "enrutar",
+        "name": "enrutar",
+        "description": "Manage field service jobs, appointments, customers, and technician schedules.",
+        "category": "productivity",
+        "url": "https://app.enrutar.com/mcp",
+        "website": "https://enrutar.com",
+        "iconHash": "a20b3e7b6ebd54087bf77ace8341ead1a17652295af7d6f85cf8780f38fd43cb"
+    },
+    {
+        "service": "entiva",
+        "name": "Entiva",
+        "description": "Research Indian companies from MCA filings, with cited passages and appointments.",
+        "category": "data",
+        "url": "https://mcp.entiva.in/mcp",
+        "website": "https://entiva.in",
+        "iconHash": "a7c0c88f0ea638919f2495bf1cd8aaf00c603887dafbba3867030c4441497e4d"
+    },
+    {
+        "service": "eodhd-apis",
+        "name": "EODHD APIs",
+        "description": "Access historical prices, live quotes, and financial fundamentals.",
+        "category": "analytics",
+        "url": "https://mcpv2.eodhd.dev/v2/mcp",
+        "website": null,
+        "iconHash": "714373f694a1d7d9e4b790f7b5d4499725b439fa3fe06d07d74a833aed7c2d1f"
+    },
+    {
+        "service": "eodly",
+        "name": "Eodly",
+        "description": "Read your team's end-of-day reports: what got done, who is blocked, and who went quiet.",
+        "category": "productivity",
+        "url": "https://eodly.io/mcp",
+        "website": "https://eodly.io",
+        "iconHash": "11003c219229b3c43a3d984a1dee12c2d224cc0143ebf2b6cbfabefe764d2c53"
+    },
+    {
+        "service": "everhour",
+        "name": "Everhour",
+        "description": "Track work time, expenses, budgets, and resource plans.",
+        "category": "productivity",
+        "url": "https://api.everhour.com/mcp",
+        "website": null,
+        "iconHash": "cd204fbf9a008016a3d29a746a2a0192354bcc38bde00b834ec046b9367deaa7"
+    },
+    {
+        "service": "exa",
+        "name": "Exa",
+        "description": "Web search and content retrieval for AI agents.",
+        "category": "ai",
+        "url": "https://mcp.exa.ai/mcp",
+        "website": "https://exa.ai",
+        "iconHash": "fae24ab3acec819d614a8a38ad2c23d53711426989b5f2dbf1592dd288059380"
+    },
+    {
+        "service": "explorium",
+        "name": "Explorium",
+        "description": "Discover and enrich company and prospect data.",
+        "category": "ai",
+        "url": "https://mcp-github-registry.explorium.ai/mcp",
+        "website": "https://admin.explorium.ai",
+        "iconHash": "708a04b9a5396e8d5f6fc9444f447dedddb32b66d7ef51508f83f716bcddd10a"
+    },
+    {
+        "service": "faceless",
+        "name": "Faceless",
+        "description": "Create, render, and publish AI-generated short videos.",
+        "category": "content",
+        "url": "https://faceless.so/api/v1/mcp",
+        "website": "https://faceless.so",
+        "iconHash": "718cd786faa178429989ee57a9272aeb83aadbc58bd586b3e5f80b3370266f37"
+    },
+    {
+        "service": "fairing",
+        "name": "Fairing",
+        "description": "Collect post-purchase survey responses to measure marketing attribution.",
+        "category": "analytics",
+        "url": "https://app.fairing.co/mcp",
+        "website": null,
+        "iconHash": "5c42d568670058ad9f33c7818742a9cded9761415f707ee6f0da2a9e4d3c7f9d"
+    },
+    {
+        "service": "fathom",
+        "name": "Fathom",
+        "description": "Review meeting notes, transcripts, and summaries.",
+        "category": "productivity",
+        "url": "https://api.fathom.ai/mcp",
+        "website": "https://fathom.video",
+        "iconHash": "6d0dcb10e656589f1db96d87a156ad00b7549aafdec0928c0ec136ed26e94ac6"
+    },
+    {
+        "service": "felt",
+        "name": "Felt",
+        "description": "Create, edit, and share interactive maps.",
+        "category": "developer-tools",
+        "url": "https://felt.com/mcp",
+        "website": null,
+        "iconHash": "cf6cd4109a0c5b8e8aa034a3acd09b5460fe7ff76cb988ee549c8e3f717be09e"
+    },
+    {
+        "service": "fever-event-discovery",
+        "name": "Fever Event Discovery",
+        "description": "Discover and book live entertainment, attractions, and experiences.",
+        "category": "commerce",
+        "url": "https://data-search.apigw.feverup.com/mcp",
+        "website": "https://feverup.com",
+        "iconHash": "36ce06a3ef347771971d6283f4617a6151dc0bc0df4b59b422f4a2c9ff7f0a29"
+    },
+    {
+        "service": "fieldrobin",
+        "name": "FieldRobin",
+        "description": "Read customers, leads, jobs, schedules, invoices, reviews, and reports for home services.",
+        "category": "other",
+        "url": "https://fieldrobin.com/api/v1/mcp",
+        "website": "https://fieldrobin.com",
+        "iconHash": "a4ffb28e4f48c96a02ffb0714bedbcc7f452eafeeb8eb26fd4c8149d7add82ab"
+    },
+    {
+        "service": "finlight",
+        "name": "Finlight",
+        "description": "Search financial news and retrieve articles and source details.",
+        "category": "other",
+        "url": "https://mcp.finlight.me",
+        "website": "https://app.finlight.me",
+        "iconHash": "67d42e422d9eb57b5eafb029c3a7f5d6e0b2d7471899c53b00dbe0aeb21f4a4c"
+    },
+    {
+        "service": "fireflies",
+        "name": "Fireflies",
+        "description": "Search meeting notes and transcripts.",
+        "category": "communication",
+        "url": "https://api.fireflies.ai/mcp",
+        "website": "https://fireflies.ai",
+        "iconHash": "0748abb0a54773370be92e2805f8c396f865a343dcfe3315a477068cdc48dd51"
+    },
+    {
+        "service": "firefolio",
+        "name": "FireFolio",
+        "description": "Calculate financial independence targets and simulate retirement outcomes.",
+        "category": "data",
+        "url": "https://www.firefolio.com/mcp",
+        "website": "https://www.firefolio.com",
+        "iconHash": "c9310a0ceee5c42e93047c01efd23efb846f0c0716a53fa88d6a56223926678c"
+    },
+    {
+        "service": "firemark",
+        "name": "Firemark",
+        "description": "Track how often AI assistants name your brand and cite your site, versus competitors.",
+        "category": "analytics",
+        "url": "https://app.tryfiremark.com/mcp",
+        "website": "https://tryfiremark.com",
+        "iconHash": "21962bd2656b22ed25bdd0468c616fcebe99ace89180039eb6021ca8899fb4a5"
+    },
+    {
+        "service": "fixmyscan",
+        "name": "FixMyScan",
+        "description": "Turn scanned books into clean, searchable PDFs for e-readers.",
+        "category": "productivity",
+        "url": "https://mcp.fixmyscan.com/mcp",
+        "website": "https://fixmyscan.com",
+        "iconHash": "11a3d1181f5dc4c9f6a8c0edaa3edfa10171e617794074c9b951051995b75c9e"
+    },
+    {
+        "service": "flotiq",
+        "name": "Flotiq",
+        "description": "Define content types and manage, search, and publish content and media.",
+        "category": "content",
+        "url": "https://mcp.flotiq.com/mcp",
+        "website": null,
+        "iconHash": "874ee47695623119f42750bbb07eaf6ca1bf8036fa2dd64e5793a6504cf55803"
+    },
+    {
+        "service": "flownato",
+        "name": "Flownato",
+        "description": "Search screens, UI elements, and user flows recorded from real mobile apps.",
+        "category": "developer-tools",
+        "url": "https://agent.flownato.com/mcp",
+        "website": "https://www.flownato.com",
+        "iconHash": "fd0ce2bd49c9fb12bfdf24bd3e5c6cb00d8bfedbfb29bef7bb3fbe9156e2d0ae"
+    },
+    {
+        "service": "flowsery",
+        "name": "Flowsery",
+        "description": "Read web analytics, watch session replays, and review detected issues.",
+        "category": "analytics",
+        "url": "https://mcp.flowsery.com/mcp",
+        "website": "https://flowsery.com",
+        "iconHash": "1918f6dc2830cf6b8cacc1813cb347d74058136c6ce11cc22bc58d53e78bc379"
+    },
+    {
+        "service": "fluxmail-cloud",
+        "name": "Fluxmail Cloud",
+        "description": "Read, search, draft, and send email from connected Gmail, Outlook, and IMAP mailboxes.",
+        "category": "communication",
+        "url": "https://cloud.fluxmail.ai/mcp",
+        "website": "https://fluxmail.ai/cloud",
+        "iconHash": "84c27cee36af02e12fac4a21c5811fa428e39a91c0457459b31a49599c59db2c"
+    },
+    {
+        "service": "formbricks",
+        "name": "Formbricks",
+        "description": "Create surveys and collect customer feedback.",
+        "category": "productivity",
+        "url": "https://app.formbricks.com/api/mcp",
+        "website": null,
+        "iconHash": "4b2117fbbeaa5c11d64d394743426f43dec2175f17e1bd9638ffb56ebba408c8"
+    },
+    {
+        "service": "formcarry",
+        "name": "Formcarry",
+        "description": "Collect form submissions and manage notifications, uploads, and integrations.",
+        "category": "productivity",
+        "url": "https://mcp.formcarry.com/mcp",
+        "website": null,
+        "iconHash": "bdd59f3393f628662ab21c2f0f821ed52aa63ff2af08ed61e693d3b581fb68e4"
+    },
+    {
+        "service": "formo",
+        "name": "Formo",
+        "description": "Query product analytics, wallet profiles, and attribution for onchain apps.",
+        "category": "analytics",
+        "url": "https://api.formo.so/v0/mcp",
+        "website": "https://formo.so",
+        "iconHash": "205ee66ccb57418dda3adf670df4901b1bd19fb0f7a16afd29960264b8bd9803"
+    },
+    {
+        "service": "foundrole",
+        "name": "FoundRole Jobs",
+        "description": "Search job openings, analyze roles, and track applications.",
+        "category": "productivity",
+        "url": "https://www.foundrole.com/mcp",
+        "website": "https://www.foundrole.com",
+        "iconHash": "12f40c2e994e9c220a5ab16adb2470108d5bf717abdac6556576415b6b1385f0"
+    },
+    {
+        "service": "foxreach",
+        "name": "FoxReach",
+        "description": "Run cold email campaigns and manage leads, sequences, templates, and sending accounts.",
+        "category": "communication",
+        "url": "https://api.foxreach.io/mcp",
+        "website": "https://www.foxreach.io",
+        "iconHash": "c867cd8f1030be68572bba67f785aac1ad7992e5eac065918ed26c82ac67833e"
+    },
+    {
+        "service": "frigolog",
+        "name": "Frigolog",
+        "description": "Read HACCP food-safety records: temperatures, cleaning logs, traceability, and compliance.",
+        "category": "productivity",
+        "url": "https://frigolog.fr/api/mcp-prive",
+        "website": "https://frigolog.fr",
+        "iconHash": "e956b90b315c7d4cfcdf54678a62f2d8f5e95b1ad8e0798bce79263c17cc2c1b"
+    },
+    {
+        "service": "fullenrich",
+        "name": "FullEnrich",
+        "description": "Find and verify business email addresses and phone numbers.",
+        "category": "data",
+        "url": "https://mcp.fullenrich.com/mcp",
+        "website": null,
+        "iconHash": "58e930aafa0990f8e676c371fff418c205c00449cb16ed57cf8a6c75ed26527a"
+    },
+    {
+        "service": "fullstory",
+        "name": "FullStory",
+        "description": "Analyze digital experiences and manage session data, events, and recording settings.",
+        "category": "analytics",
+        "url": "https://api.fullstory.com/mcp/activations",
+        "website": null,
+        "iconHash": "c401f867a68fd2c46c1727a4112763a7d684934feb26c5fb98407b943221aedd"
+    },
+    {
+        "service": "g2x",
+        "name": "G2X",
+        "description": "Research government contracting opportunities, contractors, and awards.",
+        "category": "data",
+        "url": "https://mcp.g2x.com/mcp",
+        "website": "https://g2x.com",
+        "iconHash": "7ff3c66ed8222ce8eee4a761afa3ae1411ce08e50958a7d955bd47147eabe69c"
+    },
+    {
+        "service": "garchi-cms",
+        "name": "Garchi CMS",
+        "description": "Manage structured content, pages, and assets for websites and apps.",
+        "category": "content",
+        "url": "https://garchi.co.uk/mcp-oauth",
+        "website": "https://garchi.co.uk",
+        "iconHash": "457d681c0e72428ae9f4cd54758427bbc3deede5affe8616f020d753be4fc8eb"
+    },
+    {
+        "service": "gem",
+        "name": "Gem",
+        "description": "Search candidates, review hiring pipelines, and analyze recruiting data.",
+        "category": "productivity",
+        "url": "https://mcp.gem.com/mcp",
+        "website": "https://www.gem.com",
+        "iconHash": "9b09f12a9faadcba8d119d5883c3dbea15aacd9ae47f1bff7a05983d31150e9e"
+    },
+    {
+        "service": "githits",
+        "name": "GitHits",
+        "description": "Search open-source code, documentation, and package data across versions.",
+        "category": "developer-tools",
+        "url": "https://mcp.githits.com",
+        "website": "https://githits.com",
+        "iconHash": "77bcb88e12f00c14494088e4bc4997303cc83ffb866ee8f01d94dd80bb72bf9f"
+    },
+    {
+        "service": "glasp",
+        "name": "Glasp",
+        "description": "Save bookmarks and highlights, and access AI-generated summaries.",
+        "category": "other",
+        "url": "https://glasp.co/api/mcp",
+        "website": "https://glasp.co/settings/access_token",
+        "iconHash": "ad2e9c3b5aea6fc5bf2e81e04ce0fe0c454249bcf28e47e7da8aa27d9f1a1472"
+    },
+    {
+        "service": "goody",
+        "name": "Goody",
+        "description": "Send gifts and physical products with managed fulfillment.",
+        "category": "commerce",
+        "url": "https://api.ongoody.com/mcp/v1",
+        "website": null,
+        "iconHash": "a396bde7853c235361c814452f1837c0ffdea54809dde1138f39892b548fb955"
+    },
+    {
+        "service": "granola",
+        "name": "Granola",
+        "description": "Search meeting notes and summaries.",
+        "category": "communication",
+        "url": "https://mcp.granola.ai/mcp",
+        "website": "https://granola.ai",
+        "iconHash": "fdab307ec70fb9018bdd27f2b71a397d5ae8d36d80765e19991bb66735383325"
+    },
+    {
+        "service": "grape",
+        "name": "Grape",
+        "description": "Manage, search, and work with your notes.",
+        "category": "productivity",
+        "url": "https://mcp.grape.cool",
+        "website": "https://grape.cool",
+        "iconHash": "dfb3054ef99ac877d00ba5bd0806b9b120626dd061fb523b027f87b0a9875387"
+    },
+    {
+        "service": "graphify",
+        "name": "Graphify",
+        "description": "Give AI agents codebase context through a code knowledge graph.",
+        "category": "developer-tools",
+        "url": "https://api.graphify.com/mcp",
+        "website": "https://graphify.com",
+        "iconHash": "064ee22b6d76c04aa5041aaca2416529841afd8611c6ba0884199a21de2885ce"
+    },
+    {
+        "service": "greenhouse",
+        "name": "Greenhouse",
+        "description": "Review candidates, manage jobs, and analyze recruiting data.",
+        "category": "productivity",
+        "url": "https://mcp.us.greenhouse.io/mcp",
+        "website": "https://www.greenhouse.com",
+        "iconHash": "aa60b17ee4e45f950cac43677a806eb62385fc2868a0cc80dc2345680347c814"
+    },
+    {
+        "service": "groundcover",
+        "name": "groundcover",
+        "description": "Explore logs, metrics, and traces, and build dashboards and alerts.",
+        "category": "developer-tools",
+        "url": "https://mcp.groundcover.com/api/mcp",
+        "website": "https://groundcover.com",
+        "iconHash": "40187f70f026f4b72ae3990afe4d84fc9d5143d82de594230c2964a5cb9ad2d1"
+    },
+    {
+        "service": "gtmetrix",
+        "name": "GTmetrix",
+        "description": "Analyze website speed and monitor performance.",
+        "category": "developer-tools",
+        "url": "https://gtmetrix.com/mcp",
+        "website": null,
+        "iconHash": "21eeb07eabfc1bb7940f3549d6e8d4cc1053098a8f6878b75d8b1d9d27108ae1"
+    },
+    {
+        "service": "gusto",
+        "name": "Gusto",
+        "description": "Access payroll and workforce information.",
+        "category": "productivity",
+        "url": "https://mcp.api.gusto.com/anthropic",
+        "website": "https://gusto.com",
+        "iconHash": "f55f7a63d09f35f4ee7df536f681a8739df169c5843b88f557f29370ad0c994c"
+    },
+    {
+        "service": "hackerrank-work",
+        "name": "HackerRank Work",
+        "description": "Run coding interviews and technical hiring assessments.",
+        "category": "developer-tools",
+        "url": "https://www.hackerrank.com/work/mcp",
+        "website": null,
+        "iconHash": "e428aef42e9dcaafb4ea006c23d4955a7c4b877e66d932b2a24778fa9203310c"
+    },
+    {
+        "service": "hail",
+        "name": "Hail",
+        "description": "Give agents phone numbers for calls and SMS, plus email inboxes.",
+        "category": "communication",
+        "url": "https://mcp.hail.so",
+        "website": "https://hail.so",
+        "iconHash": "d2f8d64c73b7197cf12daf92132f192f3f473f076f4710149a10c4b601c8a9ce"
+    },
+    {
+        "service": "handlepilot",
+        "name": "HandlePilot",
+        "description": "Research Instagram accounts and reels, plan content, and write carousels and scripts.",
+        "category": "content",
+        "url": "https://app.handlepilot.com/mcp",
+        "website": "https://handlepilot.com",
+        "iconHash": "f7b85f07c4dc4e99c8cb61be390263164d77587ba2154a7916b98a99c2459c99"
+    },
+    {
+        "service": "harmonic",
+        "name": "Harmonic",
+        "description": "Explore company, investor, and people data.",
+        "category": "data",
+        "url": "https://mcp.api.harmonic.ai",
+        "website": "https://harmonic.ai",
+        "iconHash": "1a371cbd90c50349273a6a4bd0a7e0c614a9155073c13de85f5cdf8fb99b6f00"
+    },
+    {
+        "service": "helpwell",
+        "name": "HelpWell",
+        "description": "Manage help desk tickets, knowledge base, live chat, contacts, and email marketing.",
+        "category": "communication",
+        "url": "https://app.helpwell.ai/mcp",
+        "website": "https://helpwell.ai",
+        "iconHash": "27353161c3317908546ad123c3d8094f058b04e11d42703b07d198cc1a2a12f9"
+    },
+    {
+        "service": "hidemail",
+        "name": "HideMail",
+        "description": "Create and manage private email aliases that forward to your inbox.",
+        "category": "communication",
+        "url": "https://hidemail.app/mcp",
+        "website": "https://hidemail.app",
+        "iconHash": "71dae4b6dfa9ea14f2c158998d5a723858a4e945d772e442c760d71e463872f8"
+    },
+    {
+        "service": "hjarni",
+        "name": "Hjarni",
+        "description": "Organize, search, and link notes and knowledge.",
+        "category": "other",
+        "url": "https://hjarni.com/mcp",
+        "website": null,
+        "iconHash": "ca238a4cd6c7bf225924701bf9a157d99ed73d9cd95082ab7d4b9c4af667a908"
+    },
+    {
+        "service": "holded",
+        "name": "Holded",
+        "description": "Manage invoices, sales documents, services, and contacts.",
+        "category": "productivity",
+        "url": "https://mcp.holded.com/mcp",
+        "website": null,
+        "iconHash": "9b8f5eedcc70316e59a517befd0386a025c9e8c7b6758014966fbf93a9bd4c2e"
+    },
+    {
+        "service": "honcho",
+        "name": "Honcho",
+        "description": "Honcho provides memory, context, and theory-of-mind infrastructure for building stateful AI agents.",
+        "category": "ai",
+        "url": "https://mcp.honcho.dev",
+        "website": "https://app.honcho.dev/api-keys",
+        "iconHash": "dc87874f871f72e3694a4f0c3cf210bc73353610b31b739b32745e6cabc6722e"
+    },
+    {
+        "service": "honeycomb",
+        "name": "Honeycomb",
+        "description": "Query telemetry and investigate application performance.",
+        "category": "developer-tools",
+        "url": "https://mcp.honeycomb.io/mcp",
+        "website": "https://www.honeycomb.io",
+        "iconHash": "6519f2fa5c58d231ccf5be2cf2fa5aabf2f796331807a61767c2053442e2c57a"
+    },
+    {
+        "service": "hostinger",
+        "name": "Hostinger",
+        "description": "Web hosting and domain management platform with APIs for billing, domains, DNS, and VPS management.",
+        "category": "developer-tools",
+        "url": "https://mcp.hostinger.com",
+        "website": "https://hpanel.hostinger.com/profile/api",
+        "iconHash": "8a309d3de24b86c1d5786e210fdffb8fbf3cb3d8e6f598250f2eb757437e4422"
+    },
+    {
+        "service": "html-css-to-image",
+        "name": "HTML/CSS to Image",
+        "description": "Generate images, screenshots, and PDFs from HTML, URLs, or templates.",
+        "category": "developer-tools",
+        "url": "https://mcp.hcti.io",
+        "website": "https://htmlcsstoimage.com",
+        "iconHash": "5cb816c39ebf8c1df21c3265510203bd23229a99ffb5af5336bb2fecbc30eb46"
+    },
+    {
+        "service": "hugging-face",
+        "name": "Hugging Face",
+        "description": "Explore models, datasets, and Gradio apps.",
+        "category": "ai",
+        "url": "https://huggingface.co/mcp?login&gradio=none",
+        "website": null,
+        "iconHash": "70a3eea67e3051e0f90299f815b287c1222af26ab5a822bcbbde016f73472b94"
+    },
+    {
+        "service": "ignav-flights",
+        "name": "Ignav Flights",
+        "description": "Search airports and flight fares, compare itineraries, and find booking links.",
+        "category": "other",
+        "url": "https://ignav.com/mcp",
+        "website": "https://ignav.com/signup",
+        "iconHash": "f58681c2912787aa4a95348eb670959b2ceb122d24744b71b923bd96d2437343"
+    },
+    {
+        "service": "import-io",
+        "name": "Import.io",
+        "description": "Extract structured data from websites.",
+        "category": "productivity",
+        "url": "https://mcp.import.io/mcp",
+        "website": "https://import.io",
+        "iconHash": "ec2a62c214bf688871e6271f6ef1a9d07d65e2bfd1aaf39639a37b39147e7f49"
+    },
+    {
+        "service": "inblog",
+        "name": "Inblog",
+        "description": "Manage blog content, publishing, analytics, and lead forms.",
+        "category": "content",
+        "url": "https://inblog.ai/api/mcp",
+        "website": null,
+        "iconHash": "e50825282f6c4b9dd1312ab7a6ea1f66e10a0e47e386cda9ff6a51ba69d94670"
+    },
+    {
+        "service": "indeed",
+        "name": "Indeed",
+        "description": "Search jobs and explore hiring opportunities.",
+        "category": "productivity",
+        "url": "https://mcp.indeed.com/claude/mcp",
+        "website": "https://indeed.com",
+        "iconHash": "63d472da81f1c53ea3e81c9fbf782125a1083c8df3416ae9debf293a876a64c6"
+    },
+    {
+        "service": "inistate",
+        "name": "Inistate",
+        "description": "Build workflow applications and manage records, activities, and files.",
+        "category": "productivity",
+        "url": "https://mcp.inistate.com/mcp",
+        "website": null,
+        "iconHash": "b9e5756265a5117318c38200274a6bf351cc72d8e3149126ac480d7d20847432"
+    },
+    {
+        "service": "inkbox",
+        "name": "Inkbox",
+        "description": "Give an agent its own email, phone number, SMS, iMessage, and WhatsApp identity.",
+        "category": "communication",
+        "url": "https://inkbox.ai/mcp/vercel",
+        "website": "https://inkbox.ai",
+        "iconHash": "0ec0b75ddc87063d714d016da018ebeb4e9b15de85432e0a4808c0ba8074693e"
+    },
+    {
+        "service": "inkly",
+        "name": "Inkly",
+        "description": "Send documents for e-signature, track who has signed, and get signed PDFs.",
+        "category": "productivity",
+        "url": "https://www.inkly.so/mcp",
+        "website": "https://www.inkly.so",
+        "iconHash": "72b4ea303cce75730871c8bf6b1f0c5daafdb815916a70844e1e84116f13071b"
+    },
+    {
+        "service": "intakra",
+        "name": "Intakra",
+        "description": "Review account fit and buying signals, and prioritize B2B accounts.",
+        "category": "data",
+        "url": "https://intakra.com/api/mcp",
+        "website": "https://intakra.com",
+        "iconHash": "54a7b1655c638d1d344f30f14cce5d61c7fe3193fbf26eb4ffc538ceeb9ab58f"
+    },
+    {
+        "service": "intercom",
+        "name": "Intercom",
+        "description": "Intercom conversations, contacts, and articles",
+        "category": "communication",
+        "url": "https://mcp.intercom.com/mcp",
+        "website": "https://www.intercom.com",
+        "iconHash": "71de81d4c1b090f18ca0333432f7ff84ce033bd0f25f1feb0f9b371db5c3c341"
+    },
+    {
+        "service": "intuit-mailchimp",
+        "name": "Intuit Mailchimp",
+        "description": "Manage email campaigns and audiences.",
+        "category": "communication",
+        "url": "https://ai-inc.mailchimp.com/claude/mcp/v2",
+        "website": "https://mailchimp.com",
+        "iconHash": "96c194bba6ef5c2bac45670b1316d98e9ef124740978fe15f237c85fd9cf3670"
+    },
+    {
+        "service": "invent",
+        "name": "Invent",
+        "description": "Read and reply to customer conversations across chat channels.",
+        "category": "communication",
+        "url": "https://api.useinvent.com/mcp",
+        "website": "https://www.useinvent.com",
+        "iconHash": "c5af0e5444422b8aca5a19878c3017f06bf6fdcf9efedb0d7664727398b76f69"
+    },
+    {
+        "service": "invoance",
+        "name": "Invoance",
+        "description": "Sign and store events, documents, and AI outputs in a verifiable ledger.",
+        "category": "developer-tools",
+        "url": "https://mcp.invoance.com/mcp",
+        "website": "https://www.invoance.com",
+        "iconHash": "7eb486a85939b4d8223fbcd30ecf96e522c0637cba6410f69dd8a2e7016f014b"
+    },
+    {
+        "service": "ircode",
+        "name": "IRCODE",
+        "description": "Identify images by scanning them and register images so they link to your site.",
+        "category": "content",
+        "url": "https://api.ircode.app/mcp",
+        "website": "https://ircode.com",
+        "iconHash": "aa45e7995bd6c0bceacbaf4db9c78cb006be05ad71d65974ae6dcd5f49980cf9"
+    },
+    {
+        "service": "izeat",
+        "name": "IZeat",
+        "description": "Log meals and track calories and macros in a food journal.",
+        "category": "productivity",
+        "url": "https://izeat.app/api/mcp",
+        "website": "https://izeat.app",
+        "iconHash": "9d9ca45cfec13b8540020682d42b6234f4af7472598fed7813b01febe7a972af"
+    },
+    {
+        "service": "jam",
+        "name": "Jam",
+        "description": "Inspect and collaborate on browser bug reports and recordings through MCP.",
+        "category": "other",
+        "url": "https://mcp.jam.dev/mcp",
+        "website": "https://jam.dev",
+        "iconHash": "605b59c309b03d11ebeb47077f20404c74f20748f142edb887adf0874b21bfbc"
+    },
+    {
+        "service": "jars-lt",
+        "name": "JARS LT",
+        "description": "Search company registries and financial data in Lithuania, Estonia, and Latvia.",
+        "category": "data",
+        "url": "https://api.jars.lt/mcp",
+        "website": "https://jars.lt",
+        "iconHash": "5547f579f403ac514c3563e0a9d88d633cb05cdaf3253db8add13611e115aedd"
+    },
+    {
+        "service": "jellypod",
+        "name": "Jellypod",
+        "description": "Create narrated videos, vertical shorts, and AI podcasts from prompts or scripts.",
+        "category": "ai",
+        "url": "https://mcp.jellypod.com/mcp",
+        "website": "https://www.jellypod.com",
+        "iconHash": "064e083afbbb6607130ba6bf411534905163b05a5a1a129f673be3a22b56cd7b"
+    },
+    {
+        "service": "jetpost",
+        "name": "Jetpost",
+        "description": "Write, share, comment on, and edit team notes.",
+        "category": "productivity",
+        "url": "https://www.jetpost.com/mcp",
+        "website": "https://www.jetpost.com",
+        "iconHash": "7d0979e39ef7d2521a8cb4ada9b650c183516978108c3d219489542705bba9f8"
+    },
+    {
+        "service": "jira",
+        "name": "Jira",
+        "description": "Manage issues and projects in your Jira sites.",
+        "category": "developer-tools",
+        "url": "https://mcp.atlassian.com/v2/mcp",
+        "website": "https://www.atlassian.com/software/jira",
+        "iconHash": "df0f2885d2d2615b0de38649ed1ccc9b70e071ec4fac4b358fffb7c86af388b7"
+    },
+    {
+        "service": "jotform",
+        "name": "Jotform",
+        "description": "Work with forms and submissions.",
+        "category": "productivity",
+        "url": "https://mcp.jotform.com/mcp-app",
+        "website": "https://jotform.com",
+        "iconHash": "c239301d5446fe865a76e3ae3382139bc64635ea77037f63d7963829e63b36db"
+    },
+    {
+        "service": "joxo",
+        "name": "Joxo",
+        "description": "Coordinate your team's coding agents: tasks, handoffs, and messages.",
+        "category": "developer-tools",
+        "url": "https://joxo.ai/api/mcp",
+        "website": "https://joxo.ai",
+        "iconHash": "48508b3a26e660f9d48d5a1234e2efbde0eeeaa5a7e42987fd9f0901ecb2034d"
+    },
+    {
+        "service": "juicebox",
+        "name": "Juicebox",
+        "description": "Analyze recruiting activity and create or manage sourcing agents.",
+        "category": "productivity",
+        "url": "https://mcp.juicebox.ai/v1",
+        "website": "https://juicebox.ai",
+        "iconHash": "7f3ef6acf87727497ce68798361fe9ce65a2168acc9022b62eb2bbc81578908e"
+    },
+    {
+        "service": "jumpcloud",
+        "name": "JumpCloud",
+        "description": "Manage identities, access, and devices across an organization.",
+        "category": "developer-tools",
+        "url": "https://mcp.jumpcloud.com/v1",
+        "website": null,
+        "iconHash": "1924191c074a4a8d0fcea665f4740a97c651703d15e4c5c5f46fba2a327f3650"
+    },
+    {
+        "service": "justgains",
+        "name": "JustGains",
+        "description": "Read and log workouts, programs, personal records, meals, and bodyweight.",
+        "category": "productivity",
+        "url": "https://justgains.com/connect/mcp",
+        "website": "https://justgains.com",
+        "iconHash": "21dc04e69c62e0177f5b9a87345ecf590e40832b51ee1cdf2386f7feb4318356"
+    },
+    {
+        "service": "kadoa",
+        "name": "Kadoa",
+        "description": "Create and monitor data extraction workflows for unstructured sources.",
+        "category": "ai",
+        "url": "https://mcp.kadoa.com/mcp",
+        "website": null,
+        "iconHash": "3092f83df5aad94f03b0021f6f228022f723c5b4e889d2a98d83c1a8cdf5088a"
+    },
+    {
+        "service": "kapso",
+        "name": "Kapso",
+        "description": "Manage WhatsApp messages, contacts, broadcasts, and workflows.",
+        "category": "communication",
+        "url": "https://api.kapso.ai/mcp",
+        "website": null,
+        "iconHash": "332b0bbd7a02662a0ab7d1a3a05e10ebeca389c600628d767692712c89f2a522"
+    },
+    {
+        "service": "keenable",
+        "name": "Keenable",
+        "description": "Search the web and fetch pages as clean markdown.",
+        "category": "data",
+        "url": "https://api.keenable.ai/mcp",
+        "website": "https://keenable.ai",
+        "iconHash": "e0b66bd034cdada99938fb3109d42798deb0825dd385e6520df6e0eadcd3adbc"
+    },
+    {
+        "service": "kernel",
+        "name": "Kernel",
+        "description": "Run cloud browsers for AI agents.",
+        "category": "developer-tools",
+        "url": "https://mcp.onkernel.com/mcp",
+        "website": null,
+        "iconHash": "1683a7f930a0d9774752a296e3dad2d2b24260a9514d079e97fdc9bc1ff009f9"
+    },
+    {
+        "service": "kit",
+        "name": "Kit",
+        "description": "Automate creator workflows and build apps for the Kit App Store.",
+        "category": "productivity",
+        "url": "https://app.kit.com/mcp",
+        "website": null,
+        "iconHash": "10d5be203cae7788ae48e47b6d66fdd117c824c47ddad126bb9d8c8d6dfba40f"
+    },
+    {
+        "service": "knock",
+        "name": "Knock",
+        "description": "Notify users across email, in-app, push, SMS, and chat.",
+        "category": "communication",
+        "url": "https://mcp.knock.app/mcp",
+        "website": "https://knock.app",
+        "iconHash": "5735a7939eb7e2a897b891f329126265c59cbd117730a5877a5d42b9038243d7"
+    },
+    {
+        "service": "kowalah",
+        "name": "Kowalah",
+        "description": "Work with your organization's Kowalah AI programme: projects, training, and resources.",
+        "category": "productivity",
+        "url": "https://mcp.kowalah.com/api/mcp",
+        "website": "https://kowalah.com",
+        "iconHash": "72cadfb3c64cc9bdde2ec4ab7990debeb1a5f49f81826dc7efc7a16854bbdf7e"
+    },
+    {
+        "service": "kvickd",
+        "name": "Kvickd",
+        "description": "Run Swedish company bookkeeping: vouchers, invoices, VAT, payroll, and year-end reports.",
+        "category": "productivity",
+        "url": "https://api.kvickd.com/mcp",
+        "website": "https://www.kvickd.com",
+        "iconHash": "3c3eeb5b88e0b9d418c32096f201e5ce6d574af3c4a313b4a3cd3df76dc346da"
+    },
+    {
+        "service": "langsmith",
+        "name": "LangSmith",
+        "description": "Inspect LLM traces, prompts, datasets, and evaluations.",
+        "category": "developer-tools",
+        "url": "https://api.smith.langchain.com/mcp",
+        "website": "https://www.langchain.com/langsmith",
+        "iconHash": "f606232add94cd3c9f7143e381aa4e8fe046dc72a0333c319b012b2895b71a65"
+    },
+    {
+        "service": "lemlist",
+        "name": "lemlist",
+        "description": "Find prospects and automate personalized email, LinkedIn, and phone outreach.",
+        "category": "productivity",
+        "url": "https://app.lemlist.com/mcp",
+        "website": null,
+        "iconHash": "86073f4f8542259b37df2a7013208ddb42044c01d983416a119979b9718e6c93"
+    },
+    {
+        "service": "lemonpost",
+        "name": "Lemonpost",
+        "description": "Write, schedule, and publish social media posts.",
+        "category": "content",
+        "url": "https://app.lemonpost.co/mcp",
+        "website": "https://lemonpost.co",
+        "iconHash": "ccc6e818f6b207008655eb94ddccc4cd15fd257dcd4973b9510235a2e13744b3"
+    },
+    {
+        "service": "lifttrack",
+        "name": "LiftTrack",
+        "description": "LiftTrack is a mobile app for Garmin users to build, sync, and track strength-training workouts.",
+        "category": "other",
+        "url": "https://mcp.lifttrackapp.com/",
+        "website": "https://lifttrackapp.com",
+        "iconHash": "0a0e339bdc830927a0eed854ef6ce55225512d9a08455ac97a24ff1279314616"
+    },
+    {
+        "service": "lighthouse-local",
+        "name": "Lighthouse Local",
+        "description": "Read AI search visibility, rankings, and recommendations for local businesses.",
+        "category": "analytics",
+        "url": "https://app.lighthouselocal.ai/mcp",
+        "website": "https://www.lighthouselocal.ai",
+        "iconHash": "9fd82df318b6fad7662a8cc7e677a04b46e80c6f0fedbfc76e87d36f542be7d6"
+    },
+    {
+        "service": "linear",
+        "name": "Linear",
+        "description": "Create and update issues in your workspace.",
+        "category": "developer-tools",
+        "url": "https://mcp.linear.app/mcp",
+        "website": "https://linear.app",
+        "iconHash": "d69e387b0121b5f3b7ac96f3e85d42794160781f6d6398a9f64e77f421975d1c"
+    },
+    {
+        "service": "llm-pulse",
+        "name": "LLM Pulse",
+        "description": "Track how brands appear in AI answers: mentions, citations, and sentiment.",
+        "category": "analytics",
+        "url": "https://api.llmpulse.ai/api/v1/mcp",
+        "website": "https://llmpulse.ai",
+        "iconHash": "47e32f5da74fa94408875dc9df29d0f592acf504cbfe2978691d4895e74e9574"
+    },
+    {
+        "service": "local-falcon",
+        "name": "Local Falcon",
+        "description": "Track local search rankings and AI visibility.",
+        "category": "analytics",
+        "url": "https://mcp.localfalcon.com",
+        "website": null,
+        "iconHash": "38b066a6c03a16372b497a165188d78ce4dc5591552f2c894286dcecd285417a"
+    },
+    {
+        "service": "logrocket",
+        "name": "LogRocket",
+        "description": "Investigate sessions, errors, and product analytics.",
+        "category": "developer-tools",
+        "url": "https://mcp.logrocket.com/mcp",
+        "website": "https://logrocket.com",
+        "iconHash": "a51586f2ee7ab55e7f611cb6ea0d5602f87b4ce47adb1221f71a03fcbe360759"
+    },
+    {
+        "service": "lokalise",
+        "name": "Lokalise",
+        "description": "Manage translations, multilingual content, and localization projects.",
+        "category": "productivity",
+        "url": "https://mcp.lokalise.com/mcp/project-management",
+        "website": null,
+        "iconHash": "ed050381069486238c5fcaedd95dc41e06008ee38e61c8e15aa43f5639b3871e"
+    },
+    {
+        "service": "lomi",
+        "name": "lomi.",
+        "description": "Accept payments and send payouts in francophone West Africa.",
+        "category": "commerce",
+        "url": "https://mcp.lomi.africa",
+        "website": "https://lomi.africa",
+        "iconHash": "d7f77a89a34508c8ba1a40330a327cf517cb833cb928248a216d93283aea5c27"
+    },
+    {
+        "service": "lona-trading-assistant",
+        "name": "LONA Trading Assistant",
+        "description": "Create, backtest, and export trading strategies from natural-language descriptions.",
+        "category": "analytics",
+        "url": "https://mcp.lona.agency/mcp",
+        "website": "https://lona.agency",
+        "iconHash": "015cfcb516509797325433e2af2d13b8a43f88cb43c835c912938aa6122150a0"
+    },
+    {
+        "service": "lovable",
+        "name": "Lovable",
+        "description": "Build and update web applications.",
+        "category": "developer-tools",
+        "url": "https://api.lovable.dev/mcp",
+        "website": "https://lovable.dev",
+        "iconHash": "91431c0be073f5b6083ef2d71af348577450733bdb085fb402b3b18c43b39ff4"
+    },
+    {
+        "service": "lucid",
+        "name": "Lucid",
+        "description": "Create and collaborate on diagrams.",
+        "category": "productivity",
+        "url": "https://mcp.lucid.app/mcp",
+        "website": "https://lucid.app",
+        "iconHash": "500c75c8184ac16c6e1b057ab856ac00e281a771f82e54d332f8dbb378a1bcc2"
+    },
+    {
+        "service": "magnific",
+        "name": "Magnific",
+        "description": "Create and edit AI images, video, and audio, and upscale visuals.",
+        "category": "content",
+        "url": "https://mcp.magnific.com/mcp",
+        "website": "https://www.magnific.com",
+        "iconHash": "3e4d64f84003a3a17352051c74d9ce6aba55262d76694b249e5a274cff6537e5"
+    },
+    {
+        "service": "mailercloud",
+        "name": "Mailercloud",
+        "description": "Create and manage email marketing campaigns.",
+        "category": "communication",
+        "url": "https://mcp.mailercloud.com/mcp",
+        "website": null,
+        "iconHash": "c280775cbce871e7c82c155c57cff475ad7a8fee79000f5d7e3c398b274b4acf"
+    },
+    {
+        "service": "mailersend",
+        "name": "MailerSend",
+        "description": "Send transactional emails from applications.",
+        "category": "communication",
+        "url": "https://mcp.mailersend.com/mcp",
+        "website": null,
+        "iconHash": "02b95a3350c79594b8ca7c53887576b6e811562348cbaf6f82211d278c4904ca"
+    },
+    {
+        "service": "make",
+        "name": "Make",
+        "description": "Run scenarios and manage automations.",
+        "category": "productivity",
+        "url": "https://mcp.make.com",
+        "website": null,
+        "iconHash": "b3590420bb5d8e082db2519235a2586ff9d056db2607f351467d7141ecae11a3"
+    },
+    {
+        "service": "make-agent-fast",
+        "name": "Make Agent Fast",
+        "description": "Create customer-service agents, review conversations and leads, and manage the chat widget.",
+        "category": "communication",
+        "url": "https://makeagent.fast/api/mcp",
+        "website": "https://makeagent.fast",
+        "iconHash": "9bd3d0a1165baf20b9a4625360aa55a1c33029e7cd2e942d7f4975392a964668"
+    },
+    {
+        "service": "mallary",
+        "name": "Mallary",
+        "description": "Post to social media and reply to comments.",
+        "category": "content",
+        "url": "https://mallary.ai/mcp",
+        "website": "https://mallary.ai",
+        "iconHash": "63d095f93f21a8725fa0da89fa120d30764821074c9b6df30a45da19ceca9f76"
+    },
+    {
+        "service": "manufact",
+        "name": "Manufact",
+        "description": "Deploy and monitor MCP servers.",
+        "category": "developer-tools",
+        "url": "https://mcp.manufact.com/mcp",
+        "website": null,
+        "iconHash": "29a8c91e66475dc7b9f61fef6eea5155d558109c29abc17d907cfd0425f5832c"
+    },
+    {
+        "service": "manyreach",
+        "name": "ManyReach",
+        "description": "Manage cold email campaigns, prospects, senders, and messages.",
+        "category": "communication",
+        "url": "https://mcp.manyreach.com/mcp",
+        "website": null,
+        "iconHash": "64e6e3e580a3b9fc322176d2517276834063e5bca21b51011f911add6369ff67"
+    },
+    {
+        "service": "mapbox",
+        "name": "Mapbox",
+        "description": "Build maps, navigation, and location-based applications.",
+        "category": "developer-tools",
+        "url": "https://mcp.mapbox.com/mcp",
+        "website": null,
+        "iconHash": "4bbe0efd1224d75155c7cb3297d911d8b00a0cfc10fd24ccbab568b3d647510b"
+    },
+    {
+        "service": "markup-ai",
+        "name": "Markup AI",
+        "description": "Evaluate content against brand terminology, voice, and style guidelines.",
+        "category": "ai",
+        "url": "https://api.markup.ai/mcp/",
+        "website": null,
+        "iconHash": "ac864ab516285c3616830ef4052015b3adf6dead655b9a404a798e6e7fafd4f5"
+    },
+    {
+        "service": "mem",
+        "name": "Mem",
+        "description": "Capture, organize, and retrieve notes and knowledge.",
+        "category": "other",
+        "url": "https://mcp.mem.ai/mcp",
+        "website": null,
+        "iconHash": "f3b5fd4fd9e6f6bddfb81863b227557cd07f286985b60aed8a62197bb09679fd"
+    },
+    {
+        "service": "mem0",
+        "name": "Mem0",
+        "description": "Give AI agents persistent memory.",
+        "category": "ai",
+        "url": "https://mcp.mem0.ai/mcp",
+        "website": null,
+        "iconHash": "e9d5b192fbfe6490c99147c828ae861ff12099a0f658c74c7f28450c314f788f"
+    },
+    {
+        "service": "memoket",
+        "name": "Memoket",
+        "description": "Search recordings and get transcripts, summaries, and briefs.",
+        "category": "productivity",
+        "url": "https://mcp.memoket.ai/mcp",
+        "website": "https://memoket.ai",
+        "iconHash": "51c997927bda2a617301703b67078a180adae2be9b3a44bf478ad4d7b8553f51"
+    },
+    {
+        "service": "mentio",
+        "name": "Mentio",
+        "description": "Track brand and keyword mentions across social media, news, and app reviews.",
+        "category": "analytics",
+        "url": "https://mcp.mentio.dev/mcp",
+        "website": "https://mentio.dev",
+        "iconHash": "a1ff0e6e4a51339bc4d112d5db962c7b67aec2dc846b77aae49296047d72320a"
+    },
+    {
+        "service": "mentionedon",
+        "name": "MentionedOn",
+        "description": "Monitor how AI assistants describe and recommend your business.",
+        "category": "analytics",
+        "url": "https://mentioned-on.com/mcp",
+        "website": "https://mentioned-on.com",
+        "iconHash": "f864cc911f3758e8deda5f5726040ecf6d257e3c1a487bde593b39d998e4fe27"
+    },
+    {
+        "service": "miro",
+        "name": "Miro",
+        "description": "Access and create content on Miro boards.",
+        "category": "productivity",
+        "url": "https://mcp.miro.com/",
+        "website": null,
+        "iconHash": "6d90c6467226516e2d83586d69e6d23f7c2ecd3dbcdbf8bbdbe4260086367644"
+    },
+    {
+        "service": "miromiro",
+        "name": "MiroMiro",
+        "description": "Extract code, design tokens, brand assets, and media from live websites.",
+        "category": "developer-tools",
+        "url": "https://miromiro.app/mcp",
+        "website": "https://miromiro.app",
+        "iconHash": "d53aae48cc0c976cc89bdcf74489af45db4b4a821ce26533697b332b481586c9"
+    },
+    {
+        "service": "missive",
+        "name": "Missive",
+        "description": "Collaborate on team email, chat, and tasks.",
+        "category": "communication",
+        "url": "https://mcp.missiveapp.com",
+        "website": null,
+        "iconHash": "fa43757e879557774a65e44cc38a50b28e4100810426f415a719cc4a570ae7d3"
+    },
+    {
+        "service": "mixpanel",
+        "name": "Mixpanel",
+        "description": "Analyze product usage and user behavior.",
+        "category": "analytics",
+        "url": "https://mcp.mixpanel.com/mcp",
+        "website": null,
+        "iconHash": "67051fb62da5aac7fa6bdfb045ab6560cd3202c6775246dd4d682e58ee5344aa"
+    },
+    {
+        "service": "mixpeek",
+        "name": "Mixpeek",
+        "description": "Search video, images, audio, and documents in your object storage by their contents.",
+        "category": "ai",
+        "url": "https://mcp.mixpeek.com/app/mcp",
+        "website": "https://mixpeek.com",
+        "iconHash": "e563a308195f1886396f0404b21bacf313acb1ae6d829039458603e29a3305e3"
+    },
+    {
+        "service": "mobbin",
+        "name": "Mobbin",
+        "description": "Search real-world mobile and web app UI screens, user flows, and design patterns.",
+        "category": "content",
+        "url": "https://api.mobbin.com/mcp",
+        "website": "https://mobbin.com",
+        "iconHash": "5d21766781ebd6d2ac85edb5b324772d4f282de12f111f9bc53df5b2fc1b6c8c"
+    },
+    {
+        "service": "modelslab",
+        "name": "ModelsLab",
+        "description": "Generate and edit images, video, speech, music, and sound with AI models.",
+        "category": "ai",
+        "url": "https://modelslab.com/mcp/v7",
+        "website": "https://modelslab.com",
+        "iconHash": "d1590a8cedbd97410b4e2a1c56c737a6de6ff68a0609ee72539e24d0bbf8036e"
+    },
+    {
+        "service": "modem",
+        "name": "Modem",
+        "description": "Analyze customer feedback, topics, people, and companies.",
+        "category": "analytics",
+        "url": "https://mcp.modem.dev/mcp",
+        "website": null,
+        "iconHash": "42e694d1c79464ade0134306e845be4ed7577354b92becb8e53194005792e4a1"
+    },
+    {
+        "service": "motherduck",
+        "name": "MotherDuck",
+        "description": "Query and explore your cloud data warehouse.",
+        "category": "data",
+        "url": "https://api.motherduck.com/mcp",
+        "website": "https://motherduck.com",
+        "iconHash": "069f58f5625a9f39160409f3a9081d625a330e1e5f2867fecb186c4bab67f0d5"
+    },
+    {
+        "service": "motra",
+        "name": "Motra",
+        "description": "Track exercises and count reps using Apple Watch motion data.",
+        "category": "productivity",
+        "url": "https://mcp.motra.com/mcp",
+        "website": "https://motra.com",
+        "iconHash": "494dd64b173db82e8750a9dd6d9918f8d64be5805b06fe8ea95e4ff70fbaeadd"
+    },
+    {
+        "service": "mrscraper",
+        "name": "MrScraper",
+        "description": "Extract structured web, search, marketplace, and travel data.",
+        "category": "ai",
+        "url": "https://mcp.mrscraper.com/mcp",
+        "website": null,
+        "iconHash": "669fba7af066b31ff452d4b2a3e7705d6b8e3d776cdd75f0e039ddf4fb918d73"
+    },
+    {
+        "service": "mstudio",
+        "name": "mStudio",
+        "description": "Turn a story or screenplay into a film with scripts, shots, stills, video, and sound.",
+        "category": "ai",
+        "url": "https://mstudio.ai/mcp",
+        "website": "https://mstudio.ai",
+        "iconHash": "f3e20273de593819c4d45a2417eb95b7a3c7b16168982e97f950149193905952"
+    },
+    {
+        "service": "multi-mail",
+        "name": "Multi Mail",
+        "description": "Search, read, draft, and send email across Gmail, Outlook, iCloud, and Fastmail.",
+        "category": "communication",
+        "url": "https://mail.lumman.co/mcp",
+        "website": "https://lumman.co/mcp/multi-mail",
+        "iconHash": "5adca434d80df89452a21c5d575aa82db7f94dd58db8881398ba85d78660566e"
+    },
+    {
+        "service": "nearer",
+        "name": "Nearer",
+        "description": "Break a goal into small steps and work through them one at a time.",
+        "category": "productivity",
+        "url": "https://nearer.io/mcp",
+        "website": "https://nearer.io",
+        "iconHash": "c737d332b6a1e532836cec7d1dfd0060ee46b30c130dec179f6c3ed16aad5e43"
+    },
+    {
+        "service": "netlify",
+        "name": "Netlify",
+        "description": "Build and deploy websites.",
+        "category": "developer-tools",
+        "url": "https://netlify-mcp.netlify.app/mcp",
+        "website": null,
+        "iconHash": "2d7237fc79a8fdeb5351f7fcb86caccef986b0eaa0653f81183e24057d40d20c"
+    },
+    {
+        "service": "neuronwriter",
+        "name": "NeuronWriter",
+        "description": "Create and optimize content for search engines using AI.",
+        "category": "productivity",
+        "url": "https://app.neuronwriter.com/mcp/http",
+        "website": null,
+        "iconHash": "ee1e814f46ce33592239d628217e9daa80a440720bf7611b7e4009c13cfd3156"
+    },
+    {
+        "service": "nexafin",
+        "name": "Nexafin",
+        "description": "Track bank accounts, balances, transactions, and recurring bills.",
+        "category": "analytics",
+        "url": "https://app.nexafin.com/mcp",
+        "website": "https://nexafin.com",
+        "iconHash": "5283135011f95f01d87cd7d74ed47874731e22beea2ee5fb5d4ab68d6b192e48"
+    },
+    {
+        "service": "nilyo",
+        "name": "Nilyo",
+        "description": "Search, read, and send messages across your LinkedIn, WhatsApp, email, and calendars.",
+        "category": "communication",
+        "url": "https://nilyo.com/mcp",
+        "website": "https://nilyo.com",
+        "iconHash": "69e0a8c181855a42eb408feed2a1e5a2ff517a146b73d9621d68683650697058"
+    },
+    {
+        "service": "noota",
+        "name": "Noota",
+        "description": "Search meeting recordings, transcripts, and AI summaries.",
+        "category": "productivity",
+        "url": "https://mcp.noota.io/mcp",
+        "website": "https://www.noota.io",
+        "iconHash": "3cff90403fa6abf2bc821860cde16a5341a20c38dd19b06e4fa9042a17282698"
+    },
+    {
+        "service": "notify-domains",
+        "name": "Notify.domains",
+        "description": "Watch taken domain names for expiration, auctions, and marketplace listings.",
+        "category": "productivity",
+        "url": "https://notify.domains/mcp",
+        "website": "https://notify.domains",
+        "iconHash": "a055eb4c6c776f4d9e8c5287bd97c943310dbceb53fc84d9cba810b5b67e61a5"
+    },
+    {
+        "service": "notion",
+        "name": "Notion",
+        "description": "Read and write pages in your workspace.",
+        "category": "productivity",
+        "url": "https://mcp.notion.com/mcp",
+        "website": "https://www.notion.so",
+        "iconHash": "964fed62b41369ace87a2b8dceefb01e151b1bae6e33c63d04fbe13a9eb1a06b"
+    },
+    {
+        "service": "notra",
+        "name": "Notra",
+        "description": "Track how your brand appears in AI search and improve it.",
+        "category": "analytics",
+        "url": "https://mcp.usenotra.com/mcp",
+        "website": "https://www.usenotra.com",
+        "iconHash": "78ed39617294a406cf02e2d3e262724618f19aa41820bcf1f8ed9f0c2a57a1ba"
+    },
+    {
+        "service": "nozbe-teams",
+        "name": "Nozbe Teams",
+        "description": "Organize team projects and tasks.",
+        "category": "productivity",
+        "url": "https://mcp.nozbe.ai/mcp",
+        "website": null,
+        "iconHash": "5ca1439599a4e51a348ef64bc79f2aec148019d1ec2c426bcfb2a758b032e9db"
+    },
+    {
+        "service": "nuclear-news-network",
+        "name": "Nuclear News Network",
+        "description": "Search nuclear energy news, operators, regulators, and reactor data.",
+        "category": "data",
+        "url": "https://mcp.nuclearnewsnetwork.com/mcp",
+        "website": "https://nuclearnewsnetwork.com",
+        "iconHash": "d3d6c14b707ccd7114cee31201af6dd073d214e81a2762c669b0deff29336023"
+    },
+    {
+        "service": "nusii-proposals",
+        "name": "Nusii proposals",
+        "description": "Create and send business proposals.",
+        "category": "productivity",
+        "url": "https://app.nusii.com/mcp",
+        "website": null,
+        "iconHash": "69aa04476bbd2a47c5cbc76a6f09100e78c2d9ccb962e55e7db5e085cc9480fb"
+    },
+    {
+        "service": "omni-analytics",
+        "name": "Omni Analytics",
+        "description": "Query business data and manage analytics models and content.",
+        "category": "analytics",
+        "url": "https://callbacks.omniapp.co/callback/mcp",
+        "website": "https://omniapp.co",
+        "iconHash": "1aee7d2a5d0b025242a2012d664cd232054926e3015ad28b92a1afc393066bed"
+    },
+    {
+        "service": "onesignal",
+        "name": "OneSignal REST API",
+        "description": "Send push notifications, email, and SMS and manage subscribers.",
+        "category": "other",
+        "url": "https://api.onesignal.com/mcp/oauth",
+        "website": null,
+        "iconHash": "94cba1833d23739da3f9550f2c42776f635f6ed8aaef616ad2ec234ac17893e7"
+    },
+    {
+        "service": "openalex",
+        "name": "OpenAlex",
+        "description": "Explore scholarly works, authors, institutions, and research topics.",
+        "category": "data",
+        "url": "https://mcp.openalex.org/mcp",
+        "website": "https://openalex.org/settings/api",
+        "iconHash": "2e3044234b47b8e9b55624d56157c6af2f8442ae61f11cd42546703ae208cdac"
+    },
+    {
+        "service": "opencase",
+        "name": "OpenCase",
+        "description": "Check legal citations, verify quotations, and research US case law.",
+        "category": "productivity",
+        "url": "https://www.opencase.com/mcp",
+        "website": "https://www.opencase.com",
+        "iconHash": "20dcd558dc8f2dd07da1a1534218a048bb1e14e1f6396758732eb26ba278801f"
+    },
+    {
+        "service": "openfunnel-agent-primitives",
+        "name": "OpenFunnel Agent Primitives",
+        "description": "Search, research, and enrich company data for AI sales agents.",
+        "category": "ai",
+        "url": "https://agents.openfunnel.dev/mcp",
+        "website": "https://docs.openfunnel.dev/agent-primitives/authentication",
+        "iconHash": "bcdd9671531d6f86c86064f5d492a8de3c546211539c93096bd3882f7d1b58a6"
+    },
+    {
+        "service": "openlayer",
+        "name": "Openlayer",
+        "description": "Evaluate AI systems and monitor model and application performance.",
+        "category": "ai",
+        "url": "https://mcp.openlayer.com/mcp",
+        "website": null,
+        "iconHash": "519706b71e5fda2d7f98b89146c43acfe98033d7a39e999935aa3f8b032aa29f"
+    },
+    {
+        "service": "openstatus",
+        "name": "openstatus",
+        "description": "Monitor uptime, manage incidents, and publish status page updates.",
+        "category": "developer-tools",
+        "url": "https://api.openstatus.dev/mcp",
+        "website": "https://www.openstatus.dev",
+        "iconHash": "fafe1d0a2f038d1da86903eb0c5806f24807a438cfef33a4ce167f617be21809"
+    },
+    {
+        "service": "opus-growth",
+        "name": "Opus Growth",
+        "description": "Manage ad campaigns, analytics, measurement, and website workflows.",
+        "category": "analytics",
+        "url": "https://mcp.opus-growth.com/mcp",
+        "website": "https://opus-growth.com",
+        "iconHash": "dd3da63e54c88b9e7a8f132e22813719731e14d0ccf3415eaf68a55aae55b8b2"
+    },
+    {
+        "service": "oreilly",
+        "name": "O’Reilly",
+        "description": "Discover expert books, courses, and learning content.",
+        "category": "content",
+        "url": "https://api.oreilly.com/api/content-discovery/v1/mcp/",
+        "website": null,
+        "iconHash": "327fb4f39e76f43d3c5cec540e489ebe24fdf70e450c76e29828c52ba1c42a55"
+    },
+    {
+        "service": "originalvoices",
+        "name": "OriginalVoices",
+        "description": "Explore audience perspectives through digital models of real people.",
+        "category": "ai",
+        "url": "https://api.originalvoices.ai/mcp",
+        "website": "https://originalvoices.ai",
+        "iconHash": "5baeaecbed68ed21d9e3b9c136731079c5070b26c498877d5b118c9d6eb23d06"
+    },
+    {
+        "service": "orshot",
+        "name": "Orshot",
+        "description": "Generate images, PDFs, and videos from branded templates.",
+        "category": "ai",
+        "url": "https://mcp.orshot.com/mcp",
+        "website": "https://orshot.com",
+        "iconHash": "9910534862a31e8e4b436963af596bdd6b91321e2a6d35870aa21294b351899b"
+    },
+    {
+        "service": "otter-ai",
+        "name": "Otter.ai",
+        "description": "Search meeting transcripts and summaries.",
+        "category": "communication",
+        "url": "https://mcp.otter.ai/mcp",
+        "website": "https://otter.ai",
+        "iconHash": "90d97d9e35b185ad55f341616ec398d69fb5ee5098f3ed98193eabfadb415fd2"
+    },
+    {
+        "service": "ouragents",
+        "name": "OurAgents.chat",
+        "description": "Give agents a lasting address to exchange threaded messages with other agents.",
+        "category": "communication",
+        "url": "https://ouragents.chat/mcp",
+        "website": "https://ouragents.chat",
+        "iconHash": "481c88df7b93d814a829481d7323cae8b4ad2f539f2664f3c4b10637511f8251"
+    },
+    {
+        "service": "paidnice",
+        "name": "Paidnice",
+        "description": "Chase overdue invoices and handle customer replies for Xero and QuickBooks.",
+        "category": "commerce",
+        "url": "https://api.paidnice.com/mcp",
+        "website": "https://www.paidnice.com",
+        "iconHash": "f3245b3e579a79c76a6c13fecc1b0f9bba8bf288fead78dd0b28f83f589b0b5f"
+    },
+    {
+        "service": "pandadoc",
+        "name": "PandaDoc",
+        "description": "Create, send, sign, and track business documents.",
+        "category": "productivity",
+        "url": "https://mcp.pandadoc.com/v1/mcp",
+        "website": null,
+        "iconHash": "d8218ea44129053220cb3ffdd7e724f6d8504b8da31469705ca807b0f5725e01"
+    },
+    {
+        "service": "parallel",
+        "name": "Parallel",
+        "description": "Search the web and run structured research tasks.",
+        "category": "ai",
+        "url": "https://search-mcp.parallel.ai/mcp",
+        "website": null,
+        "iconHash": "92e8498ad4a81ba082b92e46da156118fe7bf6caa6a1f374b951bcc0bb6e09e4"
+    },
+    {
+        "service": "pave",
+        "name": "Pave",
+        "description": "Analyze compensation and benchmark pay with Pave Agent.",
+        "category": "productivity",
+        "url": "https://mcp.pave.com/mcp",
+        "website": "https://www.pave.com",
+        "iconHash": "e8f09258ed3697328f93547f840810526c89fcdfa8e868864d9a33dac62168a2"
+    },
+    {
+        "service": "paypal",
+        "name": "PayPal",
+        "description": "Manage payments, invoices, and subscriptions.",
+        "category": "commerce",
+        "url": "https://mcp.paypal.com/mcp",
+        "website": "https://paypal.com",
+        "iconHash": "f09133e46661656605425abdd44afbed7721073a02cd2788fd1d5b4a1e662768"
+    },
+    {
+        "service": "peak-answer",
+        "name": "Peak Answer",
+        "description": "Track AI search visibility, audit pages, and find placement and discussion opportunities.",
+        "category": "analytics",
+        "url": "https://peakanswer.com/api/mcp",
+        "website": "https://peakanswer.com",
+        "iconHash": "5573b59e73199ce841e0b2a089121458d5b4f1c4741744d738dcb58dc612bdb9"
+    },
+    {
+        "service": "peakmetrics",
+        "name": "PeakMetrics",
+        "description": "Search news and social media mentions and track narratives about brands and industries.",
+        "category": "analytics",
+        "url": "https://mcp.peakmetrics.com",
+        "website": "https://www.peakmetrics.com",
+        "iconHash": "ba7965cd5acad8487b9b43f0f8bf3297c7426c91546de2fc88766eebada090b8"
+    },
+    {
+        "service": "pendium",
+        "name": "Pendium",
+        "description": "Monitor how AI assistants recommend your brand and act on the findings.",
+        "category": "analytics",
+        "url": "https://pendium.ai/api/mcp",
+        "website": "https://pendium.ai",
+        "iconHash": "39cd5163470afdf281af430ce64870472ace9866cccea67f28e63aaa4eeafb8f"
+    },
+    {
+        "service": "pendo",
+        "name": "Pendo",
+        "description": "Explore product usage and customer insights.",
+        "category": "analytics",
+        "url": "https://app.pendo.io/mcp/v0/shttp",
+        "website": "https://pendo.io",
+        "iconHash": "cf26eb72f11bbc2ccb9eb77e9eb029af81b97a4cc16271db677c6ad3259694f0"
+    },
+    {
+        "service": "perigon",
+        "name": "Perigon",
+        "description": "Retrieve structured news and web content data.",
+        "category": "data",
+        "url": "https://mcp.perigon.io/v1/mcp",
+        "website": "https://perigon.io",
+        "iconHash": "6069ca3c733e2c0306c56fe11c32cd9d602988c5cdf8608f3afe9afe4c80e53c"
+    },
+    {
+        "service": "phantombuster",
+        "name": "PhantomBuster",
+        "description": "Extract web data and automate lead generation and social media tasks.",
+        "category": "ai",
+        "url": "https://mcp.phantombuster.com",
+        "website": null,
+        "iconHash": "2fb5c58599fbbe17ff3594a01c30d9f78532224a06dd4c3ff43d481b11ff02e9"
+    },
+    {
+        "service": "pinebill",
+        "name": "PineBill",
+        "description": "Create and send invoices and estimates, and manage customers, expenses, and projects.",
+        "category": "productivity",
+        "url": "https://www.pinebill.app/api/mcp",
+        "website": "https://www.pinebill.app",
+        "iconHash": "9c776432c92635bbacb8912770cf4f4523bb2bdfbed128cd49c8041566b03203"
+    },
+    {
+        "service": "pixelesq",
+        "name": "Pixelesq",
+        "description": "Create, edit, and publish website pages, content, and forms.",
+        "category": "content",
+        "url": "https://mcp.pixelesq.app/mcp",
+        "website": "https://pixelesq.com",
+        "iconHash": "0fb707017b388ba61170633f9d4ee5b94da70a341d94c69187893e9a56cddf65"
+    },
+    {
+        "service": "planetscale",
+        "name": "PlanetScale",
+        "description": "Query and manage Postgres and MySQL databases.",
+        "category": "data",
+        "url": "https://mcp.pscale.dev/mcp/planetscale",
+        "website": null,
+        "iconHash": "48b86d3ab1d01f787922c43b4121a0aa0c2ed909fe6cbee593c8d122a8d8b6ae"
+    },
+    {
+        "service": "plutus",
+        "name": "Plutus",
+        "description": "Query cloud, AI, and SaaS spend, and manage budgets, alerts, and dashboards.",
+        "category": "analytics",
+        "url": "https://console.plutus-cloud.com/api/mcp",
+        "website": "https://plutus-cloud.com",
+        "iconHash": "3d68d7a8f44435276e37d82078057c910690ea89d46048378872ddd99a04660b"
+    },
+    {
+        "service": "polar-signals-mcp",
+        "name": "Polar Signals",
+        "description": "Inspect profiling data to diagnose performance regressions.",
+        "category": "developer-tools",
+        "url": "https://api.polarsignals.com/api/mcp/",
+        "website": null,
+        "iconHash": "7c56095de220e1b39fc05c7c942b8dd85faa1ae5b7dbb836be4de82268a9b8fd"
+    },
+    {
+        "service": "polygraph",
+        "name": "Polygraph",
+        "description": "Request evidence-backed information from another person through their AI agent.",
+        "category": "productivity",
+        "url": "https://mcp.polygraphagent.com/mcp",
+        "website": "https://polygraphagent.com",
+        "iconHash": "5ef7c789cf3b5ce215008de51ee10c9611c92b2ee3e5f9dc0f91c1c9b53de888"
+    },
+    {
+        "service": "polylane",
+        "name": "Polylane",
+        "description": "Investigate incidents and ship fixes with AI agents.",
+        "category": "developer-tools",
+        "url": "https://mcp.polylane.com/mcp",
+        "website": "https://polylane.com",
+        "iconHash": "553c4dc0bf54e4ea9f15d618de669b563b49b2752ee74204af02cea7787c8a3f"
+    },
+    {
+        "service": "portravo",
+        "name": "Portravo",
+        "description": "Turn construction plan sets into reviewed takeoffs and estimate workbooks.",
+        "category": "productivity",
+        "url": "https://portravo.com/mcp",
+        "website": "https://portravo.com",
+        "iconHash": "0a81732ace5d517ac2b677bbc0461f11cf4130ab5d9aa34225483a8f30ab8b57"
+    },
+    {
+        "service": "postedly",
+        "name": "Postedly",
+        "description": "Quote, draft, and track US physical mail and fax orders.",
+        "category": "communication",
+        "url": "https://postedly.com/mcp/send",
+        "website": "https://postedly.com",
+        "iconHash": "444e79469ecb69bab9bbe3f88fbf16178d4c1297a1851965701b2b4746a236ba"
+    },
+    {
+        "service": "postfast",
+        "name": "PostFast",
+        "description": "Schedule social media posts and answer comments from one inbox.",
+        "category": "content",
+        "url": "https://mcp.postfa.st/mcp",
+        "website": "https://postfa.st",
+        "iconHash": "cdb6b8607dfa64de54e9177ddca3a5414643114cbf248a525ecbcca1eb7015b2"
+    },
+    {
+        "service": "posthog",
+        "name": "PostHog",
+        "description": "Analyze product usage, experiments, and insights.",
+        "category": "analytics",
+        "url": "https://mcp.posthog.com/mcp",
+        "website": null,
+        "iconHash": "7439d9d39d3b154d08d32d4c381c7870cb30d1afe2202cba3948bc4c91765717"
+    },
+    {
+        "service": "postiz",
+        "name": "Postiz",
+        "description": "Schedule and publish social media posts and manage connected channels.",
+        "category": "content",
+        "url": "https://mcp.postiz.com/mcp-oauth-dynamic",
+        "website": "https://postiz.com",
+        "iconHash": "6882d718705330d4cc6994c08783361f338be78394a0d62703e93aa07e3b6fc8"
+    },
+    {
+        "service": "postman",
+        "name": "Postman",
+        "description": "Give coding agents context about your APIs.",
+        "category": "developer-tools",
+        "url": "https://mcp.postman.com/minimal",
+        "website": null,
+        "iconHash": "5fc124487c5792613f6796107d8bd492165a605869e85cd182589797ed05b0ed"
+    },
+    {
+        "service": "postplanify",
+        "name": "PostPlanify",
+        "description": "Schedule and publish social posts, read analytics, and reply to comments.",
+        "category": "content",
+        "url": "https://api.postplanify.com/api/mcp",
+        "website": "https://postplanify.com",
+        "iconHash": "6fb1866e6a15a4efdcab4b68af429daf818e2a5ed2cd15a64c9d1476670e4f1b"
+    },
+    {
+        "service": "postpone",
+        "name": "Postpone",
+        "description": "Schedule, publish, and analyze posts across social networks.",
+        "category": "content",
+        "url": "https://api.postpone.app/mcp",
+        "website": "https://www.postpone.app/settings/api",
+        "iconHash": "9ce5f4e6a8fe6dbad85b0a7243be99f177e30650fd8b2ca8ac968c777dc0fdf4"
+    },
+    {
+        "service": "posty",
+        "name": "Posty",
+        "description": "Write, schedule, and publish social media posts across 12 networks.",
+        "category": "content",
+        "url": "https://api.posty.hu/mcp-oauth",
+        "website": "https://posty.hu",
+        "iconHash": "347f701480b62706ebb6880e598c83712cab28f0e82b185906020d976a0bdb63"
+    },
+    {
+        "service": "presscart",
+        "name": "Presscart",
+        "description": "Browse publications and order, manage, and track paid editorial placements.",
+        "category": "content",
+        "url": "https://mcp.presscart.com/mcp",
+        "website": "https://presscart.com",
+        "iconHash": "b964217b369c68205347027b5bc5125a8a6f45af2ff9e50a1c950ef99ba1a9f5"
+    },
+    {
+        "service": "preuve-ai",
+        "name": "Preuve AI",
+        "description": "Run market research on startup ideas, with sourced competitors, pricing, and risks.",
+        "category": "ai",
+        "url": "https://mcp.preuve.ai/mcp",
+        "website": "https://preuve.ai",
+        "iconHash": "42b9c003d2d92e6249382dd0e0244821265ad1163a2084bb78b391507087215c"
+    },
+    {
+        "service": "prisma",
+        "name": "Prisma",
+        "description": "Manage Prisma Postgres databases, projects, environments, and workspaces.",
+        "category": "data",
+        "url": "https://mcp.prisma.io/mcp",
+        "website": null,
+        "iconHash": "e7864efeb648002a5fccb81fb86d010be9addc5b0542a6de72881c94b2eaebdd"
+    },
+    {
+        "service": "prismic",
+        "name": "Prismic",
+        "description": "Manage content in your Prismic repositories.",
+        "category": "content",
+        "url": "https://mcp.prismic.io/mcp",
+        "website": "https://prismic.io",
+        "iconHash": "cc14b93871b07642ea9a29eb485047a7394063d560d7612a91a4342789aebf92"
+    },
+    {
+        "service": "process-street",
+        "name": "Process Street",
+        "description": "Create and run checklists, procedures, and recurring workflows.",
+        "category": "productivity",
+        "url": "https://mcp.process.st/",
+        "website": null,
+        "iconHash": "1df40c2a6ea721aa647c8bb10fe697fb9e4b9035ddc8c1521e7f048403a3f3b3"
+    },
+    {
+        "service": "productboard",
+        "name": "Productboard",
+        "description": "Collect feedback, prioritize features, and plan product roadmaps.",
+        "category": "other",
+        "url": "https://mcp.productboard.com",
+        "website": null,
+        "iconHash": "a340733d08f2b01aeb08799f3350afd177dd06de2d41a03301ee2612ba7b6cd8"
+    },
+    {
+        "service": "productlane",
+        "name": "Productlane",
+        "description": "Manage customer support and feedback alongside Linear.",
+        "category": "productivity",
+        "url": "https://productlane.com/api/mcp",
+        "website": null,
+        "iconHash": "d37a42081915830e28340e984b6021cd935b5d46e330233019ee018ee68430f5"
+    },
+    {
+        "service": "prolifik",
+        "name": "Prolifik",
+        "description": "Make short-form videos from websites or long videos, and schedule them to social accounts.",
+        "category": "content",
+        "url": "https://app.getprolifik.com/mcp",
+        "website": "https://getprolifik.com",
+        "iconHash": "49cb5143846cb3ea9b98fb8eed09845c544c3b282fa1287100320bcf135231b1"
+    },
+    {
+        "service": "proofable",
+        "name": "Proofable",
+        "description": "Give AI agents trusted context, scoped access, and proof of actions.",
+        "category": "developer-tools",
+        "url": "https://mcp.proofable.me/mcp",
+        "website": "https://proofable.me",
+        "iconHash": "05f447928f359e8c7ba438272536e9dc0c1c0d21ebb927e5fe4e5e86dd1294a5"
+    },
+    {
+        "service": "prospeo",
+        "name": "Prospeo",
+        "description": "Search and enrich company profiles and verified business contacts.",
+        "category": "ai",
+        "url": "https://mcp.prospeo.io",
+        "website": "https://app.prospeo.io",
+        "iconHash": "226d7f201d89571671cfef97bed5461277f90badee02094e27afe5a88f1a65cd"
+    },
+    {
+        "service": "proxy",
+        "name": "Proxy",
+        "description": "Search Meta, Google, LinkedIn, and TikTok ad libraries and analyze ad creatives.",
+        "category": "analytics",
+        "url": "https://mcp.useproxy.dev/mcp",
+        "website": "https://useproxy.dev",
+        "iconHash": "1b47c8ba8052390eddb7122a1a740c43c7467e08c80436e5a5c123b872f2a811"
+    },
+    {
+        "service": "pylon",
+        "name": "Pylon",
+        "description": "Work with support issues, accounts, and contacts.",
+        "category": "communication",
+        "url": "https://mcp.usepylon.com/",
+        "website": "https://usepylon.com",
+        "iconHash": "c4eb509ccbc45d2a12eca9b813be803fe497813155f97c2678938cfa2b942213"
+    },
+    {
+        "service": "qrx",
+        "name": "QRX",
+        "description": "Generate artistic QR codes from a description and change where existing codes point.",
+        "category": "content",
+        "url": "https://qrx.codes/mcp",
+        "website": "https://qrx.codes",
+        "iconHash": "0716e7f4ad47b63d78a7ff151a903efa22b67175eb83b67f5a92743d471949b7"
+    },
+    {
+        "service": "quartr",
+        "name": "Quartr",
+        "description": "Research company filings, earnings, and investor materials.",
+        "category": "data",
+        "url": "https://mcp.quartr.com/mcp",
+        "website": "https://quartr.com",
+        "iconHash": "f1c679bbac2c62df4d2a9e9d44c5637c01d3a6eefb481dbc1db2d33ba3e03a43"
+    },
+    {
+        "service": "queryna",
+        "name": "Queryna",
+        "description": "Review SEO, analytics, tracking, and ad performance, and create reports.",
+        "category": "analytics",
+        "url": "https://app.queryna.com/api/mcp",
+        "website": "https://queryna.com",
+        "iconHash": "205aa36f5c02c9ff182f8a68519c59ed2c7e1a029c80810456e022bdc207abc5"
+    },
+    {
+        "service": "quicknode",
+        "name": "Quicknode",
+        "description": "Access blockchain data and manage infrastructure.",
+        "category": "developer-tools",
+        "url": "https://mcp.quicknode.com/mcp",
+        "website": "https://quicknode.com",
+        "iconHash": "8a461af97b13c3b7192d2843d42a0e2bf3dfde86526b1f40aff4fc4747b7b90a"
+    },
+    {
+        "service": "quicktion",
+        "name": "Quicktion",
+        "description": "Save emails to Notion, Google Sheets, Airtable, Linear, Trello, or Google Drive.",
+        "category": "productivity",
+        "url": "https://quicktion.io/mcp",
+        "website": "https://quicktion.io",
+        "iconHash": "5c1368b6eb1e3b5d0a87bca46aa423a0db9108b7e95992891a8eda7b766749ae"
+    },
+    {
+        "service": "raisely",
+        "name": "Raisely",
+        "description": "Create and manage online fundraising campaigns.",
+        "category": "commerce",
+        "url": "https://mcp.raisely.com/mcp",
+        "website": null,
+        "iconHash": "2e3ee750a7d97b42527bebd830dc267faaf7264f05779b615a7cd60192507f50"
+    },
+    {
+        "service": "ramp",
+        "name": "Ramp",
+        "description": "Manage company spend, expenses, bills, and approvals.",
+        "category": "commerce",
+        "url": "https://mcp.ramp.com/mcp",
+        "website": "https://ramp.com",
+        "iconHash": "94561ff2de4041b6caf1ef8b52a4b94bdfa4ac0ca27a34de4351229dba6ff95b"
+    },
+    {
+        "service": "ranked-ai",
+        "name": "Ranked AI",
+        "description": "Track search rankings, audit websites, and manage SEO and advertising campaigns.",
+        "category": "ai",
+        "url": "https://app.ranked.ai/api/mcp/sse",
+        "website": "https://ranked.ai",
+        "iconHash": "b7b44dafef3109c9c0ffa5d66c025d0f26d3d5cca1d3311d16510155262e5e3b"
+    },
+    {
+        "service": "ranklybee",
+        "name": "RanklyBee",
+        "description": "Run SEO: Search Console data, articles, backlinks, outreach, and AI visibility.",
+        "category": "content",
+        "url": "https://api.ranklybee.com/mcp",
+        "website": "https://ranklybee.com",
+        "iconHash": "c3499f7f46468483f726ad4c18dddc86a8dc14c2bbc129b1516ad0c756b135a3"
+    },
+    {
+        "service": "rawa",
+        "name": "Rawa",
+        "description": "Plan marketing campaigns with specialised marketing data feeds.",
+        "category": "content",
+        "url": "https://mcp.rawa.ai/mcp",
+        "website": "https://rawa.ai",
+        "iconHash": "c87043c2259f3d0b3fcde4cef5ed5c7ff9255adc90e9c82c00d4e846efd1bd5e"
+    },
+    {
+        "service": "rawtree",
+        "name": "RawTree",
+        "description": "Send JSON events, query them with SQL, and manage analytical databases.",
+        "category": "data",
+        "url": "https://mcp.rawtree.com/mcp",
+        "website": "https://rawtree.com",
+        "iconHash": "19f154529ad80781aab0d638065a4b26640c3d169ad83dcb3d732cb4dd8f8bb2"
+    },
+    {
+        "service": "raygun",
+        "name": "Raygun",
+        "description": "Investigate errors, deployments, user sessions, and application performance.",
+        "category": "developer-tools",
+        "url": "https://api.raygun.com/v3/mcp",
+        "website": "https://raygun.com",
+        "iconHash": "4fb9708a238f250022772a5182c5a83b2b92628f0994d0b695ea386f904a65d6"
+    },
+    {
+        "service": "razorpay",
+        "name": "Razorpay",
+        "description": "Manage payments, settlements, and account data.",
+        "category": "commerce",
+        "url": "https://mcp.razorpay.com/mcp",
+        "website": null,
+        "iconHash": "a0f1772e3f71873a3ec2146bf2a57bcf031d2ce8295862a03fea2fe4bd32ae50"
+    },
+    {
+        "service": "read-ai",
+        "name": "Read AI",
+        "description": "Search meeting summaries, transcripts, and action items.",
+        "category": "communication",
+        "url": "https://api.read.ai/mcp",
+        "website": "https://read.ai",
+        "iconHash": "a7e0ec74fec41724b9d4acb73b8c5993e7d17adabea30a77e909148a37b9cc19"
+    },
+    {
+        "service": "readwise",
+        "name": "Readwise",
+        "description": "Search saved highlights and documents.",
+        "category": "content",
+        "url": "https://mcp2.readwise.io/mcp",
+        "website": "https://readwise.io",
+        "iconHash": "136ddf45c6144727e8d81f22d49a951d7c7b5a29ceda79dba8b11a1d43efe843"
+    },
+    {
+        "service": "recipebee",
+        "name": "RecipeBee",
+        "description": "Search public recipes, preview meal plans, and save recipes and meal plans to your account.",
+        "category": "content",
+        "url": "https://recipebee.app/mcp",
+        "website": "https://recipebee.app",
+        "iconHash": "252ee8d3fe977de1b5acd7689e7589542dc0dd61dcc13bf3935701538cd4072d"
+    },
+    {
+        "service": "reclaim-ai",
+        "name": "Reclaim.ai",
+        "description": "Manage scheduling and calendar workflows.",
+        "category": "productivity",
+        "url": "https://mcp.reclaim.ai",
+        "website": "https://reclaim.ai",
+        "iconHash": "4343c0c80c7f830ccbbee5d6526962b35d769c99ded51fbefa70f4f8056a910a"
+    },
+    {
+        "service": "redreplier",
+        "name": "RedReplier",
+        "description": "Find social posts asking for products like yours and draft replies.",
+        "category": "content",
+        "url": "https://mcp.redreplier.com/mcp",
+        "website": "https://redreplier.com",
+        "iconHash": "a741ae423af27cb26b006ec2bd9d4380249a52da2ea9b08b5b572ff25732041f"
+    },
+    {
+        "service": "reletter",
+        "name": "Reletter",
+        "description": "Search newsletters and archives with subscriber numbers, contacts, and audience data.",
+        "category": "data",
+        "url": "https://mcp.reletter.com",
+        "website": "https://reletter.com",
+        "iconHash": "bcc54414b3598dde1e736a4c5a749b47267ac4082edb69bf154912d5a90512e0"
+    },
+    {
+        "service": "rephonic",
+        "name": "Rephonic",
+        "description": "Search podcasts with transcripts, listener estimates, contacts, guests, and sponsors.",
+        "category": "data",
+        "url": "https://mcp.rephonic.com",
+        "website": "https://rephonic.com",
+        "iconHash": "b79983c92aecf92caac4619f3db5e13727325374cd58cad480cc1de9c91a2511"
+    },
+    {
+        "service": "replo",
+        "name": "Replo",
+        "description": "Research competitors and build, edit, and manage ecommerce sites.",
+        "category": "commerce",
+        "url": "https://api.replo.app/v1/mcp",
+        "website": "https://replo.app",
+        "iconHash": "61bb4bd2976f74fc4376a3337a91b163c92127735414a6c8f6f5113b8338fd16"
+    },
+    {
+        "service": "resend",
+        "name": "Resend",
+        "description": "Send transactional emails from your apps.",
+        "category": "communication",
+        "url": "https://mcp.resend.com",
+        "website": "https://resend.com",
+        "iconHash": "dec46309c743d7c0cb9294188fd2f1ee41987591e111a125c89a30cde35119fc"
+    },
+    {
+        "service": "reteno",
+        "name": "Reteno",
+        "description": "Manage customer contacts, events, and messaging campaigns across channels.",
+        "category": "communication",
+        "url": "https://mcp.reteno.com",
+        "website": null,
+        "iconHash": "73ba3f01b287318a86c3a14c151a9d358aea95c1b7356272bd1f33f864c04834"
+    },
+    {
+        "service": "retently",
+        "name": "Retently",
+        "description": "Collect and analyze customer experience survey responses.",
+        "category": "analytics",
+        "url": "https://mcp.retently.com/mcp",
+        "website": null,
+        "iconHash": "8c01eb536f33c4e6812a38e95cc9395fd256d0902594bf1052754513fdf25686"
+    },
+    {
+        "service": "revensi",
+        "name": "Revensi",
+        "description": "Map business workflows, review decisions, and save workflow drafts.",
+        "category": "productivity",
+        "url": "https://app.revensi.com/mcp",
+        "website": "https://revensi.com",
+        "iconHash": "df106c918d520abcd723149155a22a62835fa2170c981d395878735d70fd1078"
+    },
+    {
+        "service": "revup",
+        "name": "Revup",
+        "description": "Create and customize sweepstakes, contests, quizzes, and surveys, and track results.",
+        "category": "content",
+        "url": "https://revup.com/mcp",
+        "website": "https://revup.com",
+        "iconHash": "c97de58167d2334a1c1729ecbf0a08df95b8592bb4823370fa73511a44bf7c44"
+    },
+    {
+        "service": "rize",
+        "name": "Rize",
+        "description": "Track work time automatically and review productivity insights.",
+        "category": "productivity",
+        "url": "https://mcp.rize.io/mcp",
+        "website": null,
+        "iconHash": "cee8edf861255e5716c53e4e0934694e1397d515b54dbbbdedd0c85ac506687b"
+    },
+    {
+        "service": "roadops",
+        "name": "RoadOps",
+        "description": "Plan and share tour schedules and logistics for entertainment teams.",
+        "category": "productivity",
+        "url": "https://api.roadops.app/mcp",
+        "website": "https://roadops.app",
+        "iconHash": "2f87410d770776215d308bb76c2628978b8930e2be88d2165384f8c8eeae98af"
+    },
+    {
+        "service": "roboflow",
+        "name": "Roboflow",
+        "description": "Build, train, and deploy computer vision models.",
+        "category": "ai",
+        "url": "https://mcp.roboflow.com/mcp",
+        "website": null,
+        "iconHash": "c0eb8a03afd8fb7af71bd4869935cea04e9db630120e827755023018f1703a6b"
+    },
+    {
+        "service": "robotomail",
+        "name": "Robotomail",
+        "description": "Give AI agents their own email inboxes to send, receive, and reply.",
+        "category": "communication",
+        "url": "https://robotomail.com/mcp",
+        "website": "https://robotomail.com",
+        "iconHash": "0118b38f3793506f28f888cefe7665685b7a4cd1e6dbf64f8d4977f5427be658"
+    },
+    {
+        "service": "rootly",
+        "name": "Rootly",
+        "description": "Manage incidents, on-call schedules, and response workflows.",
+        "category": "developer-tools",
+        "url": "https://mcp.rootly.com/mcp",
+        "website": null,
+        "iconHash": "e72643546d290e2998cf3b7a179eed0a2f31de704e3e4247d38417ea95df9da6"
+    },
+    {
+        "service": "routergrowth",
+        "name": "RouterGrowth",
+        "description": "Run go-to-market data tools from one API with a prepaid balance.",
+        "category": "data",
+        "url": "https://api.routergrowth.com/mcp",
+        "website": "https://www.routergrowth.com",
+        "iconHash": "8253616bb6e16d92a7540893f1a42c72d71e0ba1cf4bdc530964f2e925236696"
+    },
+    {
+        "service": "runheed",
+        "name": "Runheed",
+        "description": "Search production errors, read stack traces, and resolve errors from your coding agent.",
+        "category": "developer-tools",
+        "url": "https://runheed.com/api/mcp",
+        "website": "https://runheed.com",
+        "iconHash": "a4dd418a178b745925fb46fce2c8ec62f9acb56babd9a6851d4ff7e6aa366272"
+    },
+    {
+        "service": "runtime",
+        "name": "Runtime",
+        "description": "Run code in Linux sandboxes for AI agents.",
+        "category": "developer-tools",
+        "url": "https://api.withruntime.com/mcp",
+        "website": "https://withruntime.com",
+        "iconHash": "e01c442f4c1b505a9bc5888bf5d8d20d629e4401a13db5ded2105559e7de359e"
+    },
+    {
+        "service": "runzumi",
+        "name": "Runzumi",
+        "description": "Analyze GitHub Actions job duration, queue time, success rates, and cost.",
+        "category": "developer-tools",
+        "url": "https://mcp.runzumi.com/mcp",
+        "website": "https://runzumi.com",
+        "iconHash": "638701b9433c702bcc9e41d29281cd30560a93a63978987b6ed78db305b1c705"
+    },
+    {
+        "service": "saas-pro-max",
+        "name": "SaaS Pro Max",
+        "description": "Explore product analytics, investigate errors, and manage feature flags.",
+        "category": "analytics",
+        "url": "https://saaspro.dev/api/mcp",
+        "website": "https://saaspro.dev",
+        "iconHash": "75ebeeadc95e5a5056727d69d3b238ce5b360ea0938b940d77f2a585eff32308"
+    },
+    {
+        "service": "saleseq",
+        "name": "SalesEQ",
+        "description": "Analyze sales conversations and sync meeting insights to your CRM.",
+        "category": "analytics",
+        "url": "https://mcp.saleseq.ai",
+        "website": "https://saleseq.ai",
+        "iconHash": "a64131f51d1d6955ed9a833cfcf2947b434d6c5904ddb718edd00151ca90e442"
+    },
+    {
+        "service": "salespeak",
+        "name": "Salespeak",
+        "description": "Answer questions about your company from its Salespeak knowledge base.",
+        "category": "ai",
+        "url": "https://platform.salespeak.ai/gtm-context/mcp",
+        "website": "https://salespeak.ai",
+        "iconHash": "3ad1e571390340b7d0f6f2ca37fe3e76e9fd954c9025edee8388212770d84720"
+    },
+    {
+        "service": "samrum",
+        "name": "SAMRUM",
+        "description": "Explore family relationships through personality assessments and conversation guidance.",
+        "category": "other",
+        "url": "https://mcp.samrum.io/mcp",
+        "website": "https://samrum.io",
+        "iconHash": "108cd5312cb10cac5f3b3d4f6098aa4180bb7ba76c01736101154365a9e349c4"
+    },
+    {
+        "service": "sanity",
+        "name": "Sanity",
+        "description": "Query and edit content in your datasets.",
+        "category": "content",
+        "url": "https://mcp.sanity.io",
+        "website": "https://www.sanity.io",
+        "iconHash": "52e70664113e380294cb52c79bff1b8935461d7b041475199e73af818dd2eee1"
+    },
+    {
+        "service": "savecraft",
+        "name": "Savecraft",
+        "description": "Connect AI assistants to game data and supported game saves or accounts.",
+        "category": "ai",
+        "url": "https://mcp.savecraft.gg",
+        "website": "https://savecraft.gg",
+        "iconHash": "380c26c63c0bc9b298ccb198d822ccbfb6b25c63c7b27a93fc30473b2c21b4ae"
+    },
+    {
+        "service": "schedulin",
+        "name": "Schedulin",
+        "description": "Schedule, publish, and analyze social media posts across networks.",
+        "category": "content",
+        "url": "https://mcp.schedulin.app/mcp",
+        "website": "https://www.schedulin.app",
+        "iconHash": "5e89ee75a67213e60fa8a5cf80a928fd2955042179156d06be6af8c8b4bb24c6"
+    },
+    {
+        "service": "scrapfly",
+        "name": "Scrapfly",
+        "description": "Extract website data with hosted browser rendering.",
+        "category": "ai",
+        "url": "https://mcp.scrapfly.io/mcp",
+        "website": null,
+        "iconHash": "12c86af3894c3c1f9735bca2fd8b0bda933883462fa9b8d1a5e97eb6c876ccc6"
+    },
+    {
+        "service": "scriptgrain",
+        "name": "ScriptGrain",
+        "description": "Build writing voice profiles and draft content in that voice.",
+        "category": "content",
+        "url": "https://mcp.scriptgrain.com",
+        "website": "https://scriptgrain.com",
+        "iconHash": "60b69b2a6691149f9fbf80a5d67fa35b398d42b0ac56e00db72440198099d781"
+    },
+    {
+        "service": "search1api",
+        "name": "Search1API",
+        "description": "Search the web and news, crawl pages, and discover sitemaps.",
+        "category": "data",
+        "url": "https://mcp.search1api.com/mcp",
+        "website": "https://s1.dev",
+        "iconHash": "d53ceb0b1e0df682a83af871e56122a4e624f15c0f8ff817f6d66c36307f4af0"
+    },
+    {
+        "service": "segwise",
+        "name": "Segwise",
+        "description": "Query ad creative performance, creative tags, attribution metrics, and competitor ads.",
+        "category": "analytics",
+        "url": "https://mcp.segwise.ai/mcp",
+        "website": "https://segwise.ai",
+        "iconHash": "eb597529c15953aae45f7062bb7bb7f416d80c87d69c840d5f962e275e3b51a1"
+    },
+    {
+        "service": "sekreton",
+        "name": "Sekreton",
+        "description": "Run parallel sandboxed coding tasks that plan, implement, and verify changes on branches.",
+        "category": "developer-tools",
+        "url": "https://sekreton.com/mcp",
+        "website": "https://sekreton.com",
+        "iconHash": "836e223f4a27c983dda6cc807f978645de338ea9ce8bcf8509c0f9addd115c87"
+    },
+    {
+        "service": "sender",
+        "name": "Sender",
+        "description": "Email marketing platform for creating campaigns, automating workflows, and tracking results.",
+        "category": "communication",
+        "url": "https://mcp.sender.net/mcp",
+        "website": null,
+        "iconHash": "ac60ff7e45bc4ad1b53f3fa33e6bfefbe64778602b1178feec83e1445cdb7e62"
+    },
+    {
+        "service": "sent",
+        "name": "Sent",
+        "description": "Send SMS, WhatsApp, and RCS messages through one messaging API.",
+        "category": "communication",
+        "url": "https://mcp.sent.dm/mcp",
+        "website": "https://www.sent.dm/en",
+        "iconHash": "662367e52fb669b70589efb405a17c494f178e0204683f786970b09a4c86b177"
+    },
+    {
+        "service": "sentry",
+        "name": "Sentry",
+        "description": "Investigate and debug application errors.",
+        "category": "developer-tools",
+        "url": "https://mcp.sentry.dev/mcp",
+        "website": null,
+        "iconHash": "9706deee2bc54a153ce5fea06fc160be14ac3e1a0afe19f691aa12622f3522aa"
+    },
+    {
+        "service": "seodata",
+        "name": "seodata.dev",
+        "description": "Look up Google keyword search volume, CPC, competition, and similar keywords.",
+        "category": "analytics",
+        "url": "https://mcp.seodata.dev/mcp/auth",
+        "website": "https://www.seodata.dev",
+        "iconHash": "19a10e703dd4b184f7f3a31acc0905c1ad7424078bd5c937bb46159cbc19408e"
+    },
+    {
+        "service": "seqera",
+        "name": "Seqera",
+        "description": "Launch and monitor Nextflow data analysis pipelines and compute environments.",
+        "category": "developer-tools",
+        "url": "https://mcp.seqera.io/mcp",
+        "website": null,
+        "iconHash": "92f558983036978f1730a0223d6f2b445e1ad32267314299a80b483f694dc70f"
+    },
+    {
+        "service": "sequence",
+        "name": "Sequence",
+        "description": "Read bank accounts and transactions, and trigger money-movement rules.",
+        "category": "commerce",
+        "url": "https://app.getsequence.io/api/mcp",
+        "website": "https://getsequence.io",
+        "iconHash": "6f54e3aa96cd349c284ec23edce3f7c6591e2cb4f52fbb10941da317b3f38b28"
+    },
+    {
+        "service": "sequenzy",
+        "name": "Sequenzy",
+        "description": "Manage subscribers, email campaigns, automated sequences, and transactional emails.",
+        "category": "communication",
+        "url": "https://api.sequenzy.com/v1/mcp",
+        "website": "https://sequenzy.com",
+        "iconHash": "5439a7f23f1252423d80043c85c183884febab352d9ef025b7dc403b716677f0"
+    },
+    {
+        "service": "serpstat",
+        "name": "Serpstat",
+        "description": "Research keywords, competitors, and search performance.",
+        "category": "analytics",
+        "url": "https://mcp.serpstat.com/mcp",
+        "website": "https://serpstat.com",
+        "iconHash": "5b6b4a9656ae832b876da3d4235a7857d96f47152be997ee4283d79c2ded554f"
+    },
+    {
+        "service": "shippo",
+        "name": "Shippo",
+        "description": "Create shipping labels, track packages, and manage shipments.",
+        "category": "commerce",
+        "url": "https://mcp.shippo.com",
+        "website": "https://portal.goshippo.com/api-config/api",
+        "iconHash": "d72973ffa2a927e58b1c624c711daa05b441a000135236d9d4f13e8f0dfeee71"
+    },
+    {
+        "service": "shotlane",
+        "name": "Shotlane",
+        "description": "Take screenshots, run page checks, and turn pages into Markdown and PDFs in a real browser.",
+        "category": "developer-tools",
+        "url": "https://shotlane.dev/mcp",
+        "website": "https://shotlane.dev",
+        "iconHash": "d791522aca715636432fd390a9ada1c5ce1ca3b32ad55a4750e65341e8e57cfe"
+    },
+    {
+        "service": "shotstack",
+        "name": "Shotstack",
+        "description": "Generate and edit video, images, and audio through an API.",
+        "category": "content",
+        "url": "https://mcp.shotstack.io/",
+        "website": "https://shotstack.io",
+        "iconHash": "ce71e604ef2db6e4566007591ab631f948346c7085b38a6a097b2e07f3e54727"
+    },
+    {
+        "service": "shruwd",
+        "name": "Shruwd",
+        "description": "See where AI search answers send buyers to competitors, why, and what to change.",
+        "category": "analytics",
+        "url": "https://shruwd.io/mcp",
+        "website": "https://shruwd.io",
+        "iconHash": "baf16827b7128fa62fcf92e5acd936eb3aef1424c7651b530577ef41e088b03b"
+    },
+    {
+        "service": "signnow",
+        "name": "SignNow",
+        "description": "Prepare documents and manage signature workflows.",
+        "category": "productivity",
+        "url": "https://mcp-server.signnow.com/mcp",
+        "website": "https://signnow.com",
+        "iconHash": "8e6cb86b74cfea1a225475e7345f2f7ac27cba2d8680dbdff2aed3a6f16ac5f9"
+    },
+    {
+        "service": "similarweb",
+        "name": "Similarweb",
+        "description": "Analyze web, mobile app, and market performance.",
+        "category": "analytics",
+        "url": "https://mcp.similarweb.com",
+        "website": null,
+        "iconHash": "7c26fab11119b541f86e05760147b687f9d3389d898f8674fcf7068c9423b9bf"
+    },
+    {
+        "service": "simplero",
+        "name": "Simplero",
+        "description": "Create courses, manage memberships, and run marketing campaigns.",
+        "category": "productivity",
+        "url": "https://mcp.simplero.com/mcp",
+        "website": null,
+        "iconHash": "599fb647c5f0f8337f67ec0c8bb99e96168ab3c0f983753a16f31acf06706e17"
+    },
+    {
+        "service": "site-no-ar",
+        "name": "Site no Ar",
+        "description": "Publish websites that an agent writes and get back a public link.",
+        "category": "content",
+        "url": "https://mcp.sitenoar.dev",
+        "website": "https://sitenoar.dev",
+        "iconHash": "b5c1e7bce9f76bbf233d2f826706af4b033b0ad03ad7cd08ffc1f8869da6153a"
+    },
+    {
+        "service": "sitelemetry",
+        "name": "Sitelemetry",
+        "description": "Run security, SEO, accessibility, and performance audits on websites.",
+        "category": "analytics",
+        "url": "https://sitelemetry.com/mcp",
+        "website": "https://sitelemetry.com",
+        "iconHash": "6979fc3274461ebfe33e218a863a22da05ff2b12dd44e6484e8b31417fdfe3e0"
+    },
+    {
+        "service": "sku-io",
+        "name": "SKU.io",
+        "description": "Manage multi-channel inventory, orders, and purchase orders.",
+        "category": "commerce",
+        "url": "https://mcp.sku.io/mcp",
+        "website": "https://www.sku.io",
+        "iconHash": "5054a56b937429b8aaefd47737b3d0672aea688d3f079d9f103f4c4c810d3586"
+    },
+    {
+        "service": "skyvern",
+        "name": "Skyvern",
+        "description": "Automate browser tasks and extract website data with AI agents.",
+        "category": "ai",
+        "url": "https://api.skyvern.com/mcp/",
+        "website": "https://app.skyvern.com/settings",
+        "iconHash": "b8b6acca1b57c0f2d9856f44a900b68dfac2678ee4749c6a9450d3d40529f03a"
+    },
+    {
+        "service": "sleek",
+        "name": "Sleek",
+        "description": "Design your mobile app UI with AI, then have your coding agent build the real app from it.",
+        "category": "developer-tools",
+        "url": "https://sleek.design/api/mcp",
+        "website": "https://sleek.design",
+        "iconHash": "ea869f09c4fe12b0f66c71fae764e39eea8fc513dfc4fe091763f3e12a307ea6"
+    },
+    {
+        "service": "slidedrift",
+        "name": "SlideDrift",
+        "description": "Create, export, and schedule branded LinkedIn carousels.",
+        "category": "content",
+        "url": "https://slidedrift.com/mcp",
+        "website": "https://slidedrift.com",
+        "iconHash": "ffa1d7203e83866f73ece7c54ef6fb3148efa0ee0ee7109f8eedbc14c8432bd5"
+    },
+    {
+        "service": "slite",
+        "name": "Slite",
+        "description": "Organize and search team knowledge and documentation.",
+        "category": "productivity",
+        "url": "https://api.slite.com/mcp",
+        "website": null,
+        "iconHash": "28fb5ee966b04bc161207b1686237a1fa8ba8373de6301f76c7312048f32c4c2"
+    },
+    {
+        "service": "smtping",
+        "name": "SMTPing",
+        "description": "Verify email addresses one at a time or in bulk, and flag spamtraps and disposables.",
+        "category": "data",
+        "url": "https://mcp.smtping.com/mcp",
+        "website": "https://smtping.com",
+        "iconHash": "5b035d75389c2bafeed80feede027679c9351d0e310b1da5316bd669af3fa25e"
+    },
+    {
+        "service": "socialrobot",
+        "name": "SocialRobot",
+        "description": "Schedule, publish, and analyze social media posts.",
+        "category": "content",
+        "url": "https://socialrobot.io/api/mcp",
+        "website": "https://socialrobot.io",
+        "iconHash": "de09d5566885770150eb82eb0eafd290961c2a45fca7aba1c09c308e59238048"
+    },
+    {
+        "service": "softsync",
+        "name": "SoftSync",
+        "description": "Manage CRM customers, call notes, and email conversations.",
+        "category": "productivity",
+        "url": "https://api.softsync.ai/mcp/softsync",
+        "website": "https://softsync.ai",
+        "iconHash": "c1a96cc7cc656dabd1a29b89a0e2846c755d52eb27ed49267b312f7928435110"
+    },
+    {
+        "service": "sparrowdesk",
+        "name": "SparrowDesk",
+        "description": "Manage helpdesk conversations, contacts, companies, and knowledge base articles.",
+        "category": "communication",
+        "url": "https://mcp.sparrowdesk.com/mcp",
+        "website": "https://sparrowdesk.com",
+        "iconHash": "19d52d22362db700c2f0cf274fe44353e6934af14f836a5121d819cd41591957"
+    },
+    {
+        "service": "speakeroo",
+        "name": "Speakeroo",
+        "description": "Get scored feedback on speeches and recordings: filler words, structure, pace, and more.",
+        "category": "productivity",
+        "url": "https://mcp.speakeroo.app/mcp",
+        "website": "https://speakeroo.app",
+        "iconHash": "86e11731b0f71ee794f9a192049b123b47328f53fb0703221117d182283a6d44"
+    },
+    {
+        "service": "specstream",
+        "name": "SpecStream",
+        "description": "Build sourced lists of companies, people, and products from the web, paid per match.",
+        "category": "data",
+        "url": "https://api.specstream.ai/mcp",
+        "website": "https://specstream.ai",
+        "iconHash": "c5d4b9a12a17f4f36f127a2f5b881d63b710940feb5c64589958b997a37c026e"
+    },
+    {
+        "service": "specter",
+        "name": "Specter",
+        "description": "Research companies, founders, and investors with proprietary data and live signals.",
+        "category": "data",
+        "url": "https://mcp.tryspecter.com/mcp",
+        "website": "https://www.tryspecter.com",
+        "iconHash": "5de85c0deeb68b0c99763d5cc87a7c3af80089ae651313b484f138ba2b5babe2"
+    },
+    {
+        "service": "spinify",
+        "name": "Spinify",
+        "description": "Manage sales leaderboards, competitions, recognition, and coaching.",
+        "category": "productivity",
+        "url": "https://mcp.spinify.com/mcp",
+        "website": "https://spinify.com",
+        "iconHash": "215b7d99f1bf3a4ebcedfbc4846b966ff2ba65ae3af04b480c66887caa55320f"
+    },
+    {
+        "service": "squadcard",
+        "name": "Squadcard",
+        "description": "Organize football groups: schedule games, track attendance, pick teams, and record results.",
+        "category": "productivity",
+        "url": "https://squadcard.app/api/mcp",
+        "website": "https://squadcard.app",
+        "iconHash": "ce2106e0ecd8050ea85d3765bc296904f24e6ba27304e9eb4d19ae4d3e73d286"
+    },
+    {
+        "service": "stacktree",
+        "name": "Stacktree",
+        "description": "Publish agent-made HTML pages to private, shareable links.",
+        "category": "developer-tools",
+        "url": "https://api.stacktr.ee",
+        "website": "https://stacktr.ee",
+        "iconHash": "5df9644108ea65a9f1a4bcf4e68e980c5d2a55eed56d6160031d3874d37cd767"
+    },
+    {
+        "service": "statshawk",
+        "name": "StatsHawk",
+        "description": "Get scores, standings, box scores, and player stats across sports.",
+        "category": "data",
+        "url": "https://mcp.statshawk.ai/mcp",
+        "website": "https://www.statshawk.ai",
+        "iconHash": "838424ac49b102487441db4fe265e2cba1ee6c68d3ee7d00cb9e551d977c9764"
+    },
+    {
+        "service": "statsig",
+        "name": "Statsig",
+        "description": "Manage feature flags and experiments.",
+        "category": "analytics",
+        "url": "https://api.statsig.com/v1/mcp",
+        "website": "https://statsig.com",
+        "iconHash": "25ad80c062d5f77957a1a6bc23726d9d2984f5c2f9cc2c11af59a20b6663d4af"
+    },
+    {
+        "service": "sticklight",
+        "name": "Sticklight",
+        "description": "Build and publish websites, apps, dashboards, and stores with AI.",
+        "category": "content",
+        "url": "https://mcp.sticklight.com/mcp",
+        "website": "https://sticklight.com",
+        "iconHash": "a650be98a57be445699539af6944ea0e6e82e935a58a8dd76ac8cb2a195b6e2d"
+    },
+    {
+        "service": "streak",
+        "name": "Streak",
+        "description": "Search and update your CRM pipelines and contacts.",
+        "category": "communication",
+        "url": "https://api.streak.com/mcp",
+        "website": "https://streak.com",
+        "iconHash": "f4830fd47d972dc94077c068046159ccc22347708370b08d955dd34d8d156030"
+    },
+    {
+        "service": "streamkap",
+        "name": "Streamkap",
+        "description": "Manage CDC streaming pipelines: sources, destinations, transforms, and Kafka topics.",
+        "category": "data",
+        "url": "https://mcp.streamkap.com/mcp",
+        "website": "https://streamkap.com",
+        "iconHash": "8f92dedd0a4b6242633834925da9a9dadbeb54347c573388fef59bd9580ab5cc"
+    },
+    {
+        "service": "streamtime",
+        "name": "Streamtime",
+        "description": "Manage creative projects, time tracking, schedules, quotes, and invoices.",
+        "category": "productivity",
+        "url": "https://mcp.streamtime.net",
+        "website": null,
+        "iconHash": "e96fa5701a90dd9a83a9882d180062d5a6d28ba4726444e51e4bb24c0a5653c5"
+    },
+    {
+        "service": "stripe",
+        "name": "Stripe",
+        "description": "Manage payments and financial workflows.",
+        "category": "commerce",
+        "url": "https://mcp.stripe.com",
+        "website": null,
+        "iconHash": "32c7cd66036708a202be7fab5c9a6805179eac2baa68445f43b9f06d92d63414"
+    },
+    {
+        "service": "success-co",
+        "name": "Success.co",
+        "description": "Manage business goals, meetings, scorecards, tasks, and issues using EOS.",
+        "category": "productivity",
+        "url": "https://www.success.co/mcp",
+        "website": "https://success.co",
+        "iconHash": "3300b394b7cb01bb64fe04d7fdc237b4e5aa1ebc24918af62a2151bdb95652fc"
+    },
+    {
+        "service": "sumosign",
+        "name": "SumoSign",
+        "description": "Send contracts for e-signature and keep the signed record.",
+        "category": "productivity",
+        "url": "https://mcp.sumosign.app",
+        "website": "https://sumosign.app",
+        "iconHash": "ab70653492f4229e10405f8fb38109adf6a5ab0c0bdcdcb96eafc4f6656ea22f"
+    },
+    {
+        "service": "supabase",
+        "name": "Supabase",
+        "description": "Manage databases, authentication, and storage.",
+        "category": "data",
+        "url": "https://mcp.supabase.com/mcp",
+        "website": null,
+        "iconHash": "a55bbcbe8151681c257dd4c158b7f267fa9c3aa55c636fe8a6d9310bf2215d04"
+    },
+    {
+        "service": "supadata",
+        "name": "Supadata",
+        "description": "Extract video transcripts, social media metadata, and web content.",
+        "category": "ai",
+        "url": "https://api.supadata.ai/mcp",
+        "website": null,
+        "iconHash": "92f8352d7515acd29ecaacdf006aefadc94178a3529248af173c20a340edb736"
+    },
+    {
+        "service": "superhuman-mail",
+        "name": "Superhuman Mail",
+        "description": "Search and manage your email.",
+        "category": "communication",
+        "url": "https://mcp.mail.superhuman.com/mcp",
+        "website": "https://superhuman.com",
+        "iconHash": "a8a2a20b27709a7e6b75e915ada841c78ad5a2fb7bb3fcfab456426a2ec00341"
+    },
+    {
+        "service": "supersimple",
+        "name": "Supersimple",
+        "description": "Answer business questions from your company's semantic layer and knowledge graph.",
+        "category": "analytics",
+        "url": "https://app.supersimple.io/mcp",
+        "website": "https://supersimple.io",
+        "iconHash": "c9f33ff4a854afffbb3ce37434243e9dd15ce01c3faab1a0aa322e70f929e3a8"
+    },
+    {
+        "service": "suprsend",
+        "name": "SuprSend",
+        "description": "Trigger notification workflows across email, SMS, push, in-app inbox, and chat apps.",
+        "category": "communication",
+        "url": "https://mcp.suprsend.com/mcp",
+        "website": "https://www.suprsend.com",
+        "iconHash": "41fbcb0e83d32902fc2485a4180bb293eaa1c66171fec7dacc2a4b680ce0bf5b"
+    },
+    {
+        "service": "survicate",
+        "name": "Survicate",
+        "description": "Run multichannel customer feedback surveys and analyze responses.",
+        "category": "analytics",
+        "url": "https://mcp.survicate.com/",
+        "website": "https://survicate.com",
+        "iconHash": "f46f2c18197d2992cbc0d590801aae8000039fbe925cbe13b083ea78d8966013"
+    },
+    {
+        "service": "swarmia",
+        "name": "Swarmia",
+        "description": "Read pull requests, issues, coding agent sessions, teams, and DORA metrics.",
+        "category": "analytics",
+        "url": "https://app.swarmia.com/api/v1/mcp",
+        "website": "https://www.swarmia.com",
+        "iconHash": "051af873b10c4177fda34437b83ab6824c06c1bed9cf4e8761ad78cec22e2ed6"
+    },
+    {
+        "service": "swipefast",
+        "name": "Swipefast",
+        "description": "Read checkout sales and build checkouts, order bumps, upsells, and discount codes.",
+        "category": "commerce",
+        "url": "https://swipefast.io/api/mcp",
+        "website": "https://swipefast.io",
+        "iconHash": "ffdf3777c12f599fa251ce870dba1a806f2927fee75b49145b981ae6b7bac61f"
+    },
+    {
+        "service": "swipekit",
+        "name": "Swipekit",
+        "description": "Save, organize, and search ads from Facebook, TikTok, LinkedIn, and Instagram.",
+        "category": "content",
+        "url": "https://api.swipekit.app/mcp",
+        "website": "https://swipekit.app",
+        "iconHash": "74e3890b99612c53e757b18eed9fca5f6e7dadc075d370f4117fce3c321d25ab"
+    },
+    {
+        "service": "takibi-base",
+        "name": "Takibi Base",
+        "description": "Retrieve exact cited passages from a shared knowledge base, with support scores.",
+        "category": "productivity",
+        "url": "https://app.takibibase.com/mcp",
+        "website": "https://takibibase.com",
+        "iconHash": "3287d3ca5c6016c33016ac4e19295deada29e73b7b8cc91893b92d3d17fd4d2d"
+    },
+    {
+        "service": "talktohumans",
+        "name": "TalkToHumans",
+        "description": "Read and send messages from your LinkedIn inbox and manage contacts.",
+        "category": "communication",
+        "url": "https://api.talktohumans.app/mcp",
+        "website": "https://www.talktohumans.app",
+        "iconHash": "f8055c46725c854725dc2036930cb846c8c39e00cc8f1ac3375f9c904993b9dd"
+    },
+    {
+        "service": "tally",
+        "name": "Tally",
+        "description": "Build forms and collect responses.",
+        "category": "productivity",
+        "url": "https://api.tally.so/mcp",
+        "website": null,
+        "iconHash": "1e02e7efaa6c7a6f822e91262f492ec0b97ae699323bd6281d983cb97b4642c8"
+    },
+    {
+        "service": "tapetide",
+        "name": "Tapetide",
+        "description": "Research NSE and BSE stocks with quotes, financials, screeners, and filings.",
+        "category": "data",
+        "url": "https://mcp.tapetide.com/mcp",
+        "website": "https://tapetide.com",
+        "iconHash": "0be6a91a5c06a0fc2ed0cb569b2af2312ce6aaf8896d54dd8f09d86562c22f80"
+    },
+    {
+        "service": "tapfiliate",
+        "name": "Tapfiliate",
+        "description": "Track and manage affiliate and referral programs.",
+        "category": "analytics",
+        "url": "https://mcp.tapfiliate.com/mcp",
+        "website": null,
+        "iconHash": "6cdfb65778dc966eb000a52f979a30ce321595025a838ed5b3fc730d86ac2ab2"
+    },
+    {
+        "service": "tavily",
+        "name": "Tavily",
+        "description": "Search and retrieve information from web sources.",
+        "category": "ai",
+        "url": "https://mcp.tavily.com/mcp",
+        "website": "https://www.tavily.com",
+        "iconHash": "63b41b01e9f7f84f25616bb4e898fb3cd7456cd43da37884d2c2f9911202b19d"
+    },
+    {
+        "service": "tavus",
+        "name": "Tavus",
+        "description": "Build and deploy real-time, face-to-face conversational video agents.",
+        "category": "ai",
+        "url": "https://mcp.tavus.io/mcp",
+        "website": "https://www.tavus.io",
+        "iconHash": "440c2ad0ad8bc9b5700276c35589b51e412cfb02cb7c652fa2fbe18af9272f5d"
+    },
+    {
+        "service": "templated",
+        "name": "Templated",
+        "description": "Generate images, videos, and PDFs from templates.",
+        "category": "content",
+        "url": "https://mcp.templated.io/mcp",
+        "website": null,
+        "iconHash": "38c256da609b33fb750e47a21773dc97761c46e9a0cb772ad401c2ba94e705a7"
+    },
+    {
+        "service": "theirstack",
+        "name": "TheirStack",
+        "description": "Explore job postings, company profiles, and technology usage.",
+        "category": "ai",
+        "url": "https://api.theirstack.com/mcp/",
+        "website": "https://app.theirstack.com/settings/api",
+        "iconHash": "2173141d635fc63a5c6f2089782468706b0f5ddb61fc8af9d7164265a550c73c"
+    },
+    {
+        "service": "third-bridge",
+        "name": "Third Bridge",
+        "description": "Access expert interviews, consultations, surveys, and investment research.",
+        "category": "analytics",
+        "url": "https://ai.thirdbridge.com/mcp/sse",
+        "website": "https://thirdbridge.com",
+        "iconHash": "c07e4993317f7fe59e31157db2225c8ea56dda447158822b14a407a5898e879b"
+    },
+    {
+        "service": "thoughtspot-spotter",
+        "name": "ThoughtSpot Spotter",
+        "description": "Query and model business data with AI-assisted analytics.",
+        "category": "analytics",
+        "url": "https://agent.thoughtspot.app/mcp",
+        "website": "https://thoughtspot.com",
+        "iconHash": "3b784f25ee89f0bbfc52c782b8070dacab11bbc1223352bff58f02038b02d531"
+    },
+    {
+        "service": "ticket-tailor",
+        "name": "Ticket Tailor",
+        "description": "Manage tickets, orders, and attendees.",
+        "category": "commerce",
+        "url": "https://mcp.tickettailor.ai/mcp",
+        "website": null,
+        "iconHash": "53c2e9f6159fb84b694590dea1ba5de0881c1ff609b5ce7b8b270c6f9e9fc9a6"
+    },
+    {
+        "service": "ticktick",
+        "name": "TickTick",
+        "description": "Search, create, and manage tasks and habits.",
+        "category": "productivity",
+        "url": "https://mcp.ticktick.com",
+        "website": null,
+        "iconHash": "ec4eb120c04e02b64281c5b4e43126eb54fc120ec37727fd2d2951b56ec79e94"
+    },
+    {
+        "service": "timecamp",
+        "name": "TimeCamp",
+        "description": "Track work hours and project time.",
+        "category": "productivity",
+        "url": "https://mcp.timecamp.com/mcp",
+        "website": null,
+        "iconHash": "c16c9dde1994a870ad00b49fa703b0e164ea99e23c221350675009eef821d5b3"
+    },
+    {
+        "service": "timelinesai",
+        "name": "TimelinesAI",
+        "description": "Manage WhatsApp conversations and synchronize them with CRM tools.",
+        "category": "communication",
+        "url": "https://mcp.services.timelines.ai/mcp",
+        "website": null,
+        "iconHash": "b5c60894bc697693f741a6df6a41f466672b0b3421f795ec70be05988b4359e9"
+    },
+    {
+        "service": "timesheet",
+        "name": "Timesheet",
+        "description": "Track time, tasks, breaks, and expenses, and pull timesheet reports.",
+        "category": "productivity",
+        "url": "https://mcp.timesheet.io",
+        "website": "https://timesheet.io",
+        "iconHash": "389c04e3d00cbb3fa8e3a3363ef34170f581234f414b0c3be76ea27898d4bed0"
+    },
+    {
+        "service": "timetopost",
+        "name": "TimeToPost",
+        "description": "Draft and schedule social posts, get them approved, and read engagement.",
+        "category": "content",
+        "url": "https://api.timetopost.co/mcp",
+        "website": "https://timetopost.co",
+        "iconHash": "f5501544dd4d8cf764ed264d932f69ce6fc4ad45ea660b5d85087b9c67ee8a14"
+    },
+    {
+        "service": "tiny-plates",
+        "name": "Tiny Plates",
+        "description": "Search recipes with structured ingredients, nutrition, and diet information.",
+        "category": "content",
+        "url": "https://api.tinyplates.dev/mcp",
+        "website": "https://www.tinyplates.dev",
+        "iconHash": "34ffc15a06fecbac1b225895e31706a5ea9c366d4fc4d1902540d82538a9c578"
+    },
+    {
+        "service": "tinyfish",
+        "name": "TinyFish",
+        "description": "Search the web, read pages, and run browser sessions.",
+        "category": "ai",
+        "url": "https://agent.tinyfish.ai/mcp",
+        "website": "https://www.tinyfish.ai",
+        "iconHash": "161d8a439cb6ad2b3e7f33376545c58dae8d18780f022c976f7ce4c3592b5591"
+    },
+    {
+        "service": "titan-email",
+        "name": "Titan Email",
+        "description": "Search, read, and send business email, schedule meetings, and manage tasks.",
+        "category": "communication",
+        "url": "https://api.titan.email/mcp",
+        "website": "https://titan.email",
+        "iconHash": "e384cfc4e24d991555d767f8d2f39b92584291a37917f1d144b19d8f0a68c309"
+    },
+    {
+        "service": "todo-for-ai",
+        "name": "TODO for AI",
+        "description": "Start agent tasks, send follow-ups, and check status and results in a shared workspace.",
+        "category": "productivity",
+        "url": "https://api.todofor.ai/mcp",
+        "website": "https://todofor.ai",
+        "iconHash": "fc466a14b1a4826eea4c5805c452ef55838bf13b0dd23fc267bb8d52adfcdbdc"
+    },
+    {
+        "service": "todoist",
+        "name": "Todoist",
+        "description": "Create, complete, and organize tasks.",
+        "category": "productivity",
+        "url": "https://ai.todoist.net/mcp",
+        "website": null,
+        "iconHash": "b8207bd9de998d2942b10e5220c9cfeb28c7b9c30d6fe07a56bf488b132b8a72"
+    },
+    {
+        "service": "tracwell",
+        "name": "Tracwell",
+        "description": "Query website traffic, revenue, goals, funnels, and recorded sessions.",
+        "category": "analytics",
+        "url": "https://tracwell.app/mcp",
+        "website": "https://tracwell.app",
+        "iconHash": "7542c05f419d10b40abec3858296ef7872a03ccfdc57f5bf5e19e0bc9cf1a950"
+    },
+    {
+        "service": "tradytics",
+        "name": "Tradytics",
+        "description": "Get options flow, dark pool prints, dealer positioning, prices, and SEC filings.",
+        "category": "data",
+        "url": "https://tradytics.com/mcp",
+        "website": "https://tradytics.com",
+        "iconHash": "0660f28a38035adaa6f1b8c11f6362766e03e2c2520bda0bda09e4d1e9d5dadd"
+    },
+    {
+        "service": "transloadit",
+        "name": "Transloadit",
+        "description": "Encode video and audio, resize images, and process documents.",
+        "category": "developer-tools",
+        "url": "https://api2.transloadit.com/mcp",
+        "website": "https://transloadit.com",
+        "iconHash": "596e60383a5c994713a7411e9d8e9c2071452dfa08639cf9f85283feb37207d9"
+    },
+    {
+        "service": "traveler-md",
+        "name": "Traveler.md",
+        "description": "Save and recall your travel preferences and trips for trip planning.",
+        "category": "productivity",
+        "url": "https://mcp.traveler.md/mcp",
+        "website": "https://traveler.md",
+        "iconHash": "b4fa0097bf8dee2008c986d01ba618ede0a8a6903d97191d1a44e0f632b44b8e"
+    },
+    {
+        "service": "trendsagi",
+        "name": "TrendsAGI",
+        "description": "Get trending topics with volume, velocity, trajectories, and AI insights.",
+        "category": "analytics",
+        "url": "https://api.trendsagi.com/mcp",
+        "website": "https://trendsagi.com",
+        "iconHash": "26414dc08d9dd610b25cf04a8f4f9162b4f63fce0bdd474e8d5b0290753db6bd"
+    },
+    {
+        "service": "triggercmd",
+        "name": "Triggercmd",
+        "description": "Run commands remotely on your computers.",
+        "category": "developer-tools",
+        "url": "https://www.triggercmd.com/mcp",
+        "website": null,
+        "iconHash": "27215880648d45cba3010b66a8d9746486a78ea532b25000dd38593d5ba32028"
+    },
+    {
+        "service": "truthscan",
+        "name": "TruthScan",
+        "description": "TruthScan detects AI-generated and manipulated content in images, text, PDFs, video, and audio.",
+        "category": "ai",
+        "url": "https://truthscan.com/api/mcp",
+        "website": "https://truthscan.com/api-documentation",
+        "iconHash": "be8a0d404a7383874c075a155c3b03863c5a0aedb86a25678fb6c2b5f04e1b0a"
+    },
+    {
+        "service": "twelfth",
+        "name": "Twelfth",
+        "description": "Read sales, inventory, product, and supplier data from a workspace.",
+        "category": "commerce",
+        "url": "https://api.twelfth.ai",
+        "website": "https://twelfth.ai",
+        "iconHash": "8911c9ce5cb6a50b3af3cf7a91efc8d57c56d91db7e152f7efe96045fd447f82"
+    },
+    {
+        "service": "twelve-data",
+        "name": "Twelve Data",
+        "description": "Retrieve historical and real-time market data across asset classes.",
+        "category": "analytics",
+        "url": "https://mcp.twelvedata.com/mcp",
+        "website": null,
+        "iconHash": "e334f4047547afae70a8d658071477e70018a8be26ff93730a995506a5436554"
+    },
+    {
+        "service": "twelvebit",
+        "name": "twelvebit",
+        "description": "Privacy-friendly web analytics with revenue attribution.",
+        "category": "analytics",
+        "url": "https://twelvebit.app/api/mcp",
+        "website": "https://twelvebit.app",
+        "iconHash": "aa1fe076002794d72af5b86a412bcea56a393e382847a0c7a322495342173d5c"
+    },
+    {
+        "service": "txt",
+        "name": "txt",
+        "description": "Create and share plain-text notes.",
+        "category": "productivity",
+        "url": "https://txt.mn/mcp",
+        "website": "https://txt-fil.es",
+        "iconHash": "63c2e5815aab3333a2a2ce2ccdbfd8773d67c92313254f9ce50673cc0140a661"
+    },
+    {
+        "service": "typefully",
+        "name": "Typefully",
+        "description": "Write, schedule, and publish social media posts.",
+        "category": "content",
+        "url": "https://mcp.typefully.com/mcp",
+        "website": null,
+        "iconHash": "69219d8f41f2965c1ddb7466d3967326d7fd7373207465f0d9379c29ed0c325c"
+    },
+    {
+        "service": "typenode",
+        "name": "Typenode",
+        "description": "Build custom MCP servers and tools, configure integrations, and automate workflows.",
+        "category": "developer-tools",
+        "url": "https://mcp.typenode.ai/mcp",
+        "website": "https://typenode.ai",
+        "iconHash": "5e2a1b728dda04591c6afc500f26c71a55ff0b69bacca4f0a9e519b77f5bc8a8"
+    },
+    {
+        "service": "underway",
+        "name": "Underway",
+        "description": "Interview founders about their working day and set up video or podcast recordings.",
+        "category": "content",
+        "url": "https://underway.life/mcp/account",
+        "website": "https://underway.life",
+        "iconHash": "50c177962eddfc3797dfd27b4a3d76f053a3f4285d5de0a39e1f53e9ff57a82f"
+    },
+    {
+        "service": "unfetch",
+        "name": "Unfetch",
+        "description": "Query marketing data from Google Ads, Meta Ads, Analytics, and Search Console.",
+        "category": "analytics",
+        "url": "https://unfetch.com/api/mcp",
+        "website": "https://unfetch.com",
+        "iconHash": "5c0d04ee472e090c1918a6c28a9938c8fda54951e5852e94436dc9882877d77a"
+    },
+    {
+        "service": "uplisting",
+        "name": "Uplisting",
+        "description": "Manage vacation rentals, bookings, availability, and calendars.",
+        "category": "productivity",
+        "url": "https://connect.uplisting.io/mcp",
+        "website": "https://support.uplisting.io/en/article/api-webhooks-vzlowi/",
+        "iconHash": "3a2a82fde0c4af0411f08cee325445f88f8d2978e7dc8cbfb8d150def92fb9e1"
+    },
+    {
+        "service": "upload-post",
+        "name": "Upload-Post",
+        "description": "Publish and manage content across social networks.",
+        "category": "content",
+        "url": "https://mcp.upload-post.com/mcp",
+        "website": null,
+        "iconHash": "0486f3ae713757f6115899f94627d6cf9b1060904c67491b248f0d0b81f4d9ac"
+    },
+    {
+        "service": "upstash-redis",
+        "name": "Upstash Redis",
+        "description": "Manage and debug your Redis, QStash, Vector, and Search data.",
+        "category": "data",
+        "url": "https://mcp.upstash.com/mcp",
+        "website": "https://upstash.com",
+        "iconHash": "4264597455c1c5694e86fda5148233a023248bdb0e0b922178687a08194ebfb3"
+    },
+    {
+        "service": "uptimerobot",
+        "name": "UptimeRobot",
+        "description": "Monitor website and service uptime, and receive outage alerts.",
+        "category": "other",
+        "url": "https://mcp.uptimerobot.com/mcp",
+        "website": null,
+        "iconHash": "246055a9258d71b831755d4d3c3a4c9a342ffc42c9afb102db990d8dfe3bdfb8"
+    },
+    {
+        "service": "urlbox",
+        "name": "Urlbox",
+        "description": "Capture screenshots, PDFs, and Markdown of web pages, including bot-protected sites.",
+        "category": "developer-tools",
+        "url": "https://api.urlbox.com/mcp",
+        "website": "https://urlbox.com",
+        "iconHash": "ba166157869eba20e2cffb2b0560fd0194ef0ffe058bb17d0b6517e926ae0e1f"
+    },
+    {
+        "service": "v0",
+        "name": "v0",
+        "description": "Generate web applications and code with AI.",
+        "category": "ai",
+        "url": "https://v0.app/api/mcp",
+        "website": "https://v0.app/docs/api/platform/overview",
+        "iconHash": "be86526d6daf963083f6db5f3194bd10d9180d9cb474e6865f072a0b4518f020"
+    },
+    {
+        "service": "val-town",
+        "name": "Val Town",
+        "description": "Manage vals, files, databases, and email through the Val Town API.",
+        "category": "data",
+        "url": "https://api.val.town/v3/mcp",
+        "website": "https://val.town",
+        "iconHash": "050478e13d20a902fd307f3342b5ac45c94a374840278226cb32c2441aace7c5"
+    },
+    {
+        "service": "vantage",
+        "name": "Vantage",
+        "description": "Explore cloud costs and resource usage.",
+        "category": "analytics",
+        "url": "https://mcp.vantage.sh/mcp",
+        "website": "https://vantage.sh",
+        "iconHash": "9262f9f642c5c43dddeea0770f76e36c22d6aa59f88a27f54709471ee3b79603"
+    },
+    {
+        "service": "veed-fabric",
+        "name": "VEED Fabric",
+        "description": "Create and edit videos with AI avatars, subtitles, and lip sync.",
+        "category": "content",
+        "url": "https://www.veed.io/api/v1/mcp",
+        "website": "https://veed.io",
+        "iconHash": "0d9c2acff96774147286cf681439caf89658a3e586d5519cbfb1431ce1b0c36a"
+    },
+    {
+        "service": "vellm",
+        "name": "Vellm",
+        "description": "Create template-based AI videos from photos and track video jobs.",
+        "category": "content",
+        "url": "https://api.vellm.app/mcp",
+        "website": "https://vellm.app",
+        "iconHash": "f39efd02df7e8c833f1cc36b8b6eaf24153616a6c77b7081fdd0c0473d913bbb"
+    },
+    {
+        "service": "venturu",
+        "name": "Venturu",
+        "description": "Buy and sell small businesses and connect with business brokers.",
+        "category": "commerce",
+        "url": "https://www.venturu.com/mcp",
+        "website": "https://venturu.com",
+        "iconHash": "dff3f1b4321f04c5d244114418fb95d7ffd2ea3948c799b031b2eecbb293e7a3"
+    },
+    {
+        "service": "verand",
+        "name": "Verand",
+        "description": "Read site pages, Search Console data, rankings, and AI citations, and draft articles.",
+        "category": "content",
+        "url": "https://app.verand.ai/mcp",
+        "website": "https://verand.ai",
+        "iconHash": "5cc4e5b61720cc3e10c168daefa50c2edb66dc3e55677974513633738f1251cb"
+    },
+    {
+        "service": "vercel",
+        "name": "Vercel",
+        "description": "Deploy agents and apps, manage projects, and more.",
+        "category": "developer-tools",
+        "url": "https://mcp.vercel.com",
+        "website": null,
+        "iconHash": "f0483d5fbe2c6efee21fd939d8157b06564a8e45116db8cb3a2c36240403dab4"
+    },
+    {
+        "service": "vertana",
+        "name": "Vertana",
+        "description": "Check a local business's Google listing and read its performance and reviews.",
+        "category": "analytics",
+        "url": "https://mcp.vertana.ai/mcp",
+        "website": "https://vertana.ai",
+        "iconHash": "8b24b38b311b2061b06dd60d1b75c7686bd7e9c73b5149f2c646b5837ee74431"
+    },
+    {
+        "service": "vidmoat",
+        "name": "Vidmoat",
+        "description": "Edit video projects, generate media, and render finished MP4s.",
+        "category": "content",
+        "url": "https://api.vidmoat.com/api/mcp",
+        "website": "https://www.vidmoat.com",
+        "iconHash": "85dcff5e604fc5075e48a9d5d13a0de4c035d228b11346ca71cb7d5167a1609f"
+    },
+    {
+        "service": "virustotal",
+        "name": "Virustotal",
+        "description": "Analyze files and URLs for malware and other threats.",
+        "category": "developer-tools",
+        "url": "https://ai.virustotal.com/mcp",
+        "website": null,
+        "iconHash": "b407ecbf1f6150a0321d294d49c0b80c847e144ccb239ab0a22d538f910e64d1"
+    },
+    {
+        "service": "visualping",
+        "name": "Visualping",
+        "description": "Monitor webpages for visual and text changes, and receive alerts.",
+        "category": "productivity",
+        "url": "https://visualping.io/mcp",
+        "website": "https://visualping.io/account/developer",
+        "iconHash": "23088e7e6ff2311ae731b9394e67d08f6d5b92ed851722c218d8bc49b6a8c4d5"
+    },
+    {
+        "service": "vmotif",
+        "name": "Vmotif",
+        "description": "Generate images, video, code and screens on a shared canvas.",
+        "category": "ai",
+        "url": "https://vmotif.com/api/mcp",
+        "website": "https://vmotif.com",
+        "iconHash": "0fba1123ae0419acfb5bed42811cb13dec8726966450c8f4b9dd0106cc5732dc"
+    },
+    {
+        "service": "vokolla",
+        "name": "Vokolla",
+        "description": "Draft English and Chinese press releases, compare distribution packages, and track status.",
+        "category": "content",
+        "url": "https://vokolla.com/api/mcp",
+        "website": "https://vokolla.com",
+        "iconHash": "c7c95c704b73731836c3893d7b23d8b35f66970b4462f53889f01c13460e139f"
+    },
+    {
+        "service": "wachete",
+        "name": "Wachete",
+        "description": "Monitor webpages for changes and receive notifications.",
+        "category": "other",
+        "url": "https://api.wachete.com/mcp",
+        "website": "https://www.wachete.com/api",
+        "iconHash": "c535f0f5eb2bd54e3ca0bafa4c5833f49cba5869df83f631146b671dbc1d42f6"
+    },
+    {
+        "service": "webability",
+        "name": "WebAbility",
+        "description": "Scan web pages for WCAG accessibility issues, get code fixes, and verify them.",
+        "category": "developer-tools",
+        "url": "https://mcp.webability.io/mcp",
+        "website": "https://www.webability.io",
+        "iconHash": "619180e0c3c84f15bcc0d31651546383ce7591358cc0a5642b4a945035f380a0"
+    },
+    {
+        "service": "webflow",
+        "name": "Webflow",
+        "description": "Manage CMS content, pages, assets, and sites.",
+        "category": "content",
+        "url": "https://mcp.webflow.com/mcp",
+        "website": "https://webflow.com",
+        "iconHash": "255da8a5425fbd2960d5e76f0b28fc909d0ec6dc880933f7e25d126406540d2f"
+    },
+    {
+        "service": "webtwizz",
+        "name": "WebTwizz",
+        "description": "Build, change, and publish websites and web apps with AI.",
+        "category": "developer-tools",
+        "url": "https://app.webtwizz.com/mcp",
+        "website": "https://webtwizz.com",
+        "iconHash": "16d5232fdd08165b9b54c00e876c4f32a4510ac020faba50534840e1a15330e4"
+    },
+    {
+        "service": "whatsync",
+        "name": "WhatSync",
+        "description": "Search WhatsApp chats, see who is waiting for a reply, and send messages.",
+        "category": "communication",
+        "url": "https://whatsync.app/api/mcp",
+        "website": "https://whatsync.app",
+        "iconHash": "8d868dec5343f1995b2ad56bcc17ce867185aa102ef18f330ea4cbfed714e077"
+    },
+    {
+        "service": "whimsical",
+        "name": "Whimsical",
+        "description": "Create diagrams and work with your visual workspace.",
+        "category": "content",
+        "url": "https://mcp.whimsical.com/mcp",
+        "website": "https://whimsical.com",
+        "iconHash": "d3be4d66e20c767f89b0c2c917c656a17f65703b370add387df430bb15f69958"
+    },
+    {
+        "service": "whop",
+        "name": "Whop",
+        "description": "Sell digital products, memberships, and access to communities.",
+        "category": "commerce",
+        "url": "https://mcp.whop.com/mcp",
+        "website": null,
+        "iconHash": "ad69479ab443490e60232b9e52da474510fdecefeffcde1eebcfde9458ff14c5"
+    },
+    {
+        "service": "wistia",
+        "name": "Wistia",
+        "description": "Host and manage videos, channels, webinars, and audience analytics.",
+        "category": "content",
+        "url": "https://api.wistia.com/mcp/api",
+        "website": "https://account.wistia.com/account/api",
+        "iconHash": "76f0e1adf185b7757a49d134918046956f70ce282d4378535f995ccd3b0b71fb"
+    },
+    {
+        "service": "wix",
+        "name": "Wix",
+        "description": "Build and manage sites and apps.",
+        "category": "content",
+        "url": "https://mcp.wix.com/mcp",
+        "website": null,
+        "iconHash": "b638eaa599abeb8386ad0cdb26c4ea68d325f15769f3f518bd650826e343a8f3"
+    },
+    {
+        "service": "wiza",
+        "name": "Wiza",
+        "description": "Find and export verified professional contact details from LinkedIn.",
+        "category": "productivity",
+        "url": "https://mcp.wiza.co/mcp",
+        "website": null,
+        "iconHash": "4a11975178a5f7b29e6e4aa4eaeb54cb4e06dff4415f76136c7899decccbca63"
+    },
+    {
+        "service": "woop-social",
+        "name": "WoopSocial",
+        "description": "Publish and schedule social posts, and manage accounts and media.",
+        "category": "content",
+        "url": "https://api.woopsocial.com/mcp",
+        "website": "https://app.woopsocial.com/api-access",
+        "iconHash": "cc81238bf7a61c2f825aca907357c8e30ccde7b018478e4f335a4f0d82820838"
+    },
+    {
+        "service": "words-into-music",
+        "name": "Words into Music",
+        "description": "Create songs from prompts or your own lyrics, and get private download links.",
+        "category": "content",
+        "url": "https://mcp.wordsintomusic.com/mcp",
+        "website": "https://wordsintomusic.com",
+        "iconHash": "00dc2fbaf3c75bb76f1b3b2949fd16d3351b04556d4eafcf8adade0546de5ac0"
+    },
+    {
+        "service": "workast",
+        "name": "Workast",
+        "description": "Manage tasks, projects, and documents with your team.",
+        "category": "productivity",
+        "url": "https://mcp.workast.com/mcp",
+        "website": "https://www.workast.com",
+        "iconHash": "0db07978651ba9e334a395cf5d4ef2f26d7a70b8dbbd9de0f0b05f2bf94b9a97"
+    },
+    {
+        "service": "xata",
+        "name": "Xata",
+        "description": "Manage serverless databases with branching and search.",
+        "category": "data",
+        "url": "https://api.xata.tech/mcp",
+        "website": "https://app.xata.io/settings",
+        "iconHash": "a1321790b7bb1580e7fb43c67c394b0aa3b2c12c3b27162babb67421adb1483d"
+    },
+    {
+        "service": "ybug",
+        "name": "Ybug",
+        "description": "Triage website feedback and bug reports with screenshots and console logs.",
+        "category": "developer-tools",
+        "url": "https://mcp.ybug.io/mcp",
+        "website": "https://ybug.io",
+        "iconHash": "ed9a7d31e335221986a828997d3b39757a88f4e3334c94adca1ba472f8f8dec5"
+    },
+    {
+        "service": "youform",
+        "name": "Youform",
+        "description": "Create and edit forms, surveys, and quizzes, and analyze submissions.",
+        "category": "productivity",
+        "url": "https://app.youform.com/mcp",
+        "website": "https://youform.com",
+        "iconHash": "24fcbb30151e0f0b8730c1082de856a0b52a6c57341ce9e231e3ee12bb21f56a"
+    },
+    {
+        "service": "zalodesk",
+        "name": "Zalodesk",
+        "description": "Read and send Zalo messages, look up contacts, and label and assign conversations.",
+        "category": "communication",
+        "url": "https://app.zalodesk.com/api/mcp",
+        "website": "https://zalodesk.com",
+        "iconHash": "f0cec51ea75b173ae3148cf2941fad7e37a82aedc4cc8ab6cbeb3da61be301de"
+    },
+    {
+        "service": "zapier",
+        "name": "Zapier",
+        "description": "Automate workflows across thousands of apps.",
+        "category": "productivity",
+        "url": "https://mcp.zapier.com/api/v1/connect",
+        "website": null,
+        "iconHash": "2bc9016a4a0548db05958a2b84e23d35f0ddbfb480934c96387f23e6caddb34b"
+    },
+    {
+        "service": "zenrows",
+        "name": "ZenRows",
+        "description": "Extract web content and structured data through the ZenRows API.",
+        "category": "ai",
+        "url": "https://mcp.zenrows.com/mcp",
+        "website": "https://app.zenrows.com/register?p=free",
+        "iconHash": "620cedad74ab6ed332d6ab9815ddd26d8055bacad60edeeadcb22d00d3939afc"
+    },
+    {
+        "service": "zernio",
+        "name": "Zernio",
+        "description": "Publish, schedule, and measure social posts across 16 platforms.",
+        "category": "content",
+        "url": "https://mcp.zernio.com/mcp",
+        "website": "https://zernio.com",
+        "iconHash": "5cce46ef1636d581a26edd6731a206da5e963d5a92b5b335bde0a659c68592bc"
+    },
+    {
+        "service": "zite",
+        "name": "Zite",
+        "description": "Build business apps with login, a database, and workflows.",
+        "category": "developer-tools",
+        "url": "https://mcp.zite.com/mcp",
+        "website": "https://zite.com",
+        "iconHash": "0f0bb07f9221a411b35b61dd80b585f83dc167889003b284d3503853be4f1f18"
+    },
+    {
+        "service": "zomato",
+        "name": "Zomato",
+        "description": "Explore restaurants and food delivery options.",
+        "category": "commerce",
+        "url": "https://mcp-server.zomato.com/mcp",
+        "website": null,
+        "iconHash": "63e3318c8fc6b6a348f1a5ed4547f12f917bc6fac1655b49eda2e44b187d1b8d"
+    },
+    {
+        "service": "zoominfo",
+        "name": "ZoomInfo",
+        "description": "Find company and contact information.",
+        "category": "commerce",
+        "url": "https://mcp.zoominfo.com/mcp",
+        "website": "https://zoominfo.com",
+        "iconHash": "c6daa4959742cc6f66cbabfd58b90f40527b2490b1922b5d3de40f89c0105ca6"
+    }
+]

@@ -1,6 +1,9 @@
 import { getFactory } from "@foundry/factory/db";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
+import { listCatalogConnectors } from "../connector-catalog";
+import { listGatewayModels } from "../models";
 import { FactoryBuilder } from "./_components/FactoryBuilder";
 
 export default function FactoryPage({ params }: PageProps<"/factories/[factoryId]">) {
@@ -13,9 +16,13 @@ export default function FactoryPage({ params }: PageProps<"/factories/[factoryId
 
 async function FactoryBuilderWithFactory({ params }: Pick<PageProps<"/factories/[factoryId]">, "params">) {
     const { factoryId } = await params;
-    const factory = await getFactory(factoryId);
+    // The factory is read per request, never prerendered.
+    await connection();
+    // Not awaited: the catalog streams in behind the builder, ready by the time the picker opens.
+    const catalog = listCatalogConnectors();
+    const [factory, models] = await Promise.all([getFactory(factoryId), listGatewayModels()]);
     if (!factory) {
         notFound();
     }
-    return <FactoryBuilder key={factory.id} initialFactory={factory} />;
+    return <FactoryBuilder key={factory.id} initialFactory={factory} models={models} catalog={catalog} />;
 }

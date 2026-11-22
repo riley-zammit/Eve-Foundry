@@ -6,10 +6,14 @@ import { useState, type DragEvent } from "react";
 import type { Highlight } from "./activity";
 import { DRAG_MIME, type AttachedItem, type LibraryItem } from "./builder";
 import { AttachedGroups } from "./ItemChip";
+import { ModelCapabilities } from "./ModelPicker";
+import { Spinner } from "./Spinner";
 
 export type AgentNode = Node<{
     agent: AgentData;
     isOrchestrator: boolean;
+    // Capability tags of the agent's model, from AI Gateway.
+    modelTags: string[];
     attached: AttachedItem[];
     highlight: Highlight | null;
     chipHighlights: Record<string, Highlight>;
@@ -29,7 +33,7 @@ const ACTIVITY_RING: Record<Highlight, string> = {
 // The orchestrator and subagents share this card. The orchestrator is larger, pinned, and
 // glows, since the whole factory is built around it. Library items are dropped onto it.
 export function AgentCard({ data, selected }: NodeProps<AgentNode>) {
-    const { agent, isOrchestrator, attached, highlight, chipHighlights, onAttach, onDetach, onSelectItem, onOpenChat } = data;
+    const { agent, isOrchestrator, modelTags, attached, highlight, chipHighlights, onAttach, onDetach, onSelectItem, onOpenChat } = data;
     const [isDropTarget, setIsDropTarget] = useState(false);
 
     function onDragOver(event: DragEvent) {
@@ -72,10 +76,15 @@ export function AgentCard({ data, selected }: NodeProps<AgentNode>) {
             <Handle type="target" position={Position.Left} isConnectable={false} className="!border-0 !bg-zinc-500" />
             <div className={isOrchestrator ? "flex flex-col gap-3 p-4" : "flex flex-col gap-2 p-3"}>
                 <div className="flex items-center justify-between">
-                    <span className={isOrchestrator ? "text-[10px] font-semibold tracking-widest text-violet-300" : "text-[10px] font-semibold tracking-widest text-indigo-300"}>
+                    <span className={isOrchestrator ? "flex items-center gap-2 text-[10px] font-semibold tracking-widest text-violet-300" : "flex items-center gap-2 text-[10px] font-semibold tracking-widest text-indigo-300"}>
                         {isOrchestrator ? "ORCHESTRATOR" : `SUBAGENT ${agent.slot}`}
-                        {highlight === "running" && <span className="ml-2 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300 align-middle" />}
-                        {highlight === "waiting" && <span className="ml-2 text-sky-300">waiting</span>}
+                        {highlight === "running" && (
+                            <span className="flex items-center gap-1 text-amber-300">
+                                <Spinner />
+                                running
+                            </span>
+                        )}
+                        {highlight === "waiting" && <span className="text-sky-300">waiting</span>}
                     </span>
                     {isOrchestrator && (
                         <button
@@ -94,7 +103,12 @@ export function AgentCard({ data, selected }: NodeProps<AgentNode>) {
                     <div className={isOrchestrator ? "truncate text-lg font-semibold" : "truncate text-sm font-medium"}>
                         {agent.name || "Unnamed"}
                     </div>
-                    <div className="truncate font-mono text-[11px] text-zinc-400">{agent.model}</div>
+                    <div className="flex items-center gap-2">
+                        <span className="truncate font-mono text-[11px] text-zinc-400">{agent.model}</span>
+                        <span className="ml-auto shrink-0">
+                            <ModelCapabilities tags={modelTags} />
+                        </span>
+                    </div>
                 </div>
                 <p className="line-clamp-2 text-xs text-zinc-400">
                     {(isOrchestrator ? agent.instructions : agent.description) || (isOrchestrator ? "No instructions yet." : "No delegation hint yet.")}

@@ -1,12 +1,15 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { getDb } from "./db";
 
-// Plugin secrets: env var values a factory sets for a plugin's CLIs. They're factory-level, so
-// scheduled turns can use them with no one there to sign in.
+// Secrets at rest: plugin env values (below), connection tokens and Foundry's registered OAuth
+// clients (src/auth), and sign-ins in progress (a cookie, also src/auth).
 //
 // - Encrypted with AES-256-GCM under FOUNDRY_SECRETS_KEY, which lives in the server's env, never
-//   in the database. The row's factory, plugin, and name are bound in as associated data, so a
-//   value copied into another row or factory fails to decrypt.
+//   in the database. Each value is bound to where it's stored (the associated data), so a value
+//   copied into another row or factory fails to decrypt.
+//
+// Plugin secrets are env var values a factory sets for a plugin's CLIs. They're factory-level, so
+// scheduled turns can use them with no one there to sign in.
 // - Write-only from the builder: it learns which names are set, never the values.
 // - Decrypted only by the runtime, inside a tool call, for that one command. Never memoized,
 //   never put in prompts.
@@ -24,35 +27,36 @@ function secretsKey() {
     return key;
 }
 
-function associatedData(factoryId: string, pluginId: string, name: string) {
-    return Buffer.from(`${factoryId}:${pluginId}:${name}`);
+function pluginContext(factoryId: string, pluginId: string, name: string) {
+    return `${factoryId}:${pluginId}:${name}`;
 }
 
-// Stored as `v1.<iv>.<tag>.<ciphertext>`, each part base64.
-function encrypt(value: string, context: Buffer) {
+// Stored as `v1.<iv>.<tag>.<ciphertext>`, each part base64. `context` says where the value is
+// stored; decrypting needs the same one.
+export function encryptSecret(value: string, context: string) {
     const iv = randomBytes(12);
     const cipher = createCipheriv(ALGORITHM, secretsKey(), iv);
-    cipher.setAAD(context);
+    cipher.setAAD(Buffer.from(context));
     const ciphertext = Buffer.concat([cipher.update(value, "utf8"), cipher.final()]);
     const tag = cipher.getAuthTag();
     const parts = [FORMAT_VERSION, iv.toString("base64"), tag.toString("base64"), ciphertext.toString("base64")];
     return parts.join(".");
 }
 
-function decrypt(stored: string, context: Buffer) {
+export function decryptSecret(stored: string, context: string) {
     const [version, iv, tag, ciphertext] = stored.split(".");
     if (version !== FORMAT_VERSION) {
         throw new Error(`Unknown secret format: ${version}`);
     }
     const decipher = createDecipheriv(ALGORITHM, secretsKey(), Buffer.from(iv, "base64"));
-    decipher.setAAD(context);
+    decipher.setAAD(Buffer.from(context));
     decipher.setAuthTag(Buffer.from(tag, "base64"));
     const plaintext = Buffer.concat([decipher.update(Buffer.from(ciphertext, "base64")), decipher.final()]);
     return plaintext.toString("utf8");
 }
 
 export async function storePluginSecret(factoryId: string, pluginId: string, name: string, value: string) {
-    const encrypted = encrypt(value, associatedData(factoryId, pluginId, name));
+    const encrypted = encryptSecret(value, pluginContext(factoryId, pluginId, name));
     await getDb().pluginSecret.upsert({
         where: { factoryId_pluginId_name: { factoryId, pluginId, name } },
         create: {
@@ -88,6 +92,6 @@ export async function loadPluginEnv(factoryId: string, pluginId: string, names: 
             encrypted: true,
         },
     });
-    const entries = rows.map(({ name, encrypted }) => [name, decrypt(encrypted, associatedData(factoryId, pluginId, name))] as const);
+    const entries = rows.map(({ name, encrypted }) => [name, decryptSecret(encrypted, pluginContext(factoryId, pluginId, name))] as const);
     return Object.fromEntries(entries);
 }

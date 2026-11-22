@@ -1,5 +1,5 @@
-import { pluginOfSkill, pluginOfTool } from "@foundry/factory";
-import type { ConversationAgentSession, EveMessage, EveToolPart } from "eve/client";
+import { ORCHESTRATOR_SLOT, pluginOfSkill, pluginOfTool } from "@foundry/factory";
+import { agentCallActivity, type ConversationAgentSession, type ConversationState, type EveMessage, type EveMessagePart, type EveToolPart } from "eve/client";
 
 export type Highlight = "running" | "waiting" | "failed" | "done";
 
@@ -24,6 +24,7 @@ export function canvasActivity(input: {
     busy: boolean;
     connections: { id: string; name: string }[];
     skills: { id: string; name: string }[];
+    toolCopies: { id: string; name: string }[];
     slots: number[];
 }): { orchestrator: Highlight | null; orchestratorChips: Record<string, Highlight>; slots: Record<number, SlotActivity> } {
     const emptySlots = Object.fromEntries(input.slots.map((slot) => [slot, emptySlot()]));
@@ -33,7 +34,7 @@ export function canvasActivity(input: {
 
     const turnId = currentTurnId(input.messages);
     const rootParts = toolParts(input.messages, turnId);
-    const orchestratorChips = chipHighlights(rootParts, input.connections, input.skills);
+    const orchestratorChips = chipHighlights(rootParts, input);
     const slots: Record<number, SlotActivity> = {};
     let subagentActive = false;
 
@@ -48,7 +49,7 @@ export function canvasActivity(input: {
             return [{ callId: part.callId, label: callLabel(part), highlight }];
         });
         const childParts = childPartsFor(input.agents, name);
-        const chips = chipHighlights(childParts, input.connections, input.skills);
+        const chips = chipHighlights(childParts, input);
         const highlight = strongest([...fanout.map((run) => run.highlight), ...Object.values(chips)]);
         if (highlight === "running" || highlight === "waiting") {
             subagentActive = true;
@@ -66,6 +67,73 @@ export function canvasActivity(input: {
         orchestratorChips,
         slots,
     };
+}
+
+// One model run to read in the inspector's Advanced tab: its reasoning, replies, and calls in order.
+export type AgentTrace = {
+    id: string;
+    label: string;
+    isRunning: boolean;
+    parts: EveMessagePart[];
+};
+
+// The orchestrator's latest turn, or one trace per call its latest delegating turn made to this subagent.
+export function agentTraces(conversation: ConversationState, slot: number): AgentTrace[] {
+    if (slot === ORCHESTRATOR_SLOT) {
+        const turnId = currentTurnId(conversation.messages);
+        const messages = conversation.messages.filter((message) => message.role === "assistant" && message.metadata?.turnId === turnId);
+        if (!turnId || messages.length === 0) {
+            return [];
+        }
+        const trace = {
+            id: turnId,
+            label: "Latest turn",
+            isRunning: messages.some((message) => message.metadata?.status === "streaming"),
+            parts: traceParts(messages),
+        };
+        return [trace];
+    }
+
+    const calls = latestCallsTo(conversation.messages, `subagent_${slot}`);
+    return calls.map((call) => {
+        const activity = agentCallActivity(conversation, call.callId);
+        const sessions = activity.status === "linked" ? activity.sessions : [];
+        const parts = sessions.flatMap((session) => {
+            const child = conversation.agents[session.sessionId];
+            if (!child || child.observation.status === "not-followed") {
+                return [];
+            }
+            const turnIds = session.turns.map((turn) => turn.turnId);
+            const messages = child.observation.conversation.messages.filter((message) => turnIds.includes(message.metadata?.turnId ?? ""));
+            return traceParts(messages);
+        });
+        return {
+            id: call.callId,
+            label: callLabel(call),
+            isRunning: highlightOf(call.state) === "running",
+            parts,
+        };
+    });
+}
+
+function traceParts(messages: readonly EveMessage[]) {
+    const assistantMessages = messages.filter((message) => message.role === "assistant");
+    const parts = assistantMessages.flatMap((message) => message.parts);
+    return parts.filter((part) => part.type === "reasoning" || part.type === "text" || part.type === "tool");
+}
+
+// The calls to one subagent in the most recent turn that made any.
+function latestCallsTo(messages: readonly EveMessage[], name: string) {
+    const turnIds = messages.map((message) => message.metadata?.turnId);
+    const newestFirst = [...new Set(turnIds)].reverse();
+    for (const turnId of newestFirst) {
+        const parts = toolParts(messages, turnId);
+        const calls = parts.filter((part) => part.kind === "agent" && part.name === name);
+        if (turnId && calls.length > 0) {
+            return calls;
+        }
+    }
+    return [];
 }
 
 function emptySlot(): SlotActivity {
@@ -101,7 +169,10 @@ function childPartsFor(agents: Readonly<Record<string, ConversationAgentSession>
     });
 }
 
-function chipHighlights(parts: readonly EveToolPart[], connections: { id: string; name: string }[], skills: { id: string; name: string }[]) {
+type Named = { id: string; name: string }[];
+
+function chipHighlights(parts: readonly EveToolPart[], library: { connections: Named; skills: Named; toolCopies: Named }) {
+    const { connections, skills, toolCopies } = library;
     const chips: Record<string, Highlight> = {};
     for (const part of parts) {
         const highlight = highlightOf(part.state);
@@ -120,7 +191,9 @@ function chipHighlights(parts: readonly EveToolPart[], connections: { id: string
             }
         }
         if (capability.kind === "tool") {
-            raise(chips, `tools:${capability.name}`, highlight);
+            // A copy's chip is keyed by its id, not the name the agent called.
+            const copy = toolCopies.find((item) => item.name === capability.name);
+            raise(chips, `tools:${copy?.id ?? capability.name}`, highlight);
             const owner = pluginOfTool(capability.name);
             if (owner) {
                 raise(chips, `plugins:${owner.pluginId}`, highlight);

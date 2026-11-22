@@ -2,50 +2,19 @@
 
 import { isAllowedMcpUrl } from "@foundry/factory";
 
-export type ConnectConnector = {
-    uid: string;
-    name: string;
-    service: string;
-    url: string | null;
-};
-
 export type McpToolList = {
     tools: string[];
     error?: string;
 };
 
-// Connectors already installed on the Vercel team linked to this project.
-export async function searchConnectors(query: string): Promise<{ connectors: ConnectConnector[]; error?: string }> {
-    try {
-        const { getVercelOidcToken } = await import("@vercel/oidc");
-        const token = await getVercelOidcToken();
-        const url = new URL("https://api.vercel.com/v2/connect/connectors");
-        url.searchParams.set("limit", "20");
-        const trimmed = query.trim();
-        if (trimmed) {
-            url.searchParams.set("search", trimmed);
-        }
-        const response = await fetch(url, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) {
-            return { connectors: [], error: `Vercel Connect returned ${response.status}.` };
-        }
-        const body: unknown = await response.json();
-        return { connectors: readConnectors(body) };
-    } catch (error) {
-        const message = error instanceof Error ? error.message : "Vercel Connect is unavailable.";
-        return { connectors: [], error: message };
-    }
-}
-
-// Asks an MCP server for its tool names. A Connect uid is exchanged for an app token first.
-export async function listMcpTools(input: { url: string; connector: string | null }): Promise<McpToolList> {
+// Asks an MCP server for its tool names. A signed-in connection sends its token, but only to the
+// URL it signed in to, so an unsaved URL edit lists anonymously.
+export async function listMcpTools(input: { factoryId: string; connectionId: string; url: string }): Promise<McpToolList> {
     if (!isAllowedMcpUrl(input.url)) {
         return { tools: [], error: "Needs a public https URL." };
     }
     try {
-        const token = input.connector ? await connectToken(input.connector) : undefined;
+        const token = await signedInToken(input);
         const tools = await mcpToolNames(input.url, token);
         return { tools };
     } catch (error) {
@@ -54,56 +23,23 @@ export async function listMcpTools(input: { url: string; connector: string | nul
     }
 }
 
-async function connectToken(connector: string) {
-    const { getToken } = await import("@vercel/connect");
-    return getToken(connector, { subject: { type: "app" } });
-}
-
-function readConnectors(body: unknown): ConnectConnector[] {
-    const rows = connectorRows(body);
-    const connectors: ConnectConnector[] = [];
-    for (const row of rows) {
-        const uid = stringField(row, "uid") ?? stringField(row, "id");
-        if (!uid) {
-            continue;
+async function signedInToken(input: { factoryId: string; connectionId: string; url: string }) {
+    const { connectionToken, isNotSignedIn } = await import("@foundry/factory/auth");
+    try {
+        const { token } = await connectionToken(input);
+        return token;
+    } catch (error) {
+        if (isNotSignedIn(error)) {
+            return undefined;
         }
-        const name = stringField(row, "displayName") ?? stringField(row, "name") ?? stringField(row, "service") ?? uid;
-        const service = stringField(row, "service") ?? "";
-        connectors.push({
-            uid,
-            name,
-            service,
-            url: connectorUrl(row),
-        });
+        throw error;
     }
-    return connectors;
 }
 
-function connectorRows(body: unknown): Record<string, unknown>[] {
-    if (Array.isArray(body)) {
-        return body.filter(isRecord);
-    }
-    if (!isRecord(body)) {
-        return [];
-    }
-    const rows = body.connectors ?? body.items ?? body.data;
-    return Array.isArray(rows) ? rows.filter(isRecord) : [];
-}
-
-function connectorUrl(row: Record<string, unknown>) {
-    const vendor = isRecord(row.vendor) ? row.vendor : {};
-    const candidates = [row.clientUrl, row.url, row.mcpUrl, row.endpoint, vendor.mcpUrl, vendor.url, vendor.endpoint, vendor.serverUrl];
-    for (const candidate of candidates) {
-        if (typeof candidate === "string" && isAllowedMcpUrl(candidate)) {
-            return candidate;
-        }
-    }
-    return null;
-}
-
-function stringField(row: Record<string, unknown>, key: string) {
-    const value = row[key];
-    return typeof value === "string" && value.length > 0 ? value : null;
+// Deletes the connection's sign-in. Signing in happens in a popup through /oauth/start.
+export async function signOutOfConnection(factoryId: string, connectionId: string) {
+    const { signOut } = await import("@foundry/factory/auth");
+    await signOut(factoryId, connectionId);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -156,6 +92,9 @@ async function postMcp(url: string, headers: Record<string, string>, body: unkno
     });
     if (response.status >= 300 && response.status < 400) {
         throw new Error("The MCP server redirected. Foundry only talks to the URL you saved.");
+    }
+    if (response.status === 401) {
+        throw new Error("Sign in to list this server's tools.");
     }
     if (!response.ok && response.status !== 202) {
         throw new Error(`The MCP server returned ${response.status}.`);

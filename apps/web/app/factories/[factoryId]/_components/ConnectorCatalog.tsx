@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { listCatalogConnectors, type CatalogAuth, type CatalogConnector } from "../../openclaw";
+import { Suspense, use, useEffect, useState } from "react";
+import type { Catalog, CatalogAuth, CatalogConnector } from "../../connector-catalog";
 
 const AUTH_LABELS: Record<CatalogAuth, { label: string; className: string; note: string }> = {
     oauth: {
         label: "Sign-in",
         className: "border-amber-800 text-amber-300",
-        note: "Signs in through a Vercel Connect connector. Pick one in the inspector after adding.",
+        note: "Sign in from the inspector after adding.",
     },
     "api-key": {
         label: "API key",
@@ -21,36 +21,39 @@ const AUTH_LABELS: Record<CatalogAuth, { label: string; className: string; note:
     },
 };
 
-// Browse OpenClaw's official connectors and add one as a connection. Custom URLs still work.
-export function ConnectorCatalog({
-    addedUrls,
-    onAdd,
-    onAddCustom,
-    onClose,
-}: {
+type DialogProps = {
     addedUrls: string[];
     onAdd: (connector: CatalogConnector) => void;
     onAddCustom: () => void;
     onClose: () => void;
-}) {
-    const [connectors, setConnectors] = useState<CatalogConnector[] | null>(null);
-    const [error, setError] = useState<string | null>(null);
+};
+
+// Browse services to connect and add one as a connection. Custom URLs still work. The page starts
+// loading the catalog, so it's usually ready before the dialog opens.
+export function ConnectorCatalog({ catalog, ...props }: DialogProps & { catalog: Promise<Catalog> }) {
+    return (
+        <Suspense fallback={<CatalogDialog connectors={null} error={null} {...props} />}>
+            <CatalogDialogWithConnectors catalog={catalog} {...props} />
+        </Suspense>
+    );
+}
+
+function CatalogDialogWithConnectors({ catalog, ...props }: DialogProps & { catalog: Promise<Catalog> }) {
+    const { connectors, error } = use(catalog);
+    return <CatalogDialog connectors={connectors} error={error} {...props} />;
+}
+
+// `connectors` is null while the catalog loads.
+function CatalogDialog({
+    connectors,
+    error,
+    addedUrls,
+    onAdd,
+    onAddCustom,
+    onClose,
+}: DialogProps & { connectors: CatalogConnector[] | null; error: string | null }) {
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("all");
-
-    useEffect(() => {
-        let cancelled = false;
-        void listCatalogConnectors().then((result) => {
-            if (cancelled) {
-                return;
-            }
-            setConnectors(result.connectors);
-            setError(result.error ?? null);
-        });
-        return () => {
-            cancelled = true;
-        };
-    }, []);
 
     useEffect(() => {
         function onKeyDown(event: KeyboardEvent) {
@@ -83,11 +86,7 @@ export function ConnectorCatalog({
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <h2 className="text-sm font-semibold text-zinc-100">Add a connection</h2>
-                        <p className="text-xs text-zinc-500">
-                            Official connectors from{" "}
-                            <a href="https://clawhub.ai" target="_blank" rel="noreferrer" className="underline hover:text-zinc-300">OpenClaw&apos;s ClawHub</a>
-                            . ClawHub doesn&apos;t operate or endorse Foundry.
-                        </p>
+                        <p className="text-xs text-zinc-500">Pick a service for your agents to use, or add any MCP server by its URL.</p>
                     </div>
                     <div className="flex shrink-0 gap-2">
                         <button type="button" onClick={onAddCustom} className="rounded-md border border-zinc-700 px-3 py-1 text-xs text-zinc-300 hover:border-zinc-500">
@@ -117,9 +116,9 @@ export function ConnectorCatalog({
                         ))}
                     </select>
                 </div>
-                {connectors === null && <p className="text-xs text-zinc-500">Loading the catalog…</p>}
+                {connectors === null && <p className="text-xs text-zinc-500">Loading connectors…</p>}
                 {error && <p className="text-xs text-amber-400">{error}</p>}
-                {connectors !== null && !error && visible.length === 0 && <p className="text-xs text-zinc-500">No connectors match.</p>}
+                {connectors !== null && visible.length === 0 && <p className="text-xs text-zinc-500">No connectors match.</p>}
                 <div className="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
                     {visible.map((connector) => {
                         const isAdded = addedUrls.includes(connector.url);
@@ -128,8 +127,9 @@ export function ConnectorCatalog({
                             <div key={connector.id} className="flex flex-col gap-2 rounded-md border border-zinc-800 p-3">
                                 <div className="flex items-center gap-2">
                                     {connector.icon ? (
+                                        // Some SVG icons follow the color scheme; `scheme-dark` matches this dark dialog.
                                         // eslint-disable-next-line @next/next/no-img-element -- remote catalog icons
-                                        <img src={connector.icon} alt="" className="h-6 w-6 shrink-0 rounded" />
+                                        <img src={connector.icon} alt="" loading="lazy" className="h-6 w-6 shrink-0 rounded scheme-dark" />
                                     ) : (
                                         <span className="h-6 w-6 shrink-0 rounded bg-zinc-800" />
                                     )}
@@ -138,15 +138,17 @@ export function ConnectorCatalog({
                                 </div>
                                 <p className="line-clamp-2 text-xs text-zinc-400">{connector.summary}</p>
                                 <div className="mt-auto flex items-center justify-between">
-                                    <a href={connector.listingUrl} target="_blank" rel="noreferrer" className="text-[11px] text-zinc-500 underline hover:text-zinc-300">
-                                        View on ClawHub
-                                    </a>
+                                    {connector.detailsUrl && (
+                                        <a href={connector.detailsUrl} target="_blank" rel="noreferrer" className="text-[11px] text-zinc-500 underline hover:text-zinc-300">
+                                            Details
+                                        </a>
+                                    )}
                                     <button
                                         type="button"
                                         disabled={isAdded || connector.auth === "api-key"}
                                         onClick={() => onAdd(connector)}
                                         title={auth.note}
-                                        className="rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-900 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500"
+                                        className="ml-auto rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-900 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500"
                                     >
                                         {isAdded ? "Added" : "Add"}
                                     </button>
