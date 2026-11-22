@@ -12,7 +12,6 @@ import {
     type FactoryData,
     type SignInStatus,
     type ToolGate,
-    type ToolSettings,
 } from "./index";
 
 // One client per process; kept on globalThis so dev hot reloads don't open new pools.
@@ -55,6 +54,7 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
                 orderBy: { slot: "asc" },
                 include: {
                     skills: true,
+                    tools: true,
                     connections: true,
                 },
             },
@@ -76,8 +76,7 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
             channels: byCreation,
             schedules: byCreation,
             toolGates: true,
-            toolCopies: byCreation,
-            toolSettings: true,
+            tools: byCreation,
             // Names only: the encrypted values stay out of the builder.
             pluginSecrets: {
                 select: {
@@ -90,9 +89,10 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
     if (!factory) {
         return null;
     }
-    const agents = factory.agents.map(({ skills, connections, factoryId: _factoryId, ...agent }) => ({
+    const agents = factory.agents.map(({ skills, tools, connections, factoryId: _factoryId, ...agent }) => ({
         ...agent,
         skillIds: skills.map((link) => link.skillId),
+        toolIds: tools.map((link) => link.toolId),
         connectionIds: connections.map((link) => link.connectionId),
         toolAllow: Object.fromEntries(connections.map((link) => [
             link.connectionId,
@@ -125,14 +125,17 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
         enabled,
         y,
     }));
-    const toolCopies = factory.toolCopies.flatMap(({ id, name, base }) => {
-        if (!isPrebuiltTool(base)) {
+    // A template that left the catalog drops out.
+    const tools = factory.tools.flatMap(({ id, template, name, description, model }) => {
+        if (!isPrebuiltTool(template)) {
             return [];
         }
         return [{
             id,
+            template,
             name,
-            base,
+            description,
+            model,
         }];
     });
     const pluginSecrets: Record<string, string[]> = {};
@@ -147,8 +150,7 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
         connections,
         channels,
         schedules,
-        toolCopies,
-        toolSettings: settingsFromRows(factory.toolSettings),
+        tools,
         toolGates: gatesFromRows(factory.toolGates),
         pluginSecrets,
         folders: parseFolders(factory.folders),
@@ -196,39 +198,26 @@ function gatesFromRows(rows: { toolKey: string; run: string; result: string; cri
     return Object.fromEntries(rows.map((row) => [row.toolKey, toolGate(row.run, row.result, row.criterion)]));
 }
 
-function settingsFromRows(rows: { toolKey: string; description: string; model: string }[]): Record<string, ToolSettings> {
-    const entries = rows.map(({ toolKey, description, model }) => [
-        toolKey,
-        {
-            description,
-            model,
-        },
-    ]);
-    return Object.fromEntries(entries);
-}
-
 // The model a reviewed tool runs, found by the name the agent called. A workflow can't close over
-// a tool's settings, so its step reads them here. Copy names never match a prebuilt id.
+// a tool's settings, so its step reads them here.
 export async function loadToolModel(factoryId: string, toolName: string) {
-    const db = getDb();
-    const copy = await db.toolCopy.findUnique({ where: { factoryId_name: { factoryId, name: toolName } } });
-    const toolKey = copy?.id ?? toolName;
-    const base = copy?.base ?? toolName;
-    if (!isPrebuiltTool(base)) {
-        throw new Error(`${toolName} isn't a prebuilt tool or a copy of one.`);
+    const tool = await getDb().tool.findUnique({ where: { factoryId_name: { factoryId, name: toolName } } });
+    const [resolved] = tool ? resolveTool(tool) : [];
+    if (!resolved) {
+        throw new Error(`${toolName} isn't in this factory's library.`);
     }
-    const saved = await db.toolSetting.findUnique({ where: { factoryId_toolKey: { factoryId, toolKey } } });
-    return effectiveToolSettings(base, saved ?? undefined).model;
+    return resolved.model;
 }
 
 // What the runtime reads each turn: every agent in the factory with its attachments resolved.
 // TODO: scope to the caller once Foundry has accounts.
 export async function loadFactoryConfig(factoryId: string): Promise<AgentConfig[]> {
-    const [agents, toolCopies, toolSettingRows, toolGates] = await Promise.all([
+    const [agents, toolGates] = await Promise.all([
         getDb().agent.findMany({
             where: { factoryId },
             include: {
                 skills: { include: { skill: true } },
+                tools: { include: { tool: true } },
                 connections: {
                     include: {
                         connection: {
@@ -247,11 +236,8 @@ export async function loadFactoryConfig(factoryId: string): Promise<AgentConfig[
                 },
             },
         }),
-        getDb().toolCopy.findMany({ where: { factoryId } }),
-        getDb().toolSetting.findMany({ where: { factoryId } }),
         loadToolGates(factoryId),
     ]);
-    const toolSettings = settingsFromRows(toolSettingRows);
     return agents.map((agent) => {
         const skills = agent.skills.map(({ skill }) => ({
             name: skill.name,
@@ -273,7 +259,7 @@ export async function loadFactoryConfig(factoryId: string): Promise<AgentConfig[
             model: agent.model,
             instructions: agent.instructions,
             skills,
-            tools: agent.tools.flatMap((toolId) => resolveTool(toolId, toolCopies, toolSettings)),
+            tools: agent.tools.flatMap(({ tool }) => resolveTool(tool)),
             plugins: agent.plugins.filter(isPluginId),
             mcps,
             toolGates,
@@ -281,18 +267,15 @@ export async function loadFactoryConfig(factoryId: string): Promise<AgentConfig[
     });
 }
 
-// A prebuilt id stands for itself. A copy's id resolves to its name and the tool it copies.
-function resolveTool(toolId: string, copies: { id: string; name: string; base: string }[], settings: Record<string, ToolSettings>) {
-    const copy = copies.find((item) => item.id === toolId);
-    const name = copy?.name ?? toolId;
-    const base = copy?.base ?? toolId;
-    if (!isPrebuiltTool(base)) {
+// A template that left the catalog drops out.
+function resolveTool({ id, name, template, description, model }: { id: string; name: string; template: string; description: string; model: string }) {
+    if (!isPrebuiltTool(template)) {
         return [];
     }
     return [{
-        key: toolId,
+        id,
         name,
-        base,
-        ...effectiveToolSettings(base, settings[toolId]),
+        template,
+        ...effectiveToolSettings({ template, description, model }),
     }];
 }

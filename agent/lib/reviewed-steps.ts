@@ -69,8 +69,8 @@ export async function runGenerateVideo(input: GenerateVideoInput, ctx: WorkflowS
     }
 }
 
-// The workflow is shared by every copy of a tool, so the step looks up the model by the name
-// the agent called.
+// The workflow is shared by every tool made from a template, so the step looks up the model by
+// the name the agent called.
 async function loadModel(ctx: WorkflowStepToolContext) {
     const factoryId = ctx.session.auth.initiator?.attributes.factoryId;
     if (typeof factoryId !== "string") {

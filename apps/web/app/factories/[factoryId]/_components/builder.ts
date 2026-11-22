@@ -2,13 +2,13 @@ import { isPluginId, PLUGINS, type AgentData, type FactoryData, type ToolGate } 
 
 // Shared vocabulary for the builder's components.
 
-export type Collection = "agents" | "skills" | "connections" | "toolCopies" | "channels" | "schedules";
+export type Collection = "agents" | "skills" | "connections" | "tools" | "channels" | "schedules";
 
 // What the inspector shows. null means the orchestrator.
-// Tools and plugins are catalog entries, not saved entities, so they stay out of `Collection`.
-// A tool copy is selected as a tool, by its id. A plugin tool's id is its tool name.
+// Plugins are catalog entries, not saved entities, so they stay out of `Collection`.
+// A plugin tool's id is its tool name.
 export type Selection = {
-    collection: Collection | "tools" | "connectionTools" | "plugins" | "pluginTools";
+    collection: Collection | "connectionTools" | "plugins" | "pluginTools";
     id: string;
 } | null;
 
@@ -28,8 +28,7 @@ export function gateDetail(gate: ToolGate | undefined) {
 }
 
 // A library item that can be dropped onto an agent.
-// Prebuilt tools and plugins are catalog ids, and a tool copy is its own id.
-// A connection tool id is `${connectionId}:${toolName}`.
+// Plugins are catalog ids. A connection tool id is `${connectionId}:${toolName}`.
 export type LibraryItem = {
     collection: "skills" | "plugins" | "connections" | "tools" | "connectionTools";
     id: string;
@@ -56,11 +55,12 @@ export const ATTACH_FIELD = {
     skills: "skillIds",
     plugins: "plugins",
     connections: "connectionIds",
-    tools: "tools",
+    tools: "toolIds",
 } as const;
 
 export function attachedItems(agent: AgentData, factory: FactoryData, catalogs: Record<string, string[]> = {}): AttachedItem[] {
     const skills = factory.skills.filter((skill) => agent.skillIds.includes(skill.id));
+    const tools = factory.tools.filter((tool) => agent.toolIds.includes(tool.id));
     const connections = factory.connections.filter((connection) => agent.connectionIds.includes(connection.id));
     const skillItems = skills.map(({ id, name }) => ({
         collection: "skills" as const,
@@ -73,10 +73,10 @@ export function attachedItems(agent: AgentData, factory: FactoryData, catalogs: 
         id: pluginId,
         name: PLUGINS[pluginId].title,
     }));
-    const toolItems = agent.tools.map((tool) => ({
+    const toolItems = tools.map(({ id, name }) => ({
         collection: "tools" as const,
-        id: tool,
-        name: toolName(factory, tool),
+        id,
+        name,
     }));
     const connectionItems = connections.map(({ id, name }) => ({
         collection: "connections" as const,
@@ -93,12 +93,6 @@ export function attachedItems(agent: AgentData, factory: FactoryData, catalogs: 
         }));
     });
     return [...skillItems, ...pluginItems, ...toolItems, ...connectionItems, ...connectionToolItems];
-}
-
-// A prebuilt tool's id is its name. A copy has its own.
-export function toolName(factory: FactoryData, toolId: string) {
-    const copy = factory.toolCopies.find((item) => item.id === toolId);
-    return copy?.name ?? toolId;
 }
 
 export const ITEM_COLORS = {

@@ -14,8 +14,8 @@ import { cliTool } from "./plugin-tools";
 import { reviewedDecide, reviewedGenerateImage, reviewedGenerateVideo, reviewedWebFetch, reviewedWebSearch } from "./reviewed-tools";
 import { webSearchTool } from "./web-search";
 
-// Every catalog tool needs an entry here, or typecheck fails. `tool` takes the factory's model
-// for tools that call one. `reviewed` is the workflow version used when a person accepts the
+// Every catalog template needs an entry here, or typecheck fails. `tool` takes the library tool's
+// model for templates that call one. `reviewed` is the workflow version used when a person accepts the
 // result after it runs; its step reads the model itself.
 const PREBUILT_TOOL_DEFS = {
     web_fetch: {
@@ -153,14 +153,15 @@ export function factoryTools(slot: number) {
         if (!factoryId || !agent) {
             return null;
         }
-        // A copy runs its base tool's code under its own name, description, model, and gate.
-        const prebuiltEntries = agent.tools.map(({ key, name, base, description, model }) => {
-            const gate = gateFor(agent.toolGates, key);
-            const { tool, reviewed } = PREBUILT_TOOL_DEFS[base];
+        // A library tool runs its template's code under its own name, description, model, and gate.
+        const libraryEntries = agent.tools.map(({ id, name, template, description, model }) => {
+            const gate = gateFor(agent.toolGates, id);
+            const { tool, reviewed } = PREBUILT_TOOL_DEFS[template];
             if (gate.result === "always") {
-                // The spread keeps eve's workflow brand and entry point, so every copy runs the
-                // one compiled workflow. The gate is read when the call starts, never in the workflow.
-                const approval: ApprovalPolicy = (ctx) => reviewedRunApproval(ctx, key);
+                // The spread keeps eve's workflow brand and entry point, so every tool made from a
+                // template runs its one compiled workflow. The gate is read when the call starts,
+                // never in the workflow.
+                const approval: ApprovalPolicy = (ctx) => reviewedRunApproval(ctx, id);
                 const configuredReviewed = {
                     ...reviewed,
                     description,
@@ -184,7 +185,7 @@ export function factoryTools(slot: number) {
             const gate = gateFor(agent.toolGates, name);
             return [name, withRunApproval(tool, gate, name)] as const;
         });
-        const toolEntries = [...prebuiltEntries, ...pluginEntries];
+        const toolEntries = [...libraryEntries, ...pluginEntries];
         if (toolEntries.length === 0) {
             return null;
         }

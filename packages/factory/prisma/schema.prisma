@@ -23,36 +23,27 @@ model Factory {
     channels      Channel[]
     schedules     Schedule[]
     toolGates     ToolGate[]
-    toolCopies    ToolCopy[]
-    toolSettings  ToolSetting[]
+    tools         Tool[]
     pluginSecrets PluginSecret[]
 }
 
-// What a factory changed about a prebuilt tool or a copy, keyed by the prebuilt id or the copy's
-// id. Empty fields fall back to the catalog in src/prebuilt-tools.ts. The tool's code never changes.
-model ToolSetting {
+// A tool in the library: a catalog template (src/prebuilt-tools.ts) under its own name and
+// settings. The template's code runs it and never changes. A factory can add the same template
+// more than once, say to run two image models. Its gate is keyed by its id, so a rename keeps it.
+model Tool {
+    id          String      @id @default(cuid())
     factoryId   String
-    factory     Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
-    toolKey     String
-    // What the model reads about the tool.
-    description String  @default("")
-    // An AI Gateway model id, for tools that call a model.
-    model       String  @default("")
-
-    @@id([factoryId, toolKey])
-}
-
-// A prebuilt tool under its own name, so one factory can run it with different settings.
-// Agents list a copy's id in `Agent.tools`, and its gate is keyed by that id, so renaming
-// it keeps both.
-model ToolCopy {
-    id        String   @id @default(cuid())
-    factoryId String
-    factory   Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
-    // The prebuilt tool id it copies, such as `web_fetch`.
-    base      String
-    name      String
-    createdAt DateTime @default(now())
+    factory     Factory     @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+    // The catalog template it runs, such as `web_fetch`.
+    template    String
+    // What the model calls it.
+    name        String
+    // What the model reads about the tool. Empty uses the template's.
+    description String      @default("")
+    // An AI Gateway model id, for templates that call a model. Empty uses the template's default.
+    model       String      @default("")
+    createdAt   DateTime    @default(now())
+    agents      AgentTool[]
 
     @@unique([factoryId, name])
 }
@@ -71,8 +62,8 @@ model PluginSecret {
     @@id([factoryId, pluginId, name])
 }
 
-// Approval for one tool in a factory. The key is a prebuilt id (`web_fetch`), a tool copy id,
-// a plugin tool name (`ffmpeg`), or a connection tool id (`connectionId:toolName`).
+// Approval for one tool in a factory. The key is a library tool's id, a plugin tool name
+// (`ffmpeg`), or a connection tool id (`connectionId:toolName`).
 model ToolGate {
     factoryId String
     factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
@@ -96,11 +87,11 @@ model Agent {
     description  String            @default("")
     model        String
     instructions String            @default("")
-    tools        String[]
     // Plugin catalog ids. Each plugin brings its own tools and skills.
     plugins      String[]          @default([])
     y            Float             @default(0)
     skills       AgentSkill[]
+    tools        AgentTool[]
     connections  AgentConnection[]
 
     @@unique([factoryId, slot])
@@ -178,6 +169,15 @@ model AgentSkill {
     skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
     @@id([agentId, skillId])
+}
+
+model AgentTool {
+    agentId String
+    agent   Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+    toolId  String
+    tool    Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+    @@id([agentId, toolId])
 }
 
 model AgentConnection {

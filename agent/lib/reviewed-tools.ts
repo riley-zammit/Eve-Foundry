@@ -9,7 +9,7 @@ import { webSearchInputSchema, type WebSearchInput } from "./web-search-spec";
 
 // Result review asks after the tool has already run. The consts stay at the top level:
 // a workflow tool built inside `defineDynamic` does not compile. factory.ts spreads each one
-// with the factory's description and the before-it-runs policy, so this module never imports
+// with the library tool's description and the before-it-runs policy, so this module never imports
 // the database.
 
 export const reviewedWebFetch = defineWorkflowTool({
@@ -112,7 +112,7 @@ export const reviewedGenerateVideo = defineWorkflowTool({
 });
 
 // Runs in the workflow body. With no one to ask, the result goes through. `toolName` is the
-// name the agent called, so a renamed copy asks under its own name.
+// name the agent called, so each library tool asks under its own name.
 async function acceptResult<T>(ctx: WorkflowToolContext, output: T) {
     const answer = await ctx.ask({
         prompt: `${ctx.toolName} has already run. Accept this result before the agent continues?`,

@@ -5,7 +5,6 @@ import {
     cliToolSpec,
     isAllowedMcpUrl,
     isPluginId,
-    isPrebuiltTool,
     isResultApproval,
     isRunApproval,
     ORCHESTRATOR_SLOT,
@@ -25,10 +24,8 @@ import {
     type SignInMethod,
     type SignInStatus,
     type SkillData,
-    type PrebuiltTool,
-    type ToolCopyData,
+    type ToolData,
     type ToolGate,
-    type ToolSettings,
 } from "@foundry/factory";
 import { useEffect, useState, type ReactNode } from "react";
 import type { GatewayModel } from "../../models";
@@ -49,7 +46,6 @@ type InspectorProps = {
     onEdit: EditEntity;
     onEditGate: (toolKey: string, gate: ToolGate) => void;
     onDuplicateTool: (toolId: string) => void;
-    onEditToolSettings: (toolKey: string, settings: ToolSettings) => void;
     onEditPluginSecret: (pluginId: string, name: string, value: string | null) => void;
     onSignOut: (connectionId: string) => void;
     onRemove: (collection: Collection, id: string) => void;
@@ -238,8 +234,8 @@ const RESULT_OPTIONS: { value: ResultApproval; label: string }[] = [
     { value: "always", label: "Every result" },
 ];
 
-// Prebuilt tools and their copies can review results. Connection and plugin tools can only pause
-// before they run. A copy is a prebuilt tool under its own name, so it can be renamed and deleted.
+// Library tools can review results. Connection and plugin tools can only pause before they run.
+// A library tool is shared: every agent it's attached to gets the same name, settings, and approvals.
 function ToolForm({
     toolKey,
     kind,
@@ -248,19 +244,15 @@ function ToolForm({
     onEdit,
     onEditGate,
     onDuplicateTool,
-    onEditToolSettings,
     onRemove,
     onSelect,
+    isEditing,
 }: InspectorProps & { toolKey: string; kind: "tools" | "connectionTools" | "pluginTools" }) {
     const gate = factory.toolGates[toolKey] ?? { run: "never" as const, result: "never" as const, criterion: "" };
     const canReview = kind === "tools";
     const heading = toolHeading(factory, toolKey, kind);
-    const copy = factory.toolCopies.find((item) => item.id === toolKey);
-    const base = copy?.base ?? (kind === "tools" && isPrebuiltTool(toolKey) ? toolKey : null);
-    const settings = factory.toolSettings[toolKey] ?? {
-        description: "",
-        model: "",
-    };
+    const tool = kind === "tools" ? factory.tools.find((item) => item.id === toolKey) : undefined;
+    const users = factory.agents.filter((agent) => agent.toolIds.includes(toolKey));
     if (!heading) {
         return <p className="text-sm text-zinc-400">This tool is no longer in the factory.</p>;
     }
@@ -274,24 +266,22 @@ function ToolForm({
             <Heading
                 title={heading.title}
                 detail={heading.detail}
-                action={kind === "tools" && <EditButton label="Duplicate" onClick={() => onDuplicateTool(toolKey)} />}
+                action={tool && <EditButton label="Duplicate" onClick={() => onDuplicateTool(tool.id)} />}
             />
-            {copy && (
-                <ToolCopyNameField
-                    copy={copy}
-                    factory={factory}
-                    onSave={(name) => onEdit("toolCopies", {
-                        ...copy,
-                        name,
-                    })}
-                />
+            {tool && users.length > 1 && (
+                <p className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1.5 text-xs text-zinc-400">
+                    Changes apply to all {users.length} agents using it.{" "}
+                    <button type="button" onClick={() => onDuplicateTool(tool.id)} className="text-zinc-200 underline hover:text-white">Duplicate</button>
+                    {" "}to change it for only one.
+                </p>
             )}
-            {base && (
+            {tool && (
                 <ToolSettingsFields
-                    base={base}
-                    settings={settings}
+                    tool={tool}
+                    factory={factory}
                     models={models}
-                    onEdit={(next) => onEditToolSettings(toolKey, next)}
+                    focusName={isEditing}
+                    onEdit={(next) => onEdit("tools", next)}
                 />
             )}
             <Field label="Before it runs">
@@ -346,54 +336,46 @@ function ToolForm({
                     <span className="text-xs text-zinc-500">Plugin tools can pause before they run. Reviewing their results isn't available yet.</span>
                 )}
             </Field>
-            {kind === "tools" && <UsedBy factory={factory} itemId={toolKey} onSelect={onSelect} />}
-            {copy && <DeleteButton label="Delete copy" onClick={() => onRemove("toolCopies", copy.id)} />}
+            {tool && <UsedBy factory={factory} itemId={tool.id} onSelect={onSelect} />}
+            {tool && <DeleteButton label="Delete tool" onClick={() => onRemove("tools", tool.id)} />}
         </>
     );
 }
 
-// Agents call a copy by this name. Only a free name saves, so they never see a blank or clashing one.
-function ToolCopyNameField({ copy, factory, onSave }: { copy: ToolCopyData; factory: FactoryData; onSave: (name: string) => void }) {
-    const [draft, setDraft] = useState(copy.name);
-    const otherCopies = factory.toolCopies.filter((item) => item.id !== copy.id);
-    const otherNames = otherCopies.map((item) => item.name);
-    const takenNames = [...reservedToolNames(), ...otherNames];
-
-    return (
-        <SlugField
-            label="Name"
-            value={draft}
-            taken={takenNames}
-            onChange={(name) => {
-                setDraft(name);
-                if (name && !takenNames.includes(name)) {
-                    onSave(name);
-                }
-            }}
-        />
-    );
-}
-
-// What the agent reads about the tool and, for a tool that calls a model, which model runs.
-// The code is fixed. Empty fields use the catalog's, so clearing the description restores it.
+// The name the agent calls, what it reads about the tool, and, for a template that calls a model,
+// which model runs. The code is fixed. Empty fields use the template's, so clearing the
+// description restores it. Only a free name saves, so agents never see a blank or clashing one.
 function ToolSettingsFields({
-    base,
-    settings,
+    tool,
+    factory,
     models,
+    focusName,
     onEdit,
 }: {
-    base: PrebuiltTool;
-    settings: ToolSettings;
+    tool: ToolData;
+    factory: FactoryData;
     models: GatewayModel[];
-    onEdit: (settings: ToolSettings) => void;
+    focusName: boolean;
+    onEdit: (tool: ToolData) => void;
 }) {
-    const spec = PREBUILT_TOOLS[base];
+    const spec = PREBUILT_TOOLS[tool.template];
     const modelSpec = spec.model;
-    const [description, setDescription] = useState(settings.description || spec.description);
-    const edit = (patch: Partial<ToolSettings>) => onEdit({
-        ...settings,
+    const [name, setName] = useState(tool.name);
+    const [description, setDescription] = useState(tool.description || spec.description);
+    const otherTools = factory.tools.filter((item) => item.id !== tool.id);
+    const otherNames = otherTools.map((item) => item.name);
+    const takenNames = [...reservedToolNames(), ...otherNames];
+    const edit = (patch: Partial<ToolData>) => onEdit({
+        ...tool,
         ...patch,
     });
+
+    function editName(next: string) {
+        setName(next);
+        if (next && !takenNames.includes(next)) {
+            edit({ name: next });
+        }
+    }
 
     function editDescription(text: string) {
         setDescription(text);
@@ -403,10 +385,11 @@ function ToolSettingsFields({
 
     return (
         <>
+            <SlugField label="Name" value={name} taken={takenNames} autoFocus={focusName} onChange={editName} />
             {modelSpec && (
                 <ModelField
                     models={models.filter((item) => item.type === modelSpec.type)}
-                    value={settings.model || modelSpec.default}
+                    value={tool.model || modelSpec.default}
                     onPick={(model) => edit({ model: model === modelSpec.default ? "" : model })}
                 />
             )}
@@ -419,7 +402,7 @@ function ToolSettingsFields({
                 />
                 <span className="text-xs text-zinc-500">What the agent reads to decide when and how to call it. Empty uses the default.</span>
             </Field>
-            {settings.description && (
+            {tool.description && (
                 <button
                     type="button"
                     onClick={() => editDescription(spec.description)}
@@ -455,19 +438,14 @@ function toolHeading(factory: FactoryData, toolKey: string, kind: "tools" | "con
             detail: `${plugin.title} plugin. ${owner.summary}`,
         };
     }
-    const copy = factory.toolCopies.find((item) => item.id === toolKey);
-    if (copy) {
-        return {
-            title: copy.name,
-            detail: `${PREBUILT_TOOLS[copy.base].summary}. A copy of ${copy.base} with its own name, settings, and approvals.`,
-        };
-    }
-    if (!isPrebuiltTool(toolKey)) {
+    const tool = factory.tools.find((item) => item.id === toolKey);
+    if (!tool) {
         return null;
     }
+    const { summary } = PREBUILT_TOOLS[tool.template];
     return {
-        title: toolKey,
-        detail: `${PREBUILT_TOOLS[toolKey].summary}. Duplicate it to run it with other settings under another name.`,
+        title: tool.name,
+        detail: tool.name === tool.template ? `${summary}.` : `${summary}. Made from ${tool.template}.`,
     };
 }
 
@@ -1197,12 +1175,18 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 // Library names are eve identifiers. The editor won't save an empty or duplicate one.
-function SlugField({ label, value, taken, onChange }: { label: string; value: string; taken: string[]; onChange: (name: string) => void }) {
+function SlugField({ label, value, taken, autoFocus, onChange }: { label: string; value: string; taken: string[]; autoFocus?: boolean; onChange: (name: string) => void }) {
     const isTaken = taken.includes(value);
 
     return (
         <Field label={label}>
-            <input className={`${inputClass} font-mono`} value={value} onChange={(event) => onChange(toSlug(event.target.value))} />
+            <input
+                autoFocus={autoFocus}
+                onFocus={autoFocus ? (event) => event.target.select() : undefined}
+                className={`${inputClass} font-mono`}
+                value={value}
+                onChange={(event) => onChange(toSlug(event.target.value))}
+            />
             {!value && <span className="text-xs text-amber-400">Start with a letter.</span>}
             {isTaken && <span className="text-xs text-amber-400">That name is already used.</span>}
         </Field>
@@ -1210,7 +1194,7 @@ function SlugField({ label, value, taken, onChange }: { label: string; value: st
 }
 
 function UsedBy({ factory, itemId, onSelect }: { factory: FactoryData; itemId: string; onSelect: (selection: Selection) => void }) {
-    const users = factory.agents.filter((agent) => agent.tools.includes(itemId) || agent.skillIds.includes(itemId) || agent.plugins.includes(itemId) || agent.connectionIds.includes(itemId));
+    const users = factory.agents.filter((agent) => agent.toolIds.includes(itemId) || agent.skillIds.includes(itemId) || agent.plugins.includes(itemId) || agent.connectionIds.includes(itemId));
 
     return (
         <Field label="Used by">

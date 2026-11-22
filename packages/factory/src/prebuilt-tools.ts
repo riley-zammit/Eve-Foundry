@@ -1,6 +1,7 @@
-// Prebuilt tools live in code; each maps to a tool in agent/lib/factory.ts. A factory can change
-// what the model reads (`description`) and, for a tool that calls a model, which model of `type`
-// it runs. The code itself is fixed.
+// Prebuilt tools live in code; each maps to a tool in agent/lib/factory.ts. Each is a template: a
+// factory adds it to its library as a `Tool` row, as many times as it likes, and can change what the
+// model reads (`description`) and, for a tool that calls a model, which model of `type` it runs.
+// The code itself is fixed.
 // eve's `web_search` is a provider tool that can only be static, so it can't be toggled per
 // factory. Ours runs the same AI Gateway search (Exa) inside a plain tool (agent/lib/web-search.ts).
 // There's no general shell: sandbox programs come from plugins, one scoped tool per CLI.
@@ -48,8 +49,10 @@ Usage notes:
 - You can't watch the clip. Tell the person its path and what you asked for`;
 
 type PrebuiltToolSpec = {
-    // One line for the library.
+    // One line for the library and the picker.
     summary: string;
+    // The picker's heading for it.
+    group: string;
     description: string;
     // An AI Gateway model type, and the model the tool starts with. Null for tools without a model.
     model: {
@@ -61,16 +64,19 @@ type PrebuiltToolSpec = {
 export const PREBUILT_TOOLS = {
     web_fetch: {
         summary: "Read a web page",
+        group: "Web",
         description: WEB_FETCH_DESCRIPTION,
         model: null,
     },
     web_search: {
         summary: "Search the web",
+        group: "Web",
         description: WEB_SEARCH_DESCRIPTION,
         model: null,
     },
     decide: {
         summary: "Classify or score text with an evaluation model",
+        group: "AI models",
         description: DECIDE_DESCRIPTION,
         model: {
             type: "evaluation",
@@ -79,6 +85,7 @@ export const PREBUILT_TOOLS = {
     },
     generate_image: {
         summary: "Create or edit images with an image model",
+        group: "AI models",
         description: GENERATE_IMAGE_DESCRIPTION,
         model: {
             type: "image",
@@ -87,6 +94,7 @@ export const PREBUILT_TOOLS = {
     },
     generate_video: {
         summary: "Create short video clips with a video model",
+        group: "AI models",
         description: GENERATE_VIDEO_DESCRIPTION,
         model: {
             type: "video",
@@ -100,3 +108,7 @@ export type PrebuiltTool = keyof typeof PREBUILT_TOOLS;
 export function isPrebuiltTool(value: string): value is PrebuiltTool {
     return Object.hasOwn(PREBUILT_TOOLS, value);
 }
+
+// A new factory's library starts with these, attached to the orchestrator. Tools that cost money
+// per call, like image and video, wait for someone to add them.
+export const STARTER_TOOLS: PrebuiltTool[] = ["web_search", "web_fetch"];

@@ -24,7 +24,7 @@ export function canvasActivity(input: {
     busy: boolean;
     connections: { id: string; name: string }[];
     skills: { id: string; name: string }[];
-    toolCopies: { id: string; name: string }[];
+    tools: { id: string; name: string }[];
     slots: number[];
 }): { orchestrator: Highlight | null; orchestratorChips: Record<string, Highlight>; slots: Record<number, SlotActivity> } {
     const emptySlots = Object.fromEntries(input.slots.map((slot) => [slot, emptySlot()]));
@@ -171,8 +171,8 @@ function childPartsFor(agents: Readonly<Record<string, ConversationAgentSession>
 
 type Named = { id: string; name: string }[];
 
-function chipHighlights(parts: readonly EveToolPart[], library: { connections: Named; skills: Named; toolCopies: Named }) {
-    const { connections, skills, toolCopies } = library;
+function chipHighlights(parts: readonly EveToolPart[], library: { connections: Named; skills: Named; tools: Named }) {
+    const { connections, skills, tools } = library;
     const chips: Record<string, Highlight> = {};
     for (const part of parts) {
         const highlight = highlightOf(part.state);
@@ -191,9 +191,9 @@ function chipHighlights(parts: readonly EveToolPart[], library: { connections: N
             }
         }
         if (capability.kind === "tool") {
-            // A copy's chip is keyed by its id, not the name the agent called.
-            const copy = toolCopies.find((item) => item.name === capability.name);
-            raise(chips, `tools:${copy?.id ?? capability.name}`, highlight);
+            // A library tool's chip is keyed by its id, not the name the agent called.
+            const tool = tools.find((item) => item.name === capability.name);
+            raise(chips, `tools:${tool?.id ?? capability.name}`, highlight);
             const owner = pluginOfTool(capability.name);
             if (owner) {
                 raise(chips, `plugins:${owner.pluginId}`, highlight);

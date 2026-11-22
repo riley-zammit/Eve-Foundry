@@ -10,7 +10,7 @@ One shared, multi-tenant eve deployment serves every factory. Factories are data
 | Instructions | dynamic `defineInstructions` | Yes |
 | Skills | dynamic `defineSkill` map | Yes |
 | MCPs / APIs | dynamic `defineMcpClientConnection` / `defineOpenAPIConnection` | Yes |
-| Prebuilt tools (web_fetch, …) | shipped in runtime, toggled via dynamic tools | Yes (toggle/config only) |
+| Tools (web_fetch, …) | templates shipped in runtime, library rows per factory via dynamic tools | Yes (add/config only) |
 | Plugins (CLI tools + skills) | catalog in code, CLIs baked into the sandbox template | Yes (toggle/config only) |
 | Custom code tools | user code runs in the sandbox via a generic tool | Yes |
 | Schedules | `defineDynamicSchedules` (experimental) | Yes |
@@ -29,7 +29,7 @@ Later: compile a factory's config into a standalone eve project for export or de
 - **Shared blast radius:** a bad deploy affects every tenant, and deploys reset memo caches. Per-tenant quotas protect against noisy neighbors and feed token billing.
 - **Prompt cache:** switching models mid-session reduces cache reuse.
 - **Single user (descoped):** no accounts or ownership checks. Anyone who can reach the app can edit and chat with any factory, so don't expose it publicly yet. Factories are still isolated from each other.
-- **`web_search` per factory:** eve's `web_search` is a provider tool and can only be static, so it can't be switched on per factory. Ours is a `defineTool` that runs the same AI Gateway Exa search (see [Prebuilt tool catalog](#prebuilt-tool-catalog-code)).
+- **`web_search` per factory:** eve's `web_search` is a provider tool and can only be static, so it can't be switched on per factory. Ours is a `defineTool` that runs the same AI Gateway Exa search (see [Tool templates](#tool-templates-code)).
 - **Browser per factory:** eve's `@eve/agent-browser` is an extension, and a mounted extension gives every factory its tools. We import its tool definitions instead and offer them through dynamic tools as the Browser plugin. Unmounted, they run with the package's default settings.
 
 ## Implementation (v1)
@@ -38,7 +38,7 @@ Later: compile a factory's config into a standalone eve project for export or de
 - **Hosting:** Next.js hosts the agent (`withEve`, `eveRoot: "../.."`). The builder's chat calls `/eve/v1/*` on the same origin.
 - **Factory selection:** the chat sends an `x-foundry-factory` header. The eve channel's `onMessage` checks that the factory exists and copies its ID into the session's auth attributes. Dynamic files read it from `auth.initiator`, so it's pinned for the whole session and inherited by subagent sessions.
 - **Live edits:** the builder autosaves. The agent memoizes the factory per turn, so edits apply from the next message.
-- **Wired up:** model, instructions, skills, prebuilt tools (`web_fetch`, `web_search`, `decide`, `generate_image`, `generate_video`), plugins (see [Sandboxes](#sandboxes)), MCP connections (https only, no localhost or IP literals), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
+- **Wired up:** model, instructions, skills, library tools from templates (`web_fetch`, `web_search`, `decide`, `generate_image`, `generate_video`), plugins (see [Sandboxes](#sandboxes)), MCP connections (https only, no localhost or IP literals), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
 - **Connector catalog:** the Connections **+** opens one list of services from two sources (`apps/web/app/factories/connector-catalog/`). The picker never says which source a service came from.
   - **Vercel Connect:** its MCP services that someone can sign in to from the builder (about 560). About 520 use Connect's own OAuth client. The rest, like Shop and PagerDuty, are listed by Connect as needing an API key or an OAuth app of our own, but their servers pass Foundry's own sign-in discovery (`canSignInWithoutConnect`). Finding them needs Connect's per-service detail, which needs a Vercel login, so they're a committed snapshot refreshed with `npm run sync:connect` in `apps/web`.
   - **Not offered:** Connect services with no MCP server, only REST API tokens from an OAuth app we'd register ourselves (Google, Shopify, HubSpot, Figma, Zoom, Dropbox, and about 30 more), and MCP servers that need an API key or our own OAuth app (Asana, Box, Xero, Wrike, and others).
@@ -97,7 +97,8 @@ One module, `packages/factory/src/auth/` (`@foundry/factory/auth`), handles all 
 - **Orchestrator card:** pinned at the canvas origin. It's larger, styled differently from the other cards, and shows its model, the start of its instructions, and its attached items inline. It's also where you open the chat, and it's what the inspector shows when nothing else is selected.
 - **Lanes:** triggers (channels and schedules) sit on the left and feed in; subagents sit on the right and receive delegated work. Cards can move up and down their lane, but they can't be connected to anything other than the orchestrator.
 - **Library:** the left sidebar lists the factory's skills, tools, and connections. Clicking an item opens it in the inspector. Skills get a wide markdown editor; connections get a URL field (credentials come later). Dragging an item onto an agent card attaches it, and the chip's × detaches it. Deleting an item from the library detaches it everywhere.
-- **Tools:** come from a built-in catalog in code, not the database. The library shows the catalog, and agents store the tool IDs they use.
+- **Tools:** every library tool is a `Tool` row made from a template in the code catalog. The Tools **+** opens a picker of templates, and adding one makes a row named after it (`generate_image`, then `generate_image_2`). A template can be added any number of times, say to run two image models. A new factory starts with `web_search` and `web_fetch` (`STARTER_TOOLS`), attached to the orchestrator; tools that cost money per call wait for someone to add them.
+- **Shared edits:** skills, tools, and connections are references. Editing one changes it for every agent it's attached to, and the inspector lists those agents under **Used by**. A tool used by more than one agent says so above its settings, with a Duplicate link. To give one agent a different model, duplicate the tool. The library item says what it is; the attachment only says which agents use it (plus a connection's tool allow list).
 
 ### Stored: Postgres
 ```mermaid
@@ -108,14 +109,16 @@ erDiagram
     FACTORY ||--o{ CONNECTION : library
     FACTORY ||--o{ CHANNEL : triggers
     FACTORY ||--o{ SCHEDULE : triggers
+    FACTORY ||--o{ TOOL : library
     AGENT ||--o{ AGENT_SKILL : attaches
     SKILL ||--o{ AGENT_SKILL : "attached to"
+    AGENT ||--o{ AGENT_TOOL : attaches
+    TOOL ||--o{ AGENT_TOOL : "attached to"
     AGENT ||--o{ AGENT_CONNECTION : attaches
     CONNECTION ||--o{ AGENT_CONNECTION : "attached to"
     CONNECTION ||--o| CONNECTION_CREDENTIAL : "signed in with"
     FACTORY ||--o{ PLUGIN_SECRET : "sets env for plugins"
-    FACTORY ||--o{ TOOL_COPY : "renames prebuilt tools"
-    FACTORY ||--o{ TOOL_SETTING : "configures prebuilt tools and copies"
+    FACTORY ||--o{ TOOL_GATE : "approvals per tool"
 
     FACTORY {
         string id PK "cuid"
@@ -131,7 +134,6 @@ erDiagram
         string description "subagents: when to delegate"
         string model "AI Gateway id"
         string instructions
-        string[] tools "prebuilt catalog ids and tool copy ids"
         string[] plugins "plugin catalog ids"
         float y "lane position; orchestrator ignores it"
     }
@@ -171,6 +173,10 @@ erDiagram
         string agentId PK, FK
         string skillId PK, FK
     }
+    AGENT_TOOL {
+        string agentId PK, FK
+        string toolId PK, FK
+    }
     AGENT_CONNECTION {
         string agentId PK, FK
         string connectionId PK, FK
@@ -191,17 +197,20 @@ erDiagram
         boolean enabled
         float y
     }
-    TOOL_COPY {
+    TOOL {
         string id PK
         string factoryId FK
-        string base "prebuilt catalog id it runs"
+        string template "catalog template it runs"
         string name "what the model calls; slug, unique per factory"
+        string description "empty uses the template's"
+        string model "AI Gateway id; empty uses the template's"
     }
-    TOOL_SETTING {
+    TOOL_GATE {
         string factoryId PK, FK
-        string toolKey PK "prebuilt id or tool copy id"
-        string description "empty uses the catalog's"
-        string model "AI Gateway id; empty uses the catalog's"
+        string toolKey PK "tool id, plugin tool name, or connectionId:tool"
+        string run "never, once, always, auto"
+        string criterion "what auto checks"
+        string result "never, always"
     }
     PLUGIN_SECRET {
         string factoryId PK, FK
@@ -212,16 +221,16 @@ erDiagram
     }
 ```
 
-- **Deletes:** deleting a factory cascades to everything. Deleting an agent, skill, or connection cascades to its attachment rows only (and a connection's credential). `Agent.tools` is a plain id list, so deleting a tool copy removes its id from agents and drops its gate and settings by hand.
+- **Deletes:** deleting a factory cascades to everything. Deleting an agent, skill, tool, or connection cascades to its attachment rows only (and a connection's credential). Gates are keyed by string, so deleting a tool or connection drops its gates by hand.
 - **Positions:** only `y` is stored. The lane fixes `x`, and the orchestrator is always at the origin.
 - **Saving:** each entity saves on its own through an upsert server action (`saveAgent`, `saveSkill`, …, `deleteItem`), 600ms after its last edit. The builder generates IDs, so new items show up instantly. Next.js runs a client's actions in order, so a create always lands before an attach. An agent's save replaces its attachments with only this factory's items.
 - **Library scope:** items belong to one factory.
 - **Channel settings** (e.g. a Slack `teamId`) get a column when the first non-web channel goes live.
 
-### Prebuilt tool catalog (code)
-`packages/factory/src/prebuilt-tools.ts` holds each tool's library summary, default description, and, for a tool that calls a model, the AI Gateway model type and default model. A factory can change the description and model per tool in the inspector (`ToolSetting`). The code itself is fixed.
+### Tool templates (code)
+`packages/factory/src/prebuilt-tools.ts` holds each template's summary, picker group, default description, and, for a template that calls a model, the AI Gateway model type and default model. Each library `Tool` picks a template and can change its name, description, and model in the inspector. The code itself is fixed.
 
-| Id | Backed by | Model | Notes |
+| Template | Backed by | Model | Notes |
 |---|---|---|---|
 | `web_fetch` | eve `web_fetch` | none | |
 | `decide` | our `defineTool` calling `decide` from `eve/ai` | evaluation, default `typesafe-ai/jev` | Typed boolean/choice/score questions about text; returns answers with probabilities. Evaluation models only run in tools like this. They return no text, so the agent model picker leaves them out. |
@@ -229,16 +238,16 @@ erDiagram
 | `generate_image` | our `defineTool` calling `generateImage` | image, default `openai/gpt-image-2` | Text to image, or edits with up to 4 sandbox images as references. Saves to `/workspace/out/` and shows the model each image up to 3 MiB. |
 | `generate_video` | our `defineTool` calling `experimental_generateVideo` | video, default `google/veo-3.1-fast-generate-001` | Text to video, or a sandbox image as the first frame. Up to 15 seconds. Saves to `/workspace/out/` and returns the path; the model can't watch it. Runs inside the model step and waits up to 10 minutes. |
 
-The browser is a plugin, not a prebuilt tool; see [Plugins](#plugins).
+The browser is a plugin, not a tool template; see [Plugins](#plugins).
 
 **Generated files** go to the sandbox, so other tools can use them: the image plugin can edit an image, and `generate_video` can animate one. Names carry a time suffix, so a later call never overwrites an earlier one. The person can't see them yet, because the chat renders no files.
 
-**Tool copies.** The inspector's Duplicate button copies any prebuilt tool, or a copy of one, into a `ToolCopy` row. A copy runs the same code under its own name. It starts with the source's settings and gate and can be renamed or deleted afterward. The model calls it by `name`. Agents attach it by `id`, and its settings and gate are keyed by `id`, so a rename keeps them. The point is per-copy settings: description, model, and approvals. Copy names can't take a prebuilt id, a plugin tool name, or `subagent_N`, which eve also uses for tool names. The runtime gives each copy its base tool. `loadFactoryConfig` fills in catalog defaults, and a plain tool gets its description and model when it's defined for the turn. A copy with result review spreads the shared reviewed workflow tool, which keeps eve's brand and compiled entry point, and sets its description and an approval that reads the copy's gate. A workflow can't close over settings, so its step looks up the model with `loadToolModel(factoryId, ctx.toolName)`.
+**Library tools.** A `Tool` row runs its template's code under its own name. The model calls it by `name`. Agents attach it by `id` (`AgentTool`), and its gate is keyed by `id`, so a rename keeps both. The inspector's Duplicate button copies a tool with its settings and gate. Names can't take a plugin tool name or `subagent_N`, which eve also uses for tool names. `loadFactoryConfig` fills in the template's defaults, and a plain tool gets its description and model when it's defined for the turn. A tool with result review spreads the template's shared reviewed workflow tool, which keeps eve's brand and compiled entry point, and sets its description and an approval that reads the tool's gate. A workflow can't close over settings, so its step looks up the model with `loadToolModel(factoryId, ctx.toolName)`. Migration `library_tools` turned each old copy into a row with the same id, and each prebuilt tool a factory used, configured, or gated into a row named after it.
 
-**Tool gates.** `ToolGate` sets each tool's approvals, keyed like settings. `run` gates the call before it starts: `never` runs it, `once`/`always` ask a person, and `auto` uses eve's `auto()` decision model (Jev). With an empty `criterion`, `auto` is eve's built-in risk review. With one, the criterion replaces it as `auto({ instructions, criteria })`: a call that clearly meets it runs, and anything else asks a person. eve's `auto()` can't deny on its own, and we don't override that. `result` (prebuilt tools and copies only) has a person accept the output.
+**Tool gates.** `ToolGate` sets each tool's approvals, keyed by library tool id, plugin tool name, or `connectionId:tool`. `run` gates the call before it starts: `never` runs it, `once`/`always` ask a person, and `auto` uses eve's `auto()` decision model (Jev). With an empty `criterion`, `auto` is eve's built-in risk review. With one, the criterion replaces it as `auto({ instructions, criteria })`: a call that clearly meets it runs, and anything else asks a person. eve's `auto()` can't deny on its own, and we don't override that. `result` (library tools only) has a person accept the output.
 
 ### Compiled: what the runtime reads
-`loadFactoryConfig` runs one Prisma query (agents → attached skills and connections) and returns one `AgentConfig` per agent. Each dynamic file picks its agent by slot. There's no graph walking or name deduplication, because the schema already guarantees those rules. The only filtering left drops unknown tools and MCP URLs that fail the safety check.
+`loadFactoryConfig` runs one Prisma query (agents → attached skills, tools, and connections) and returns one `AgentConfig` per agent. Each dynamic file picks its agent by slot. There's no graph walking or name deduplication, because the schema already guarantees those rules. The only filtering left drops unknown tools and MCP URLs that fail the safety check.
 
 ```mermaid
 classDiagram
@@ -264,11 +273,11 @@ classDiagram
         number signedInAt, null when not signed in
     }
     class Tool {
-        string key, gate key: prebuilt id or copy id
+        string id, also its gate key
         string name, what the model calls
-        PrebuiltTool base
-        string description, catalog default filled in
-        string model, null for tools without one
+        PrebuiltTool template
+        string description, template default filled in
+        string model, null for templates without one
     }
     class PrebuiltTool {
         <<enumeration>>
@@ -372,7 +381,7 @@ For the time being, we wrap sandbox capabilities in tools. There's no general `b
 ### Plugins
 A plugin bundles sandbox CLIs with the skills that teach an agent to use them. It's one library item: dragging it onto an agent attaches all of it, and the library row expands to show what's inside.
 
-- **Catalog:** `packages/factory/src/plugins.ts`, in code like prebuilt tools. `Agent.plugins` stores the ids. Today: `image_editing` (ImageMagick), `video_editing` (ffmpeg), and `browser` (eve's agent-browser). None needs credentials yet.
+- **Catalog:** `packages/factory/src/plugins.ts`, in code like tool templates. `Agent.plugins` stores the ids. Today: `image_editing` (ImageMagick), `video_editing` (ffmpeg), and `browser` (eve's agent-browser). None needs credentials yet.
 - **Install:** `agent/sandbox.ts` installs every plugin's apt packages in the template's `prepare`, so sessions start with them, plus agent-browser and Chromium on apt or dnf images. Adding a plugin means a rebuild. just-bash (dev without Docker) skips the install, and the tools say the program isn't installed.
 - **Tools:** a plugin brings CLIs, typed tools, or both. Each CLI becomes one `defineTool` (`agent/lib/plugin-tools.ts`). It takes `command: string[]`, checks the program against the CLI's allow list, and single-quotes every argument, so there's no shell to escape into. `show` returns output images to the model. Typed tools are a package's own definitions, listed by name in the catalog with a one-line summary for the builder.
 - **Browser:** the 28 tools eve's agent-browser lists every turn, renamed `browser_<tool>` (`agent/lib/browser-tools.ts`). Its debugging tools and file upload are left out. One browser per sandbox and no domain allow list, the package's defaults. eve hides screenshots from the model for a chat to show instead; ours renders no images yet, so `browser_screenshot` shows them to the model. Pinned to `@eve/agent-browser@0.1.0`, the last release that accepts eve `1.0.0-rc.18`; upgrade it with eve. A tool installs agent-browser itself when the template doesn't have it.

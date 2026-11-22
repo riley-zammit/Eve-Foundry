@@ -9,7 +9,7 @@ import { useStoredState } from "./useStoredState";
 const DEFAULT_OPEN: Record<string, boolean> = {
     skills: true,
     plugins: false,
-    tools: false,
+    tools: true,
     connections: true,
     connectionTools: false,
 };
@@ -27,6 +27,7 @@ export function Library({
     selection,
     onSelect,
     onAddSkill,
+    onAddTool,
     onAddConnection,
     onAddSubagent,
     onAddChannel,
@@ -39,6 +40,7 @@ export function Library({
     selection: Selection;
     onSelect: (selection: Selection) => void;
     onAddSkill: () => void;
+    onAddTool: () => void;
     onAddConnection: () => void;
     onAddSubagent: () => void;
     onAddChannel: () => void;
@@ -190,34 +192,28 @@ export function Library({
             />
         ),
     }));
-    // A changed model shows next to the summary, so copies can be told apart.
-    function toolRow(toolId: string, name: string, summary: string) {
-        const model = factory.toolSettings[toolId]?.model;
-        const detail = model ? `${summary} · ${model}` : summary;
+    // A changed model shows next to the summary, so two tools from one template can be told apart.
+    const toolRows = factory.tools.map((tool) => {
+        const { summary } = PREBUILT_TOOLS[tool.template];
+        const detail = tool.model ? `${summary} · ${tool.model}` : summary;
         return {
-            id: toolId,
+            id: tool.id,
             node: (
                 <LibraryRow
                     item={{
                         collection: "tools",
-                        id: toolId,
+                        id: tool.id,
                     }}
-                    name={name}
-                    detail={withGate(detail, factory.toolGates[toolId])}
-                    isSelected={selection?.collection === "tools" && selection.id === toolId}
+                    name={tool.name}
+                    detail={withGate(detail, factory.toolGates[tool.id])}
+                    isSelected={selection?.collection === "tools" && selection.id === tool.id}
                     onSelect={() => onSelect({
                         collection: "tools",
-                        id: toolId,
+                        id: tool.id,
                     })}
                 />
             ),
         };
-    }
-    // Copies sit right under the tool they were made from.
-    const toolRows = Object.entries(PREBUILT_TOOLS).flatMap(([tool, spec]) => {
-        const copies = factory.toolCopies.filter((copy) => copy.base === tool);
-        const copyRows = copies.map((copy) => toolRow(copy.id, copy.name, `Copy of ${tool}`));
-        return [toolRow(tool, tool, spec.summary), ...copyRows];
     });
     const connectionRows = factory.connections.map((connection) => ({
         id: connection.id,
@@ -291,11 +287,16 @@ export function Library({
             </Section>
             <Section
                 title="Tools"
-                count={toolRows.length}
+                count={factory.tools.length}
                 isOpen={isOpen("tools")}
                 onToggle={() => setOpen("tools", !isOpen("tools"))}
+                onAdd={() => {
+                    setOpen("tools", true);
+                    onAddTool();
+                }}
                 onAddFolder={() => addFolder("tools")}
             >
+                {factory.tools.length === 0 && <Empty>No tools yet.</Empty>}
                 {foldered("tools", toolRows)}
             </Section>
             <Section

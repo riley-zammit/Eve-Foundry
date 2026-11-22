@@ -5,7 +5,6 @@ import {
     CHANNEL_KINDS,
     DEFAULT_MODEL,
     FACTORY_HEADER,
-    isPrebuiltTool,
     ORCHESTRATOR_SLOT,
     reservedToolNames,
     SIGN_IN_CHANNEL,
@@ -14,11 +13,11 @@ import {
     type AgentData,
     type FactoryData,
     type LibraryFolder,
+    type PrebuiltTool,
     type ScheduleData,
     type SignInMessage,
     type SignInStatus,
     type ToolGate,
-    type ToolSettings,
 } from "@foundry/factory";
 import { Background, Controls, ReactFlow, useReactFlow, type Edge, type NodeChange, type NodeMouseHandler } from "@xyflow/react";
 import { activeTurn, openInteractions } from "eve/events";
@@ -34,9 +33,8 @@ import {
     savePluginSecret,
     saveSchedule,
     saveSkill,
-    saveToolCopy,
+    saveTool,
     saveToolGate,
-    saveToolSettings,
 } from "../../actions";
 import { listMcpTools, signOutOfConnection } from "../../connect";
 import type { GatewayModel } from "../../models";
@@ -61,6 +59,7 @@ import { FanoutCard, type FanoutNode } from "./FanoutCard";
 import { Inspector, type EditEntity } from "./Inspector";
 import { Library } from "./Library";
 import { DEFAULT_TIME, describeCron, toCron } from "./schedule";
+import { ToolCatalog } from "./ToolCatalog";
 import { TriggerCard, type TriggerNode } from "./TriggerCard";
 import { useStoredState } from "./useStoredState";
 
@@ -69,7 +68,7 @@ const SAVERS = {
     agents: saveAgent,
     skills: saveSkill,
     connections: saveConnection,
-    toolCopies: saveToolCopy,
+    tools: saveTool,
     channels: saveChannel,
     schedules: saveSchedule,
 };
@@ -100,6 +99,7 @@ export function FactoryBuilder({
     const [selection, setSelection] = useState<Selection>(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+    const [isToolCatalogOpen, setIsToolCatalogOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [panelWidth, setPanelWidth] = useStoredState("foundry:panel-width", PANEL_DEFAULT_WIDTH);
     const [sizes, setSizes] = useState<Record<string, { width: number; height: number }>>({});
@@ -172,19 +172,6 @@ export function FactoryBuilder({
         queueSave(`toolGate:${toolKey}`, () => saveToolGate(factory.id, toolKey, gate), SAVE_DELAY_MS);
     }
 
-    function editToolSettings(toolKey: string, settings: ToolSettings) {
-        setFactory((current) => {
-            const toolSettings = { ...current.toolSettings };
-            if (!settings.description && !settings.model) {
-                delete toolSettings[toolKey];
-            } else {
-                toolSettings[toolKey] = settings;
-            }
-            return { ...current, toolSettings };
-        });
-        queueSave(`toolSettings:${toolKey}`, () => saveToolSettings(factory.id, toolKey, settings), SAVE_DELAY_MS);
-    }
-
     function editFolders(folders: LibraryFolder[]) {
         setFactory((current) => ({
             ...current,
@@ -245,14 +232,13 @@ export function FactoryBuilder({
             // The database drops a deleted item's attachments; mirror that here.
             next.agents = next.agents.map((agent) => ({
                 ...agent,
-                tools: agent.tools.filter((toolId) => toolId !== id),
+                toolIds: agent.toolIds.filter((toolId) => toolId !== id),
                 skillIds: agent.skillIds.filter((skillId) => skillId !== id),
                 connectionIds: agent.connectionIds.filter((connectionId) => connectionId !== id),
                 toolAllow: Object.fromEntries(Object.entries(agent.toolAllow).filter(([connectionId]) => connectionId !== id)),
             }));
-            // A connection's gates are keyed `${id}:tool`, and a tool copy's gate and settings by its id.
+            // A connection's gates are keyed `${id}:tool`, and a library tool's gate by its id.
             next.toolGates = Object.fromEntries(Object.entries(next.toolGates).filter(([key]) => key !== id && !key.startsWith(`${id}:`)));
-            next.toolSettings = Object.fromEntries(Object.entries(next.toolSettings).filter(([key]) => key !== id));
             return next;
         });
         setSelection(null);
@@ -367,9 +353,9 @@ export function FactoryBuilder({
             description: "",
             model: DEFAULT_MODEL,
             instructions: "",
-            tools: [],
             plugins: [],
             skillIds: [],
+            toolIds: [],
             connectionIds: [],
             toolAllow: {},
             y: nextLaneY(subagents),
@@ -417,25 +403,39 @@ export function FactoryBuilder({
         setIsEditing(!fromCatalog);
     }
 
+    // A second tool from the same template starts with the name field focused, so it gets told apart.
+    function addTool(template: PrebuiltTool) {
+        const takenNames = factory.tools.map((tool) => tool.name);
+        const tool = {
+            id: crypto.randomUUID(),
+            template,
+            name: uniqueName(template, [...reservedToolNames(), ...takenNames]),
+            description: "",
+            model: "",
+        };
+        setIsToolCatalogOpen(false);
+        edit("tools", tool, 0);
+        select({
+            collection: "tools",
+            id: tool.id,
+        });
+        setIsEditing(tool.name !== template);
+    }
+
     // The copy starts with the source's settings and gate. Server actions run in order, so the
-    // copy exists before they save.
+    // copy exists before its gate saves.
     function duplicateTool(toolId: string) {
-        const source = factory.toolCopies.find((copy) => copy.id === toolId);
-        const base = source?.base ?? toolId;
-        if (!isPrebuiltTool(base)) {
+        const source = factory.tools.find((tool) => tool.id === toolId);
+        if (!source) {
             return;
         }
-        const copyNames = factory.toolCopies.map((copy) => copy.name);
+        const takenNames = factory.tools.map((tool) => tool.name);
         const copy = {
+            ...source,
             id: crypto.randomUUID(),
-            name: uniqueName(source?.name ?? base, [...reservedToolNames(), ...copyNames]),
-            base,
+            name: uniqueName(source.name, [...reservedToolNames(), ...takenNames]),
         };
-        edit("toolCopies", copy, 0);
-        const settings = factory.toolSettings[toolId];
-        if (settings) {
-            editToolSettings(copy.id, settings);
-        }
+        edit("tools", copy, 0);
         const gate = factory.toolGates[toolId];
         if (gate) {
             editGate(copy.id, gate);
@@ -444,6 +444,7 @@ export function FactoryBuilder({
             collection: "tools",
             id: copy.id,
         });
+        setIsEditing(true);
     }
 
     function addChannel() {
@@ -565,7 +566,7 @@ export function FactoryBuilder({
         busy: working || runningScheduleId !== null,
         connections: factory.connections,
         skills: factory.skills,
-        toolCopies: factory.toolCopies,
+        tools: factory.tools,
         slots: SUBAGENT_SLOTS,
     });
 
@@ -759,6 +760,7 @@ export function FactoryBuilder({
                     selection={selection}
                     onSelect={select}
                     onAddSkill={addSkill}
+                    onAddTool={() => setIsToolCatalogOpen(true)}
                     onAddConnection={() => setIsCatalogOpen(true)}
                     onAddSubagent={addSubagent}
                     onAddChannel={addChannel}
@@ -815,7 +817,6 @@ export function FactoryBuilder({
                             onEdit={edit}
                             onEditGate={editGate}
                             onDuplicateTool={duplicateTool}
-                            onEditToolSettings={editToolSettings}
                             onEditPluginSecret={editPluginSecret}
                             onSignOut={signOut}
                             onRemove={remove}
@@ -840,6 +841,13 @@ export function FactoryBuilder({
                     onAdd={addConnection}
                     onAddCustom={() => addConnection()}
                     onClose={() => setIsCatalogOpen(false)}
+                />
+            )}
+            {isToolCatalogOpen && (
+                <ToolCatalog
+                    tools={factory.tools}
+                    onAdd={addTool}
+                    onClose={() => setIsToolCatalogOpen(false)}
                 />
             )}
         </div>

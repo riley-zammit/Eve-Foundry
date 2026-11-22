@@ -12,6 +12,7 @@ import {
     PLUGINS,
     PREBUILT_TOOLS,
     reservedToolNames,
+    STARTER_TOOLS,
     toSlug,
     type AgentData,
     type ChannelData,
@@ -19,33 +20,44 @@ import {
     type LibraryFolder,
     type ScheduleData,
     type SkillData,
-    type ToolCopyData,
+    type ToolData,
     type ToolGate,
-    type ToolSettings,
 } from "@foundry/factory";
 import { signOut } from "@foundry/factory/auth";
 import { getDb } from "@foundry/factory/db";
 import { deletePluginSecret, storePluginSecret } from "@foundry/factory/secrets";
 import { redirect } from "next/navigation";
 
-// A factory starts as its orchestrator plus the web chat channel.
+// A factory starts as its orchestrator with the starter tools, plus the web chat channel.
 export async function createFactory(formData: FormData) {
     const rawName = String(formData.get("name") ?? "").trim();
     const name = rawName || "Untitled factory";
-    const factory = await getDb().factory.create({
-        data: {
-            name,
-            agents: {
-                create: {
-                    slot: ORCHESTRATOR_SLOT,
-                    name,
-                    model: DEFAULT_MODEL,
+    const starterTools = STARTER_TOOLS.map((template) => ({
+        template,
+        name: template,
+    }));
+    const factory = await getDb().$transaction(async (db) => {
+        const created = await db.factory.create({
+            data: {
+                name,
+                tools: { create: starterTools },
+                channels: {
+                    create: { kind: "web" },
                 },
             },
-            channels: {
-                create: { kind: "web" },
+            include: { tools: true },
+        });
+        const toolLinks = created.tools.map((tool) => ({ toolId: tool.id }));
+        await db.agent.create({
+            data: {
+                factoryId: created.id,
+                slot: ORCHESTRATOR_SLOT,
+                name,
+                model: DEFAULT_MODEL,
+                tools: { create: toolLinks },
             },
-        },
+        });
+        return created;
     });
     redirect(`/factories/${factory.id}`);
 }
@@ -70,15 +82,15 @@ export async function saveAgent(factoryId: string, agent: AgentData) {
         },
         select: { id: true },
     });
-    const toolCopies = await db.toolCopy.findMany({
+    const tools = await db.tool.findMany({
         where: {
             factoryId,
-            id: { in: agent.tools },
+            id: { in: agent.toolIds },
         },
         select: { id: true },
     });
-    const toolCopyIds = toolCopies.map(({ id }) => id);
     const skillLinks = skills.map(({ id }) => ({ skillId: id }));
+    const toolLinks = tools.map(({ id }) => ({ toolId: id }));
     const connectionLinks = connections.map(({ id }) => {
         const allow = agent.toolAllow[id];
         return {
@@ -92,7 +104,6 @@ export async function saveAgent(factoryId: string, agent: AgentData) {
         description: agent.description,
         model: agent.model,
         instructions: agent.instructions,
-        tools: agent.tools.filter((toolId) => isPrebuiltTool(toolId) || toolCopyIds.includes(toolId)),
         plugins: agent.plugins.filter(isPluginId),
         y: agent.y,
     };
@@ -107,6 +118,7 @@ export async function saveAgent(factoryId: string, agent: AgentData) {
             factoryId,
             slot: agent.slot,
             skills: { create: skillLinks },
+            tools: { create: toolLinks },
             connections: { create: connectionLinks },
         },
         update: {
@@ -114,6 +126,10 @@ export async function saveAgent(factoryId: string, agent: AgentData) {
             skills: {
                 deleteMany: {},
                 create: skillLinks,
+            },
+            tools: {
+                deleteMany: {},
+                create: toolLinks,
             },
             connections: {
                 deleteMany: {},
@@ -181,27 +197,43 @@ export async function saveConnection(factoryId: string, connection: ConnectionDa
     });
 }
 
-// A copy keeps the tool it was made from. Only its name changes.
-export async function saveToolCopy(factoryId: string, copy: ToolCopyData) {
-    if (!isPrebuiltTool(copy.base)) {
-        throw new Error(`Unknown tool: ${copy.base}`);
-    }
-    const name = toSlug(copy.name);
-    if (!name || reservedToolNames().includes(name)) {
-        throw new Error(`"${copy.name}" can't be a tool name.`);
-    }
-    await getDb().toolCopy.upsert({
+const MAX_TOOL_DESCRIPTION_LENGTH = 10_000;
+
+// A tool keeps the template it was made from. Empty settings use the template's, and a template
+// without a model never stores one.
+export async function saveTool(factoryId: string, tool: ToolData) {
+    const saved = await getDb().tool.findFirst({
         where: {
-            id: copy.id,
+            id: tool.id,
+            factoryId,
+        },
+        select: { template: true },
+    });
+    const template = saved?.template ?? tool.template;
+    if (!isPrebuiltTool(template)) {
+        throw new Error(`Unknown tool template: ${template}`);
+    }
+    const name = toSlug(tool.name);
+    if (!name || reservedToolNames().includes(name)) {
+        throw new Error(`"${tool.name}" can't be a tool name.`);
+    }
+    const fields = {
+        name,
+        description: tool.description.trim().slice(0, MAX_TOOL_DESCRIPTION_LENGTH),
+        model: PREBUILT_TOOLS[template].model ? tool.model.trim() : "",
+    };
+    await getDb().tool.upsert({
+        where: {
+            id: tool.id,
             factoryId,
         },
         create: {
-            id: copy.id,
+            ...fields,
+            id: tool.id,
             factoryId,
-            base: copy.base,
-            name,
+            template,
         },
-        update: { name },
+        update: fields,
     });
 }
 
@@ -259,7 +291,7 @@ export async function saveFolders(factoryId: string, folders: LibraryFolder[]) {
 }
 
 // Deleting a library item cascades to its attachments. The orchestrator can't be deleted.
-export async function deleteItem(factoryId: string, collection: "agents" | "skills" | "connections" | "toolCopies" | "channels" | "schedules", id: string) {
+export async function deleteItem(factoryId: string, collection: "agents" | "skills" | "connections" | "tools" | "channels" | "schedules", id: string) {
     const db = getDb();
     const where = {
         id,
@@ -287,33 +319,16 @@ export async function deleteItem(factoryId: string, collection: "agents" | "skil
             },
         });
     }
-    // Agents list tools as plain ids, so nothing cascades: detach the copy by hand.
-    if (collection === "toolCopies") {
-        const agents = await db.agent.findMany({
-            where: {
-                factoryId,
-                tools: { has: id },
-            },
-            select: {
-                id: true,
-                tools: true,
-            },
-        });
-        const detachCopy = agents.map((agent) => db.agent.update({
-            where: { id: agent.id },
-            data: { tools: agent.tools.filter((toolId) => toolId !== id) },
-        }));
-        const keyedToCopy = {
-            where: {
-                factoryId,
-                toolKey: id,
-            },
-        };
+    // Attachments cascade. The gate is keyed by the tool's id, so it goes by hand.
+    if (collection === "tools") {
         await db.$transaction([
-            ...detachCopy,
-            db.toolGate.deleteMany(keyedToCopy),
-            db.toolSetting.deleteMany(keyedToCopy),
-            db.toolCopy.deleteMany({ where }),
+            db.toolGate.deleteMany({
+                where: {
+                    factoryId,
+                    toolKey: id,
+                },
+            }),
+            db.tool.deleteMany({ where }),
         ]);
     }
     if (collection === "channels") {
@@ -348,63 +363,20 @@ export async function savePluginSecret(factoryId: string, pluginId: string, name
     await storePluginSecret(factoryId, pluginId, name, trimmed);
 }
 
-const MAX_TOOL_DESCRIPTION_LENGTH = 10_000;
-
-// Settings for a prebuilt tool or a copy. Empty fields use the catalog's, and both empty deletes
-// the row. A tool without a model never stores one.
-export async function saveToolSettings(factoryId: string, toolKey: string, settings: ToolSettings) {
-    const db = getDb();
-    const copy = await db.toolCopy.findFirst({
-        where: {
-            factoryId,
-            id: toolKey,
-        },
-        select: { base: true },
-    });
-    const base = copy?.base ?? toolKey;
-    if (!isPrebuiltTool(base)) {
-        throw new Error(`Unknown tool: ${toolKey}`);
-    }
-    const description = settings.description.trim().slice(0, MAX_TOOL_DESCRIPTION_LENGTH);
-    const model = PREBUILT_TOOLS[base].model ? settings.model.trim() : "";
-    if (!description && !model) {
-        await db.toolSetting.deleteMany({
-            where: {
-                factoryId,
-                toolKey,
-            },
-        });
-        return;
-    }
-    const fields = {
-        description,
-        model,
-    };
-    await db.toolSetting.upsert({
-        where: { factoryId_toolKey: { factoryId, toolKey } },
-        create: {
-            ...fields,
-            factoryId,
-            toolKey,
-        },
-        update: fields,
-    });
-}
-
 // Both gates off deletes the row, so a factory with no approvals stores nothing.
-// Only prebuilt tools and their copies have a reviewed version. Connection and plugin tools can
-// only pause before the call.
+// Only library tools have a reviewed version. Connection and plugin tools can only pause before
+// the call.
 export async function saveToolGate(factoryId: string, toolKey: string, gate: ToolGate) {
     const db = getDb();
     const run = isRunApproval(gate.run) ? gate.run : "never";
-    const copy = await db.toolCopy.findFirst({
+    const libraryTool = await db.tool.findFirst({
         where: {
             factoryId,
             id: toolKey,
         },
         select: { id: true },
     });
-    const hasReviewedVersion = isPrebuiltTool(toolKey) || copy !== null;
+    const hasReviewedVersion = libraryTool !== null;
     const canReview = hasReviewedVersion && isResultApproval(gate.result);
     const result = canReview ? gate.result : "never";
     const criterion = gate.criterion.trim();

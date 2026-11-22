@@ -16,11 +16,11 @@ export const DEFAULT_MODEL = "openai/gpt-6-luna-fast";
 export const ORCHESTRATOR_SLOT = 0;
 export const SUBAGENT_SLOTS = [1, 2, 3];
 
-// Names a tool copy can't take. Subagents are listed because eve gives them tool names too.
+// Names a library tool can't take. Subagents are listed because eve gives them tool names too.
 export function reservedToolNames() {
     const pluginNames = Object.values(PLUGINS).flatMap(pluginToolNames);
     const subagentNames = SUBAGENT_SLOTS.map((slot) => `subagent_${slot}`);
-    return [...Object.keys(PREBUILT_TOOLS), ...pluginNames, ...subagentNames];
+    return [...pluginNames, ...subagentNames];
 }
 
 // How a tool asks a person. `run` is before the call. `result` is after it returns.
@@ -62,9 +62,9 @@ export type AgentData = {
     description: string;
     model: string;
     instructions: string;
-    tools: string[];
     plugins: string[];
     skillIds: string[];
+    toolIds: string[];
     connectionIds: string[];
     // Per attached connection: null exposes every tool the server publishes.
     // An array is an allow list, and an empty array exposes none.
@@ -112,25 +112,22 @@ export type SignInMessage = {
     signIn: SignInStatus;
 };
 
-// A prebuilt tool under its own name. Agents attach it by id, and the model sees `name`.
-export type ToolCopyData = {
+// A library tool: a catalog template under its own name and settings. Agents attach it by id,
+// and the model calls it by `name`. Empty `description` and `model` use the template's.
+export type ToolData = {
     id: string;
+    template: PrebuiltTool;
     name: string;
-    base: PrebuiltTool;
-};
-
-// What a factory changed about a prebuilt tool or a copy. Empty means the catalog's default.
-export type ToolSettings = {
     description: string;
     model: string;
 };
 
 // The description and model a tool actually runs with.
-export function effectiveToolSettings(base: PrebuiltTool, saved: ToolSettings | undefined) {
-    const spec = PREBUILT_TOOLS[base];
+export function effectiveToolSettings({ template, description, model }: Pick<ToolData, "template" | "description" | "model">) {
+    const spec = PREBUILT_TOOLS[template];
     return {
-        description: saved?.description || spec.description,
-        model: saved?.model || spec.model?.default || null,
+        description: description || spec.description,
+        model: model || spec.model?.default || null,
     };
 }
 
@@ -194,10 +191,8 @@ export type FactoryData = {
     connections: ConnectionData[];
     channels: ChannelData[];
     schedules: ScheduleData[];
-    toolCopies: ToolCopyData[];
-    // Keyed by prebuilt tool id or tool copy id.
-    toolSettings: Record<string, ToolSettings>;
-    // Keyed by prebuilt tool id, tool copy id, plugin tool name, or `${connectionId}:${toolName}`.
+    tools: ToolData[];
+    // Keyed by library tool id, plugin tool name, or `${connectionId}:${toolName}`.
     toolGates: Record<string, ToolGate>;
     // Per plugin id, the env var names that have a value. Values never leave the server.
     pluginSecrets: Record<string, string[]>;
@@ -217,12 +212,12 @@ export type AgentConfig = {
         description: string;
         content: string;
     }[];
-    // `key` is what the tool's gate is stored under: the prebuilt id, or the copy's id.
-    // `description` and `model` already have the catalog defaults filled in.
+    // Library tools. The gate is keyed by `id`. `description` and `model` already have the
+    // template's defaults filled in.
     tools: {
-        key: string;
+        id: string;
         name: string;
-        base: PrebuiltTool;
+        template: PrebuiltTool;
         description: string;
         model: string | null;
     }[];
