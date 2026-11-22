@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL, ORCHESTRATOR_SLOT, PLUGINS, type PrebuiltTool, type RunApproval, type ToolGate } from "@foundry/factory";
+import { DEFAULT_MODEL, ORCHESTRATOR_SLOT, PLUGINS, type PrebuiltTool, type ToolGate } from "@foundry/factory";
 import { defineAgent, defineDynamic, type DynamicModelContext } from "eve";
 import { ConnectionAuthorizationFailedError, defineMcpClientConnection, defineDynamic as defineDynamicConnections } from "eve/connections";
 import { defineInstructions, defineDynamic as defineDynamicInstructions } from "eve/instructions";
@@ -30,13 +30,13 @@ const PREBUILT_TOOL_DEFS = {
 
 // Each file passes its agent's slot: 0 is the orchestrator, 1-3 are agent/subagents/subagent_N.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- takes any built-in tool
-function withRunApproval<T extends ToolDefinition<any, any>>(tool: T, run: RunApproval, name: string) {
-    if (run === "never") {
+function withRunApproval<T extends ToolDefinition<any, any>>(tool: T, gate: ToolGate, name: string) {
+    if (gate.run === "never") {
         return tool;
     }
     return defineTool({
         ...tool,
-        approval: runPolicy(run, name),
+        approval: runPolicy(gate, name),
     } as T);
 }
 
@@ -154,14 +154,14 @@ export function factoryTools(slot: number) {
                 return [name, configuredReviewed] as const;
             }
             const described = withDescription(tool(model), description);
-            return [name, withRunApproval(described, gate.run, name)] as const;
+            return [name, withRunApproval(described, gate, name)] as const;
         });
         // Plugin tools only pause before they run; there's no reviewed version yet.
         const pluginEntries = agent.plugins.flatMap((pluginId) => {
             const { clis } = PLUGINS[pluginId];
             return clis.map((cli) => {
                 const gate = gateFor(agent.toolGates, cli.name);
-                return [cli.name, withRunApproval(cliTool(cli, pluginId, factoryId), gate.run, cli.name)] as const;
+                return [cli.name, withRunApproval(cliTool(cli, pluginId, factoryId), gate, cli.name)] as const;
             });
         });
         const toolEntries = [...prebuiltEntries, ...pluginEntries];
@@ -176,6 +176,7 @@ function gateFor(gates: Record<string, ToolGate>, toolKey: string): ToolGate {
     return gates[toolKey] ?? {
         run: "never",
         result: "never",
+        criterion: "",
     };
 }
 

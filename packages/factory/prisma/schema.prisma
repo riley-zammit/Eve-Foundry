@@ -79,6 +79,8 @@ model ToolGate {
     toolKey   String
     // never, once, always, or auto. Gates the call before it runs.
     run       String  @default("never")
+    // What `auto` checks the call against, as eve auto() instructions. Empty uses eve's risk review.
+    criterion String  @default("")
     // never or always. A person accepts the output before the agent continues.
     result    String  @default("never")
 

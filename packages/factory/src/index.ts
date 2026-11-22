@@ -31,6 +31,8 @@ export type ResultApproval = (typeof RESULT_APPROVALS)[number];
 export type ToolGate = {
     run: RunApproval;
     result: ResultApproval;
+    // What `auto` checks the call against. Empty uses eve's built-in risk review.
+    criterion: string;
 };
 
 export function isRunApproval(value: string): value is RunApproval {
@@ -41,10 +43,11 @@ export function isResultApproval(value: string): value is ResultApproval {
     return (RESULT_APPROVALS as readonly string[]).includes(value);
 }
 
-export function toolGate(run: string | null | undefined, result: string | null | undefined): ToolGate {
+export function toolGate(run: string | null | undefined, result: string | null | undefined, criterion: string | null | undefined): ToolGate {
     return {
         run: run && isRunApproval(run) ? run : "never",
         result: result && isResultApproval(result) ? result : "never",
+        criterion: criterion ?? "",
     };
 }
 

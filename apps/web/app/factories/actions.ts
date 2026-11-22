@@ -407,6 +407,7 @@ export async function saveToolGate(factoryId: string, toolKey: string, gate: Too
     const hasReviewedVersion = isPrebuiltTool(toolKey) || copy !== null;
     const canReview = hasReviewedVersion && isResultApproval(gate.result);
     const result = canReview ? gate.result : "never";
+    const criterion = gate.criterion.trim();
     if (run === "never" && result === "never") {
         await db.toolGate.deleteMany({
             where: {
@@ -423,10 +424,12 @@ export async function saveToolGate(factoryId: string, toolKey: string, gate: Too
             toolKey,
             run,
             result,
+            criterion,
         },
         update: {
             run,
             result,
+            criterion,
         },
     });
 }

@@ -162,6 +162,7 @@ export async function loadToolGates(factoryId: string): Promise<Record<string, T
             toolKey: true,
             run: true,
             result: true,
+            criterion: true,
         },
     });
     return gatesFromRows(rows);
@@ -173,9 +174,10 @@ export async function loadToolGate(factoryId: string, toolKey: string): Promise<
         select: {
             run: true,
             result: true,
+            criterion: true,
         },
     });
-    return toolGate(row?.run, row?.result);
+    return toolGate(row?.run, row?.result, row?.criterion);
 }
 
 // A sign-in only counts for the URL it was made for.
@@ -190,8 +192,8 @@ function signInStatus(url: string, credential: { method: string; serverUrl: stri
     };
 }
 
-function gatesFromRows(rows: { toolKey: string; run: string; result: string }[]) {
-    return Object.fromEntries(rows.map((row) => [row.toolKey, toolGate(row.run, row.result)]));
+function gatesFromRows(rows: { toolKey: string; run: string; result: string; criterion: string }[]) {
+    return Object.fromEntries(rows.map((row) => [row.toolKey, toolGate(row.run, row.result, row.criterion)]));
 }
 
 function settingsFromRows(rows: { toolKey: string; description: string; model: string }[]): Record<string, ToolSettings> {

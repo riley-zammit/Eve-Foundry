@@ -252,7 +252,7 @@ function ToolForm({
     onRemove,
     onSelect,
 }: InspectorProps & { toolKey: string; kind: "tools" | "connectionTools" | "pluginTools" }) {
-    const gate = factory.toolGates[toolKey] ?? { run: "never" as const, result: "never" as const };
+    const gate = factory.toolGates[toolKey] ?? { run: "never" as const, result: "never" as const, criterion: "" };
     const canReview = kind === "tools";
     const heading = toolHeading(factory, toolKey, kind);
     const copy = factory.toolCopies.find((item) => item.id === toolKey);
@@ -310,6 +310,17 @@ function ToolForm({
                 </select>
                 <span className="text-xs text-zinc-500">Off runs the tool without asking. Once per chat asks the first time in a chat. Every call shows the inputs and waits. A model decides checks the call and asks you when it isn't sure.</span>
             </Field>
+            {gate.run === "auto" && (
+                <Field label="What the model checks">
+                    <textarea
+                        className={`${inputClass} min-h-20`}
+                        value={gate.criterion}
+                        placeholder="e.g. Only refunds under $100"
+                        onChange={(event) => edit({ ...gate, criterion: event.target.value })}
+                    />
+                    <span className="text-xs text-zinc-500">Calls that clearly meet this run on their own. Anything else waits for you. Empty checks for risky actions instead.</span>
+                </Field>
+            )}
             <Field label="After it returns">
                 <select
                     className={inputClass}

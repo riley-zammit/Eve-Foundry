@@ -5,7 +5,7 @@ import { decryptSecret, encryptSecret } from "../secrets";
 import { CALLBACK_PATH, finishOAuth, refreshOAuth, startOAuth, type OAuthFlow, type OAuthTokens } from "./oauth";
 import { connectToken, forgetConnectToken, isConnectSignedOut, revokeConnectToken, startConnectSignIn } from "./vercel-connect";
 
-export { CALLBACK_PATH, CLIENT_METADATA_PATH, clientMetadata } from "./oauth";
+export { CALLBACK_PATH, canSignInWithoutConnect, CLIENT_METADATA_PATH, clientMetadata } from "./oauth";
 
 // Connection sign-in. People sign in from the builder, never from a chat, so a sign-in belongs to
 // the factory's connection and scheduled turns can use it. Three methods, tried in order:

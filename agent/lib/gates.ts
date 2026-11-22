@@ -1,4 +1,4 @@
-import type { RunApproval, ToolGate } from "@foundry/factory";
+import type { ToolGate } from "@foundry/factory";
 import { always, auto, never, once, type ApprovalContext, type ApprovalPolicy, type ApprovalStatus } from "eve/tools/approval";
 
 // `once()` remembers the answer for the tool's final name, and only when its own
@@ -13,14 +13,15 @@ type GateContext = {
     toolName: string;
 };
 
-export function runPolicy<T = unknown>(mode: RunApproval, toolName: string): ApprovalPolicy<T> {
-    if (mode === "always") {
+export function runPolicy<T = unknown>({ run, criterion }: ToolGate, toolName: string): ApprovalPolicy<T> {
+    if (run === "always") {
         return askAlways as ApprovalPolicy<T>;
     }
-    if (mode === "auto") {
-        return askAuto as ApprovalPolicy<T>;
+    if (run === "auto") {
+        const policy = criterion ? checkCriterion(criterion) : askAuto;
+        return policy as ApprovalPolicy<T>;
     }
-    if (mode === "once") {
+    if (run === "once") {
         const cached = onceByTool.get(toolName) ?? once();
         onceByTool.set(toolName, cached);
         return cached as ApprovalPolicy<T>;
@@ -28,12 +29,24 @@ export function runPolicy<T = unknown>(mode: RunApproval, toolName: string): App
     return askNever as ApprovalPolicy<T>;
 }
 
+// The factory's requirement replaces eve's risk review. A call that clearly meets it runs;
+// anything else asks a person, as eve's auto() does.
+function checkCriterion(criterion: string) {
+    return auto({
+        instructions: `Check whether the exact tool action meets this requirement: ${criterion}`,
+        criteria: {
+            clear: "The action meets the requirement.",
+            caution: "The action breaks the requirement, or it's unclear whether it meets it.",
+        },
+    });
+}
+
 // For the reviewed workflow tools. It reads the current row when the call starts instead
 // of closing over the turn that offered the tool.
 export async function reviewedRunApproval(ctx: GateContext, toolKey: string): Promise<ApprovalStatus> {
     try {
         const gate = await readGate(ctx, toolKey);
-        return runPolicy(gate.run, ctx.toolName)(ctx as ApprovalContext);
+        return runPolicy(gate, ctx.toolName)(ctx as ApprovalContext);
     } catch {
         return "user-approval";
     }
@@ -67,7 +80,7 @@ export function connectionRunPolicy(connectionId: string, connectionName: string
             if (gate.run === "never") {
                 return "not-applicable";
             }
-            return runPolicy(gate.run, ctx.toolName)(ctx);
+            return runPolicy(gate, ctx.toolName)(ctx);
         } catch {
             return "user-approval";
         }

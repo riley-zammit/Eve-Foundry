@@ -1,10 +1,12 @@
-// Snapshots the Vercel Connect services the connector catalog offers: MCP servers that Connect
-// signs in to on its own. Connect's public service list doesn't say how a service signs in, or
-// which of its URLs is the MCP server. Only each service's detail does, and that needs a Vercel
-// login, so this runs with the Vercel CLI's and the catalog reads the files it writes.
+// Snapshots the Vercel Connect services the connector catalog offers: MCP servers someone can sign
+// in to from the builder, either through Connect's own OAuth client or through Foundry's. Connect's
+// public service list doesn't say how a service signs in, or which of its URLs is the MCP server.
+// Only each service's detail does, and that needs a Vercel login, so this runs with the Vercel
+// CLI's and the catalog reads the files it writes.
 //
 // Run from apps/web after `vercel login`: npm run sync:connect
 
+import { canSignInWithoutConnect } from "@foundry/factory/auth";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
@@ -33,6 +35,7 @@ type ListedService = {
 type ConnectionMethod = {
     connectionMethod: string;
     serviceUrls?: string[];
+    targets?: string[];
     type?: { type?: string };
     create?: { managed?: boolean };
 };
@@ -47,7 +50,10 @@ const candidates = listed.filter((service) => {
 });
 console.log(`Checking ${candidates.length} MCP services…`);
 
-const signInUrls = await mapWithLimit(candidates, async (service) => signInUrl(await serviceMethods(service.service)));
+const signInUrls = await mapWithLimit(candidates, async (service) => {
+    const methods = await serviceMethods(service.service);
+    return connectSignInUrl(methods) ?? await foundrySignInUrl(methods);
+});
 const services = [];
 const icons: Record<string, string> = {};
 for (const [index, service] of candidates.entries()) {
@@ -106,15 +112,62 @@ async function serviceMethods(service: string) {
     return detail.connectionMethods ?? [];
 }
 
-// The MCP server Connect signs in to with its own OAuth client. Services that need an API key, or
-// an OAuth app of our own, have none. Regional servers like `mcp-eu` count when there's no `mcp`.
-function signInUrl(methods: ConnectionMethod[]) {
+// The MCP server Connect signs in to with its own OAuth client, when it has one. Regional servers
+// like `mcp-eu` count when there's no `mcp`.
+function connectSignInUrl(methods: ConnectionMethod[]) {
     const managed = methods.filter((method) => {
         const isMcp = method.connectionMethod.startsWith("mcp");
         return isMcp && method.type?.type === "oauth" && method.create?.managed === true;
     });
     const preferred = managed.find((method) => method.connectionMethod === "mcp") ?? managed[0];
     return preferred?.serviceUrls?.[0] ?? null;
+}
+
+// Otherwise, an MCP server Foundry can sign in to itself. Connect lists many of these as needing
+// an API key or an OAuth app of our own, like Shop, though their servers let new apps sign in.
+async function foundrySignInUrl(methods: ConnectionMethod[]) {
+    const mcpMethods = methods.filter((method) => {
+        return method.connectionMethod.startsWith("mcp") || method.targets?.includes("mcp");
+    });
+    const urls = new Set(mcpMethods.flatMap((method) => method.serviceUrls ?? []));
+    for (const url of urls) {
+        if (await isMcpServer(url) && await canSignInWithoutConnect(url)) {
+            return url;
+        }
+    }
+    return null;
+}
+
+// Some of a method's URLs are its website or REST API. An MCP server answers `initialize` with a
+// sign-in challenge, or with JSON-RPC when it lets anyone connect.
+async function isMcpServer(url: string) {
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                accept: "application/json, text/event-stream",
+            },
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                id: 1,
+                method: "initialize",
+                params: {
+                    protocolVersion: "2025-06-18",
+                    capabilities: {},
+                    clientInfo: { name: "foundry-catalog", version: "0.0.0" },
+                },
+            }),
+            signal: AbortSignal.timeout(10_000),
+        });
+        const body = await response.text();
+        if (response.status === 401) {
+            return true;
+        }
+        return response.ok && body.includes("\"jsonrpc\"");
+    } catch {
+        return false;
+    }
 }
 
 async function mapWithLimit<Item, Result>(items: Item[], map: (item: Item) => Promise<Result>) {

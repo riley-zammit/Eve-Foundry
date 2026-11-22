@@ -138,6 +138,17 @@ export async function refreshOAuth(tokens: OAuthTokens) {
     return readGrant(result, tokens, tokens.refreshToken);
 }
 
+// Whether Foundry's own client can sign in to the server, for servers Vercel Connect can't. The
+// connector catalog offers those too. Assumes Foundry is on a public https URL, as deployed.
+export async function canSignInWithoutConnect(serverUrl: string) {
+    try {
+        const server = await discoverServer(serverUrl);
+        return server.acceptsClientMetadata || server.registrationEndpoint !== null;
+    } catch {
+        return false;
+    }
+}
+
 // --- Discovery ---
 
 async function discoverServer(serverUrl: string) {
