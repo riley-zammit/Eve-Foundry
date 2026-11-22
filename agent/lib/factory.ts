@@ -6,10 +6,13 @@ import { defineSkill, defineDynamic as defineDynamicSkills } from "eve/skills";
 import { defineDynamic as defineDynamicTools, defineTool, type ToolDefinition } from "eve/tools";
 import type { ApprovalPolicy } from "eve/tools/approval";
 import webFetch from "eve/tools/web_fetch";
+import { browserToolEntries } from "./browser-tools";
 import { decideTool } from "./decide";
 import { connectionHasRunGate, connectionRunPolicy, reviewedRunApproval, runPolicy } from "./gates";
+import { generateImageTool, generateVideoTool } from "./media";
 import { cliTool } from "./plugin-tools";
-import { reviewedDecide, reviewedWebFetch } from "./reviewed-tools";
+import { reviewedDecide, reviewedGenerateImage, reviewedGenerateVideo, reviewedWebFetch, reviewedWebSearch } from "./reviewed-tools";
+import { webSearchTool } from "./web-search";
 
 // Every catalog tool needs an entry here, or typecheck fails. `tool` takes the factory's model
 // for tools that call one. `reviewed` is the workflow version used when a person accepts the
@@ -19,9 +22,21 @@ const PREBUILT_TOOL_DEFS = {
         tool: () => webFetch,
         reviewed: reviewedWebFetch,
     },
+    web_search: {
+        tool: () => webSearchTool,
+        reviewed: reviewedWebSearch,
+    },
     decide: {
         tool: (model: string | null) => decideTool(model),
         reviewed: reviewedDecide,
+    },
+    generate_image: {
+        tool: (model: string | null) => generateImageTool(model),
+        reviewed: reviewedGenerateImage,
+    },
+    generate_video: {
+        tool: (model: string | null) => generateVideoTool(model),
+        reviewed: reviewedGenerateVideo,
     },
 } satisfies Record<PrebuiltTool, unknown>;
 
@@ -156,13 +171,18 @@ export function factoryTools(slot: number) {
             const described = withDescription(tool(model), description);
             return [name, withRunApproval(described, gate, name)] as const;
         });
-        // Plugin tools only pause before they run; there's no reviewed version yet.
-        const pluginEntries = agent.plugins.flatMap((pluginId) => {
-            const { clis } = PLUGINS[pluginId];
-            return clis.map((cli) => {
-                const gate = gateFor(agent.toolGates, cli.name);
-                return [cli.name, withRunApproval(cliTool(cli, pluginId, factoryId), gate, cli.name)] as const;
-            });
+        // Plugin tools only pause before they run; there's no reviewed version yet. Typed plugin
+        // tools all come from eve's agent-browser for now.
+        const pluginToolLists = await Promise.all(agent.plugins.map(async (pluginId) => {
+            const { clis, tools } = PLUGINS[pluginId];
+            const cliEntries = clis.map((cli) => [cli.name, cliTool(cli, pluginId, factoryId)] as const);
+            const typedEntries = await browserToolEntries(tools);
+            return [...cliEntries, ...typedEntries];
+        }));
+        const pluginTools = pluginToolLists.flat();
+        const pluginEntries = pluginTools.map(([name, tool]) => {
+            const gate = gateFor(agent.toolGates, name);
+            return [name, withRunApproval(tool, gate, name)] as const;
         });
         const toolEntries = [...prebuiltEntries, ...pluginEntries];
         if (toolEntries.length === 0) {

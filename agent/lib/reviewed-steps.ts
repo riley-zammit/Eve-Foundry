@@ -2,6 +2,10 @@ import type { ToolContext, WorkflowStepToolContext } from "eve/tools";
 import webFetch, { type WebFetchToolInput, type WebFetchToolOutput } from "eve/tools/web_fetch";
 import { runDecision, type DecideOutput } from "./decide";
 import type { DecideInput } from "./decide-spec";
+import { createImages, createVideo } from "./media";
+import type { GenerateImageInput, GenerateImageOutput, GenerateVideoInput, GenerateVideoOutput } from "./media-spec";
+import { searchWeb, type WebSearchOutput } from "./web-search";
+import type { WebSearchInput } from "./web-search-spec";
 
 // Steps own the real call. A replay after the person answers reuses the step result,
 // so the fetch does not run a second time. Errors stay inside the step:
@@ -30,6 +34,38 @@ export async function runDecide(input: DecideInput, ctx: WorkflowStepToolContext
         return { ok: true, output };
     } catch (error) {
         return { ok: false, message: errorText(error, "decide failed.") };
+    }
+}
+
+export async function runWebSearch(input: WebSearchInput, ctx: WorkflowStepToolContext): Promise<StepResult<WebSearchOutput>> {
+    "use step";
+    try {
+        const output = await searchWeb(input, ctx.abortSignal);
+        return { ok: true, output };
+    } catch (error) {
+        return { ok: false, message: errorText(error, "web_search failed.") };
+    }
+}
+
+export async function runGenerateImage(input: GenerateImageInput, ctx: WorkflowStepToolContext): Promise<StepResult<GenerateImageOutput>> {
+    "use step";
+    try {
+        const model = await loadModel(ctx);
+        const output = await createImages(input, model, ctx);
+        return { ok: true, output };
+    } catch (error) {
+        return { ok: false, message: errorText(error, "generate_image failed.") };
+    }
+}
+
+export async function runGenerateVideo(input: GenerateVideoInput, ctx: WorkflowStepToolContext): Promise<StepResult<GenerateVideoOutput>> {
+    "use step";
+    try {
+        const model = await loadModel(ctx);
+        const output = await createVideo(input, model, ctx);
+        return { ok: true, output };
+    } catch (error) {
+        return { ok: false, message: errorText(error, "generate_video failed.") };
     }
 }
 

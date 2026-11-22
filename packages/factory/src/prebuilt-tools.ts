@@ -2,7 +2,7 @@
 // what the model reads (`description`) and, for a tool that calls a model, which model of `type`
 // it runs. The code itself is fixed.
 // eve's `web_search` is a provider tool that can only be static, so it can't be toggled per
-// factory. TODO: add our own web_search as a defineTool (e.g. calling Exa directly).
+// factory. Ours runs the same AI Gateway search (Exa) inside a plain tool (agent/lib/web-search.ts).
 // There's no general shell: sandbox programs come from plugins, one scoped tool per CLI.
 
 // eve's own web_fetch description. The reviewed version reuses it.
@@ -23,6 +23,30 @@ Question types:
 - choice: pick one of \`options\`. The answer has the \`choice\` and each option's probability.
 - score: place the text on a scale. \`options\` lists the levels, lowest first. The answer's \`score\` is a 0-based position on that scale and can be fractional. Each level's probability is keyed by its position.`;
 
+const WEB_SEARCH_DESCRIPTION = `Search the web for real-time information. Use it to find up-to-date information about current events, recent developments, or anything that may have changed since your knowledge cutoff.
+
+Usage notes:
+- Returns up to 10 results, each with its title, URL, publish date when known, and short excerpts
+- Excerpts are short. To read a result in full, fetch its URL
+- Narrow a search with \`domains\` (only those sites), \`category\` (such as news or research papers), or \`since\` (published on or after a date)
+- Search again with different words when the results miss`;
+
+const GENERATE_IMAGE_DESCRIPTION = `Create images from a text prompt, or edit images by passing them in \`images\`. The results are saved in the sandbox under /workspace/out/, and you see them after the call.
+
+Usage notes:
+- Describe the subject, setting, style, lighting, and composition. Quote any text that should appear in the image exactly
+- To edit or restyle an image, pass its path in \`images\` and say what to change. Files people attach are under /workspace/.eve/attachments/
+- Look at the result before you describe it. If it misses, call again with a more specific prompt
+- Pass the saved path to other tools, such as generate_video, to keep working with the image`;
+
+const GENERATE_VIDEO_DESCRIPTION = `Create a short video clip from a text prompt, or animate an image by passing it in \`image\`. The clip is saved in the sandbox under /workspace/out/. Generating a clip takes a few minutes and costs far more than an image, so make one clip per request and only when the person asked for video.
+
+Usage notes:
+- Describe the subject, the action, the camera movement, the style, and any sound
+- To animate a still, pass its path in \`image\`. It becomes the first frame. Files people attach are under /workspace/.eve/attachments/
+- Models support only some lengths and aspect ratios; leave them out to use the model's defaults
+- You can't watch the clip. Tell the person its path and what you asked for`;
+
 type PrebuiltToolSpec = {
     // One line for the library.
     summary: string;
@@ -40,12 +64,33 @@ export const PREBUILT_TOOLS = {
         description: WEB_FETCH_DESCRIPTION,
         model: null,
     },
+    web_search: {
+        summary: "Search the web",
+        description: WEB_SEARCH_DESCRIPTION,
+        model: null,
+    },
     decide: {
         summary: "Classify or score text with an evaluation model",
         description: DECIDE_DESCRIPTION,
         model: {
             type: "evaluation",
             default: "typesafe-ai/jev",
+        },
+    },
+    generate_image: {
+        summary: "Create or edit images with an image model",
+        description: GENERATE_IMAGE_DESCRIPTION,
+        model: {
+            type: "image",
+            default: "openai/gpt-image-2",
+        },
+    },
+    generate_video: {
+        summary: "Create short video clips with a video model",
+        description: GENERATE_VIDEO_DESCRIPTION,
+        model: {
+            type: "video",
+            default: "google/veo-3.1-fast-generate-001",
         },
     },
 } satisfies Record<string, PrebuiltToolSpec>;

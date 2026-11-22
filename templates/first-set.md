@@ -63,3 +63,6 @@
 
   #: 8
   Basic social content factory
+
+  #: 9
+  Self-improvement loop/dreaming?

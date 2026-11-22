@@ -1,6 +1,6 @@
 // Shapes and rules shared by the builder (apps/web) and the runtime (agent/).
 
-import { PLUGINS, type PluginId } from "./plugins";
+import { PLUGINS, pluginToolNames, type PluginId } from "./plugins";
 import { PREBUILT_TOOLS, type PrebuiltTool } from "./prebuilt-tools";
 
 export * from "./plugins";
@@ -18,9 +18,9 @@ export const SUBAGENT_SLOTS = [1, 2, 3];
 
 // Names a tool copy can't take. Subagents are listed because eve gives them tool names too.
 export function reservedToolNames() {
-    const pluginToolNames = Object.values(PLUGINS).flatMap((plugin) => plugin.clis.map((cli) => cli.name));
+    const pluginNames = Object.values(PLUGINS).flatMap(pluginToolNames);
     const subagentNames = SUBAGENT_SLOTS.map((slot) => `subagent_${slot}`);
-    return [...Object.keys(PREBUILT_TOOLS), ...pluginToolNames, ...subagentNames];
+    return [...Object.keys(PREBUILT_TOOLS), ...pluginNames, ...subagentNames];
 }
 
 // How a tool asks a person. `run` is before the call. `result` is after it returns.

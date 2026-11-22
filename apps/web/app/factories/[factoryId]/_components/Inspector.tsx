@@ -452,7 +452,7 @@ function toolHeading(factory: FactoryData, toolKey: string, kind: "tools" | "con
         const plugin = PLUGINS[owner.pluginId];
         return {
             title: toolKey,
-            detail: `${plugin.title} plugin. ${owner.cli.description} Runs ${owner.cli.programs.join(", ")} in the sandbox.`,
+            detail: `${plugin.title} plugin. ${owner.summary}`,
         };
     }
     const copy = factory.toolCopies.find((item) => item.id === toolKey);
@@ -545,6 +545,22 @@ function PluginForm({ pluginId, factory, onSelect, onEditPluginSecret }: Inspect
                             </details>
                         );
                     })}
+                    {/* Typed tools come from a package, which owns their descriptions and inputs. */}
+                    {plugin.tools.map((tool) => (
+                        <button
+                            key={tool.name}
+                            type="button"
+                            onClick={() => onSelect({
+                                collection: "pluginTools",
+                                id: tool.name,
+                            })}
+                            className="flex flex-col rounded-md border border-zinc-800 px-2 py-1.5 text-left hover:border-zinc-600"
+                        >
+                            <span className="text-sm text-zinc-100">{tool.name}</span>
+                            <span className="text-xs text-zinc-500">{tool.summary}.</span>
+                            <span className="text-xs text-zinc-500">{gateDetail(factory.toolGates[tool.name]) || "Runs without asking."}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
             <Field label="Skills">

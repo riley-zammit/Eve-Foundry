@@ -665,6 +665,23 @@ function PluginRow({
                             <span className="truncate pl-3 text-[11px] text-zinc-500">{withGate(cli.programs.join(", "), factory.toolGates[cli.name])}</span>
                         </button>
                     ))}
+                    {plugin.tools.map((tool) => (
+                        <button
+                            key={tool.name}
+                            type="button"
+                            onClick={() => onSelect({
+                                collection: "pluginTools",
+                                id: tool.name,
+                            })}
+                            className={`flex flex-col rounded px-1.5 py-1 text-left ${selection?.collection === "pluginTools" && selection.id === tool.name ? "bg-zinc-800" : "hover:bg-zinc-900"}`}
+                        >
+                            <span className="flex items-center gap-1.5 text-xs text-zinc-200">
+                                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ITEM_COLORS.tools }} />
+                                {tool.name}
+                            </span>
+                            <span className="truncate pl-3 text-[11px] text-zinc-500">{withGate(tool.summary, factory.toolGates[tool.name])}</span>
+                        </button>
+                    ))}
                     {plugin.skills.map((skill) => (
                         <div key={skill.name} className="flex flex-col px-1.5 py-1">
                             <span className="flex items-center gap-1.5 text-xs text-zinc-200">

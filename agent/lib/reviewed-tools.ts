@@ -3,7 +3,9 @@ import { defineWorkflowTool, type WorkflowToolContext } from "eve/tools";
 import type { WebFetchToolInput } from "eve/tools/web_fetch";
 import { FatalError } from "eve/workflow";
 import { decideInputSchema } from "./decide-spec";
-import { runDecide, runWebFetch } from "./reviewed-steps";
+import { generateImageInputSchema, generateVideoInputSchema, imageModelOutput, videoModelOutput } from "./media-spec";
+import { runDecide, runGenerateImage, runGenerateVideo, runWebFetch, runWebSearch } from "./reviewed-steps";
+import { webSearchInputSchema, type WebSearchInput } from "./web-search-spec";
 
 // Result review asks after the tool has already run. The consts stay at the top level:
 // a workflow tool built inside `defineDynamic` does not compile. factory.ts spreads each one
@@ -65,6 +67,48 @@ export const reviewedDecide = defineWorkflowTool({
         }
         return acceptResult(ctx, ran.output);
     },
+});
+
+export const reviewedWebSearch = defineWorkflowTool({
+    description: PREBUILT_TOOLS.web_search.description,
+    label: { start: (input: WebSearchInput) => `Search ${input.query}` },
+    inputSchema: webSearchInputSchema,
+    async execute(input, ctx) {
+        "use workflow";
+        const ran = await runWebSearch(input, ctx);
+        if (!ran.ok) {
+            throw new FatalError(ran.message);
+        }
+        return acceptResult(ctx, ran.output);
+    },
+});
+
+export const reviewedGenerateImage = defineWorkflowTool({
+    description: PREBUILT_TOOLS.generate_image.description,
+    inputSchema: generateImageInputSchema,
+    async execute(input, ctx) {
+        "use workflow";
+        const ran = await runGenerateImage(input, ctx);
+        if (!ran.ok) {
+            throw new FatalError(ran.message);
+        }
+        return acceptResult(ctx, ran.output);
+    },
+    toModelOutput: imageModelOutput,
+});
+
+export const reviewedGenerateVideo = defineWorkflowTool({
+    description: PREBUILT_TOOLS.generate_video.description,
+    inputSchema: generateVideoInputSchema,
+    async execute(input, ctx) {
+        "use workflow";
+        const ran = await runGenerateVideo(input, ctx);
+        if (!ran.ok) {
+            throw new FatalError(ran.message);
+        }
+        return acceptResult(ctx, ran.output);
+    },
+    toModelOutput: videoModelOutput,
 });
 
 // Runs in the workflow body. With no one to ask, the result goes through. `toolName` is the
