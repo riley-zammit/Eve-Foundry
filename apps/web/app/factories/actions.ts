@@ -6,6 +6,7 @@ import {
     isPluginId,
     isPrebuiltTool,
     isResultApproval,
+    isServiceId,
     isRunApproval,
     ORCHESTRATOR_SLOT,
     parseFolders,
@@ -13,6 +14,7 @@ import {
     PREBUILT_TOOLS,
     reservedToolNames,
     STARTER_TOOLS,
+    toConnectionSlug,
     toSlug,
     type AgentData,
     type ChannelData,
@@ -167,19 +169,27 @@ export async function saveSkill(factoryId: string, skill: SkillData) {
 }
 
 // The sign-in isn't saved here: only the sign-in flow writes it. A new URL signs the connection
-// out, so its tokens can't reach another server.
+// out, so its tokens can't reach another server. A connection keeps the service it was created
+// with, and a service has no URL.
 export async function saveConnection(factoryId: string, connection: ConnectionData) {
-    const fields = {
-        name: toSlug(connection.name) || "connection",
-        url: connection.url.trim(),
-    };
     const saved = await getDb().connection.findFirst({
         where: {
             id: connection.id,
             factoryId,
         },
-        select: { url: true },
+        select: {
+            url: true,
+            service: true,
+        },
     });
+    const service = saved ? saved.service : connection.service;
+    if (service && !isServiceId(service)) {
+        throw new Error(`Unknown service: ${service}`);
+    }
+    const fields = {
+        name: toConnectionSlug(connection.name) || "connection",
+        url: service ? "" : connection.url.trim(),
+    };
     if (saved && saved.url !== fields.url) {
         await signOut(factoryId, connection.id);
     }
@@ -192,6 +202,7 @@ export async function saveConnection(factoryId: string, connection: ConnectionDa
             ...fields,
             id: connection.id,
             factoryId,
+            service,
         },
         update: fields,
     });

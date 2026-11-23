@@ -152,11 +152,12 @@ export function nextLaneY(items: { y: number }[]) {
     return lowest + 150;
 }
 
-export function uniqueName(base: string, taken: string[]) {
+// Connection names join with `-`, since eve doesn't allow `_` in them.
+export function uniqueName(base: string, taken: string[], separator = "_") {
     let name = base;
     let suffix = 2;
     while (taken.includes(name)) {
-        name = `${base}_${suffix}`;
+        name = `${base}${separator}${suffix}`;
         suffix += 1;
     }
     return name;

@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL, ORCHESTRATOR_SLOT, PLUGINS, type PrebuiltTool, type ToolGate } from "@foundry/factory";
+import { DEFAULT_MODEL, ORCHESTRATOR_SLOT, PLUGINS, type AgentConfig, type PrebuiltTool, type ServiceId, type ToolGate } from "@foundry/factory";
 import { defineAgent, defineDynamic, type DynamicModelContext } from "eve";
 import { ConnectionAuthorizationFailedError, defineMcpClientConnection, defineDynamic as defineDynamicConnections } from "eve/connections";
 import { defineInstructions, defineDynamic as defineDynamicInstructions } from "eve/instructions";
@@ -9,6 +9,10 @@ import webFetch from "eve/tools/web_fetch";
 import { browserToolEntries } from "./browser-tools";
 import { decideTool } from "./decide";
 import { connectionHasRunGate, connectionRunPolicy, reviewedRunApproval, runPolicy } from "./gates";
+import { gmailTools } from "./gmail";
+import { googleApi } from "./google-api";
+import { calendarTools } from "./google-calendar";
+import { sheetsTools } from "./google-sheets";
 import { generateImageTool, generateVideoTool } from "./media";
 import { cliTool } from "./plugin-tools";
 import { reviewedDecide, reviewedGenerateImage, reviewedGenerateVideo, reviewedWebFetch, reviewedWebSearch } from "./reviewed-tools";
@@ -39,6 +43,13 @@ const PREBUILT_TOOL_DEFS = {
         reviewed: reviewedGenerateVideo,
     },
 } satisfies Record<PrebuiltTool, unknown>;
+
+// Every service needs an entry here too. Each one's tools call its API with the connection's sign-in.
+const SERVICE_TOOL_DEFS = {
+    gmail: gmailTools,
+    "google-calendar": calendarTools,
+    "google-sheets": sheetsTools,
+} satisfies Record<ServiceId, unknown>;
 
 // Every factory runs on this one agent. The eve channel pins the session's factory into
 // the initiator's auth attributes; each dynamic file below rebuilds that factory's agent.
@@ -185,11 +196,25 @@ export function factoryTools(slot: number) {
             const gate = gateFor(agent.toolGates, name);
             return [name, withRunApproval(tool, gate, name)] as const;
         });
-        const toolEntries = [...libraryEntries, ...pluginEntries];
+        const serviceEntries = agent.services.flatMap((connection) => serviceToolEntries(factoryId, connection, agent.toolGates));
+        const toolEntries = [...libraryEntries, ...pluginEntries, ...serviceEntries];
         if (toolEntries.length === 0) {
             return null;
         }
         return Object.fromEntries(toolEntries);
+    });
+}
+
+// A service connection's tools, named and gated like an MCP server's: `<connection>__<tool>`, with
+// the gate keyed `connectionId:tool`. They run here, so unlike MCP tools they're always listed.
+function serviceToolEntries(factoryId: string, connection: AgentConfig["services"][number], gates: Record<string, ToolGate>) {
+    const google = googleApi(factoryId, connection);
+    const tools = SERVICE_TOOL_DEFS[connection.service](google);
+    const allowed = Object.entries(tools).filter(([tool]) => connection.allowedTools === null || connection.allowedTools.includes(tool));
+    return allowed.map(([tool, definition]) => {
+        const name = `${connection.name}__${tool}`;
+        const gate = gateFor(gates, `${connection.id}:${tool}`);
+        return [name, withRunApproval(definition, gate, name)] as const;
     });
 }
 

@@ -56,3 +56,6 @@ A setup may report `eve link` as a prerequisite; run it, then retry the continua
 ## Validate the change
 
 Run the validation the task requests. When it does not establish the behavior you changed, run the narrowest relevant check.
+
+# Tests
+When adding new features, include tests. Loading the `testing` skill and follow it

@@ -2,9 +2,11 @@
 
 import { PLUGINS, pluginToolNames, type PluginId } from "./plugins";
 import { PREBUILT_TOOLS, type PrebuiltTool } from "./prebuilt-tools";
+import type { ServiceId } from "./services";
 
 export * from "./plugins";
 export * from "./prebuilt-tools";
+export * from "./services";
 
 // Header the web chat sends to tell the shared eve agent which factory to run.
 export const FACTORY_HEADER = "x-foundry-factory";
@@ -82,14 +84,17 @@ export type SkillData = {
 export type ConnectionData = {
     id: string;
     name: string;
+    // An MCP server's URL. Empty for a service.
     url: string;
+    // Set when the connection is created, and never changed. Null for an MCP server.
+    service: ServiceId | null;
     // Read-only here: the sign-in flow sets it, and saves ignore it. Null when nobody has signed in
     // to the current URL, which is fine for a public server.
     signIn: SignInStatus | null;
 };
 
 // How a connection signed in. src/auth explains each method.
-export const SIGN_IN_METHODS = ["vercel-connect", "client-metadata", "dynamic-registration"] as const;
+export const SIGN_IN_METHODS = ["vercel-connect", "client-metadata", "dynamic-registration", "google"] as const;
 export type SignInMethod = (typeof SIGN_IN_METHODS)[number];
 
 export function isSignInMethod(value: string): value is SignInMethod {
@@ -230,15 +235,28 @@ export type AgentConfig = {
         signedInAt: number | null;
         allowedTools: string[] | null;
     }[];
+    // Service connections. Their tools run in the agent, named `<name>__<tool>` like MCP tools.
+    services: {
+        id: string;
+        name: string;
+        service: ServiceId;
+        allowedTools: string[] | null;
+    }[];
     toolGates: Record<string, ToolGate>;
 };
 
-// eve names: lowercase ASCII letters, digits, `_` and `-`, starting with a letter.
+// eve names for tools and skills: lowercase ASCII letters, digits, `_` and `-`, starting with a letter.
 export function toSlug(raw: string) {
     const lowered = raw.toLowerCase();
     const safeChars = lowered.replace(/[^a-z0-9_-]+/g, "_");
     const startsWithLetter = safeChars.replace(/^[^a-z]+/, "");
     return startsWithLetter.slice(0, 36);
+}
+
+// eve connection names don't allow `_`. A connection's tools are named `<connection>__<tool>`,
+// so this also keeps the `__` between them unambiguous.
+export function toConnectionSlug(raw: string) {
+    return toSlug(raw).replaceAll("_", "-");
 }
 
 // User-supplied MCP URLs: https only, and no localhost or IP literals (basic SSRF guard).

@@ -27,6 +27,7 @@ export function connectConnectors(): CatalogConnector[] {
         // Icons are served from the snapshot by /connector-icons.
         icon: service.iconHash ? `/connector-icons/${service.iconHash}` : null,
         url: service.url,
+        service: null,
         auth: "oauth",
         detailsUrl: service.website,
     }));

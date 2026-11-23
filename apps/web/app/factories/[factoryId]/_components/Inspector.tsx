@@ -12,6 +12,8 @@ import {
     pluginOfTool,
     PREBUILT_TOOLS,
     reservedToolNames,
+    SERVICES,
+    toConnectionSlug,
     toSlug,
     type AgentData,
     type ChannelData,
@@ -250,6 +252,8 @@ function ToolForm({
 }: InspectorProps & { toolKey: string; kind: "tools" | "connectionTools" | "pluginTools" }) {
     const gate = factory.toolGates[toolKey] ?? { run: "never" as const, result: "never" as const, criterion: "" };
     const canReview = kind === "tools";
+    const { connectionId } = parseConnectionToolId(toolKey);
+    const isServiceTool = kind === "connectionTools" && factory.connections.some((item) => item.id === connectionId && item.service !== null);
     const heading = toolHeading(factory, toolKey, kind);
     const tool = kind === "tools" ? factory.tools.find((item) => item.id === toolKey) : undefined;
     const users = factory.agents.filter((agent) => agent.toolIds.includes(toolKey));
@@ -329,8 +333,11 @@ function ToolForm({
                 {kind === "tools" && (
                     <span className="text-xs text-zinc-500">The tool has already run. You accept or reject what it produced before the agent continues. Use this when the tool drafts something, especially with a model.</span>
                 )}
-                {kind === "connectionTools" && (
+                {kind === "connectionTools" && !isServiceTool && (
                     <span className="text-xs text-zinc-500">This server answers the call itself. Foundry can pause before it runs. It can't hold the result back.</span>
+                )}
+                {isServiceTool && (
+                    <span className="text-xs text-zinc-500">Connection tools can pause before they run. Reviewing their results isn&apos;t available yet.</span>
                 )}
                 {kind === "pluginTools" && (
                     <span className="text-xs text-zinc-500">Plugin tools can pause before they run. Reviewing their results isn't available yet.</span>
@@ -422,9 +429,10 @@ function toolHeading(factory: FactoryData, toolKey: string, kind: "tools" | "con
         if (!connection || !tool) {
             return null;
         }
+        const source = connection.service ? `A ${SERVICES[connection.service].title} tool that runs in Foundry with this connection's sign-in.` : "A tool this server publishes.";
         return {
             title: tool,
-            detail: `${connection.name}. A tool this server publishes.`,
+            detail: `${connection.name}. ${source}`,
         };
     }
     if (kind === "pluginTools") {
@@ -707,26 +715,34 @@ function SkillEditor({
 function ConnectionForm({ connection, factory, onEdit, onRemove, onSelect, onSignOut, isEditing, onEditingChange }: InspectorProps & { connection: ConnectionData }) {
     const otherConnections = factory.connections.filter((item) => item.id !== connection.id);
     const takenNames = otherConnections.map((item) => item.name);
+    const service = connection.service ? SERVICES[connection.service] : null;
     const isUrlAllowed = isAllowedMcpUrl(connection.url);
+    const detail = service ? `${service.title}, built into Foundry. Drag it, or one of its tools, onto an agent.` : "An MCP server. Drag it, or one of its tools, onto an agent.";
 
     return (
         <>
             <Heading
                 title="Connection"
-                detail="An MCP server. Drag it, or one of its tools, onto an agent."
+                detail={detail}
                 action={<EditButton label="Edit connection" onClick={() => onEditingChange(true)} />}
             />
             <ReadOnly label="Name">
                 <span className="font-mono text-sm text-zinc-100">{connection.name}</span>
             </ReadOnly>
-            <ReadOnly label="URL">
-                {connection.url ? <span className="font-mono text-xs break-all text-zinc-300">{connection.url}</span> : <NotSet />}
-                {!isUrlAllowed && <span className="text-xs text-amber-400">Needs a public https URL. Agents skip it until then.</span>}
-            </ReadOnly>
+            {service ? (
+                <ReadOnly label="What signing in allows">
+                    <span className="text-xs text-zinc-300">{service.access}</span>
+                </ReadOnly>
+            ) : (
+                <ReadOnly label="URL">
+                    {connection.url ? <span className="font-mono text-xs break-all text-zinc-300">{connection.url}</span> : <NotSet />}
+                    {!isUrlAllowed && <span className="text-xs text-amber-400">Needs a public https URL. Agents skip it until then.</span>}
+                </ReadOnly>
+            )}
             <SignInField
                 factoryId={factory.id}
                 connection={connection}
-                canSignIn={isUrlAllowed}
+                canSignIn={service !== null || isUrlAllowed}
                 onSignOut={() => onSignOut(connection.id)}
             />
             <UsedBy factory={factory} itemId={connection.id} onSelect={onSelect} />
@@ -779,12 +795,14 @@ function ConnectionEditor({
             }}
             onClose={onClose}
         >
-            <SlugField label="Name" value={draft.name} taken={takenNames} onChange={(name) => edit({ name })} />
-            <Field label="URL">
-                <input className={inputClass} value={draft.url} placeholder="https://mcp.example.com/mcp" onChange={(event) => edit({ url: event.target.value })} />
-                {!isUrlAllowed && <span className="text-xs text-amber-400">Needs a public https URL. Agents skip it until then.</span>}
-                {connection.signIn && isUrlChanged && <span className="text-xs text-amber-400">Saving a new URL signs this connection out.</span>}
-            </Field>
+            <SlugField label="Name" value={draft.name} taken={takenNames} toName={toConnectionSlug} onChange={(name) => edit({ name })} />
+            {!connection.service && (
+                <Field label="URL">
+                    <input className={inputClass} value={draft.url} placeholder="https://mcp.example.com/mcp" onChange={(event) => edit({ url: event.target.value })} />
+                    {!isUrlAllowed && <span className="text-xs text-amber-400">Needs a public https URL. Agents skip it until then.</span>}
+                    {connection.signIn && isUrlChanged && <span className="text-xs text-amber-400">Saving a new URL signs this connection out.</span>}
+                </Field>
+            )}
         </EditorModal>
     );
 }
@@ -793,6 +811,7 @@ const SIGN_IN_METHOD_LABELS: Record<SignInMethod, string> = {
     "vercel-connect": "through Vercel Connect, which keeps the tokens",
     "client-metadata": "with Foundry's OAuth client. The tokens are stored encrypted",
     "dynamic-registration": "with a client Foundry registered on the server. The tokens are stored encrypted",
+    google: "with Google, through Foundry's Google app. The tokens are stored encrypted",
 };
 
 // Sign-in runs in a popup: /oauth/start sends it to the server's consent page, and the callback
@@ -819,7 +838,7 @@ function SignInField({
 
     return (
         <ReadOnly label="Sign-in">
-            <SignInSummary signIn={signIn} />
+            <SignInSummary signIn={signIn} isRequired={connection.service !== null} />
             <div className="flex gap-1">
                 <button
                     type="button"
@@ -839,14 +858,22 @@ function SignInField({
                     </button>
                 )}
             </div>
-            <span className="text-xs text-zinc-500">Agents use the sign-in for their calls to this server, but never see its tokens. Schedules use it too.</span>
+            <span className="text-xs text-zinc-500">Agents use the sign-in for this connection&apos;s calls, but never see its tokens. Schedules use it too.</span>
+            {signIn?.method === "google" && (
+                <span className="text-xs text-zinc-500">
+                    Signing out deletes the tokens here. Foundry stays listed in your Google account until you remove it under{" "}
+                    <a href="https://myaccount.google.com/connections" target="_blank" rel="noreferrer" className="underline hover:text-zinc-300">third-party connections</a>.
+                </span>
+            )}
         </ReadOnly>
     );
 }
 
-function SignInSummary({ signIn }: { signIn: SignInStatus | null }) {
+// A service has no tools without a sign-in. An MCP server may be public.
+function SignInSummary({ signIn, isRequired }: { signIn: SignInStatus | null; isRequired: boolean }) {
     if (!signIn) {
-        return <span className="text-xs text-zinc-500">Not signed in. Public servers don&apos;t need it.</span>;
+        const text = isRequired ? "Not signed in. Its tools fail until someone signs in." : "Not signed in. Public servers don't need it.";
+        return <span className="text-xs text-zinc-500">{text}</span>;
     }
     if (signIn.needsReconnect) {
         return <span className="text-xs text-amber-400">The server ended this sign-in. Calls fail until someone signs in again.</span>;
@@ -1175,7 +1202,22 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 // Library names are eve identifiers. The editor won't save an empty or duplicate one.
-function SlugField({ label, value, taken, autoFocus, onChange }: { label: string; value: string; taken: string[]; autoFocus?: boolean; onChange: (name: string) => void }) {
+// Typing is turned into a valid eve name as you go. Connections pass toConnectionSlug.
+function SlugField({
+    label,
+    value,
+    taken,
+    autoFocus,
+    toName = toSlug,
+    onChange,
+}: {
+    label: string;
+    value: string;
+    taken: string[];
+    autoFocus?: boolean;
+    toName?: (raw: string) => string;
+    onChange: (name: string) => void;
+}) {
     const isTaken = taken.includes(value);
 
     return (
@@ -1185,7 +1227,7 @@ function SlugField({ label, value, taken, autoFocus, onChange }: { label: string
                 onFocus={autoFocus ? (event) => event.target.select() : undefined}
                 className={`${inputClass} font-mono`}
                 value={value}
-                onChange={(event) => onChange(toSlug(event.target.value))}
+                onChange={(event) => onChange(toName(event.target.value))}
             />
             {!value && <span className="text-xs text-amber-400">Start with a letter.</span>}
             {isTaken && <span className="text-xs text-amber-400">That name is already used.</span>}

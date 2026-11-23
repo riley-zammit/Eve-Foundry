@@ -112,13 +112,17 @@ model Skill {
     @@unique([factoryId, name])
 }
 
-// An MCP server. A server that needs sign-in has a ConnectionCredential once someone signs in.
+// An MCP server, or a service Foundry runs itself (src/services.ts). A connection that needs
+// sign-in has a ConnectionCredential once someone signs in.
 model Connection {
     id         String                @id @default(cuid())
     factoryId  String
     factory    Factory               @relation(fields: [factoryId], references: [id], onDelete: Cascade)
     name       String
+    // MCP servers only. Empty for a service.
     url        String                @default("")
+    // A service id such as `gmail`, set when the connection is created. Null for an MCP server.
+    service    String?
     createdAt  DateTime              @default(now())
     agents     AgentConnection[]
     credential ConnectionCredential?
@@ -132,13 +136,14 @@ model Connection {
 model ConnectionCredential {
     connectionId   String     @id
     connection     Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
-    // vercel-connect, client-metadata, or dynamic-registration.
+    // vercel-connect, client-metadata, dynamic-registration, or google.
     method         String
-    // The URL it signed in to. Tokens are only ever sent there.
+    // The URL it signed in to. Tokens are only ever sent there. Empty for a service, whose tools
+    // only call its own API.
     serverUrl      String
     // vercel-connect: the Connect connector id. Connect keeps the tokens.
     connector      String?
-    // client-metadata and dynamic-registration: tokens and client, AES-256-GCM (src/secrets.ts).
+    // The other methods: tokens (and a registered client), AES-256-GCM (src/secrets.ts).
     encrypted      String?
     // When the access token expires. Null when the server didn't say.
     expiresAt      DateTime?

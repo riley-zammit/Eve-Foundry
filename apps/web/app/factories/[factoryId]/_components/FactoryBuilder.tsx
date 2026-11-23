@@ -7,9 +7,11 @@ import {
     FACTORY_HEADER,
     ORCHESTRATOR_SLOT,
     reservedToolNames,
+    serviceToolNames,
+    serviceTools,
     SIGN_IN_CHANNEL,
     SUBAGENT_SLOTS,
-    toSlug,
+    toConnectionSlug,
     type AgentData,
     type FactoryData,
     type LibraryFolder,
@@ -36,7 +38,7 @@ import {
     saveTool,
     saveToolGate,
 } from "../../actions";
-import { listMcpTools, signOutOfConnection } from "../../connect";
+import { listMcpTools, signOutOfConnection, type McpToolList } from "../../connect";
 import type { GatewayModel } from "../../models";
 import type { Catalog, CatalogConnector } from "../../connector-catalog";
 import { agentTraces, canvasActivity } from "./activity";
@@ -46,6 +48,7 @@ import {
     ATTACH_FIELD,
     attachedItems,
     CHANNEL_LABELS,
+    connectionToolId,
     LANE_X,
     nextLaneY,
     parseConnectionToolId,
@@ -386,15 +389,25 @@ export function FactoryBuilder({
     // With no catalog entry, this adds a blank connection for a custom URL.
     function addConnection(fromCatalog?: CatalogConnector) {
         const takenNames = factory.connections.map((connection) => connection.name);
-        const baseName = fromCatalog ? toSlug(fromCatalog.name) || "connection" : "new_connection";
+        const baseName = fromCatalog ? toConnectionSlug(fromCatalog.name) || "connection" : "new-connection";
         const connection = {
             id: crypto.randomUUID(),
-            name: uniqueName(baseName, takenNames),
+            name: uniqueName(baseName, takenNames, "-"),
             url: fromCatalog?.url ?? "",
+            service: fromCatalog?.service ?? null,
             signIn: null,
         };
         setIsCatalogOpen(false);
         edit("connections", connection, 0);
+        // A service's tools that send, change, or delete things start out asking a person first.
+        const writeTools = connection.service ? serviceTools(connection.service).filter((tool) => tool.writes) : [];
+        for (const tool of writeTools) {
+            editGate(connectionToolId(connection.id, tool.name), {
+                run: "always",
+                result: "never",
+                criterion: "",
+            });
+        }
         select({
             collection: "connections",
             id: connection.id,
@@ -494,7 +507,9 @@ export function FactoryBuilder({
                 connectionId: connection.id,
                 url: connection.url,
             };
-            void listMcpTools(input).then((result) => {
+            // A service's tools are in code. An MCP server lists its own.
+            const listed = connection.service ? Promise.resolve<McpToolList>({ tools: serviceToolNames(connection.service) }) : listMcpTools(input);
+            void listed.then((result) => {
                 if (cancelled) {
                     return;
                 }
@@ -837,7 +852,7 @@ export function FactoryBuilder({
             {isCatalogOpen && (
                 <ConnectorCatalog
                     catalog={catalog}
-                    addedUrls={factory.connections.map((connection) => connection.url)}
+                    added={factory.connections.map((connection) => connection.service ?? connection.url)}
                     onAdd={addConnection}
                     onAddCustom={() => addConnection()}
                     onClose={() => setIsCatalogOpen(false)}

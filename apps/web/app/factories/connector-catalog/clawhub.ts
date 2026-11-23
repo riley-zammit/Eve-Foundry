@@ -95,6 +95,7 @@ async function packageConnectors(pkg: CatalogPackage): Promise<CatalogConnector[
             category: CATEGORY_LABELS[pkg.categories[0] ?? ""] ?? "Other",
             icon: iconPath(pkg.icon),
             url: server.url,
+            service: null,
             auth,
             detailsUrl: `${CLAWHUB}/plugins/${encodeURIComponent(pkg.name)}`,
         });

@@ -5,6 +5,7 @@ import {
     isAllowedMcpUrl,
     isPluginId,
     isPrebuiltTool,
+    isServiceId,
     isSignInMethod,
     parseFolders,
     toolGate,
@@ -105,10 +106,11 @@ export async function getFactory(factoryId: string): Promise<FactoryData | null>
         description,
         content,
     }));
-    const connections = factory.connections.map(({ id, name, url, credential }) => ({
+    const connections = factory.connections.map(({ id, name, url, service, credential }) => ({
         id,
         name,
         url,
+        service: service && isServiceId(service) ? service : null,
         signIn: signInStatus(url, credential),
     }));
     const channels = factory.channels.map(({ id, kind, enabled, y }) => ({
@@ -244,14 +246,27 @@ export async function loadFactoryConfig(factoryId: string): Promise<AgentConfig[
             description: skill.description || "Load when relevant.",
             content: skill.content,
         }));
-        const allowedLinks = agent.connections.filter(({ connection }) => isAllowedMcpUrl(connection.url));
-        const mcps = allowedLinks.map(({ connection, restrictTools, allowedTools }) => ({
+        const mcpLinks = agent.connections.filter(({ connection }) => connection.service === null && isAllowedMcpUrl(connection.url));
+        const mcps = mcpLinks.map(({ connection, restrictTools, allowedTools }) => ({
             id: connection.id,
             name: connection.name,
             url: connection.url,
             signedInAt: signInStatus(connection.url, connection.credential)?.signedInAt ?? null,
             allowedTools: restrictTools ? allowedTools : null,
         }));
+        // A service that left the catalog drops out.
+        const services = agent.connections.flatMap(({ connection, restrictTools, allowedTools }) => {
+            const { service } = connection;
+            if (!service || !isServiceId(service)) {
+                return [];
+            }
+            return [{
+                id: connection.id,
+                name: connection.name,
+                service,
+                allowedTools: restrictTools ? allowedTools : null,
+            }];
+        });
         return {
             slot: agent.slot,
             name: agent.name,
@@ -262,6 +277,7 @@ export async function loadFactoryConfig(factoryId: string): Promise<AgentConfig[
             tools: agent.tools.flatMap(({ tool }) => resolveTool(tool)),
             plugins: agent.plugins.filter(isPluginId),
             mcps,
+            services,
             toolGates,
         };
     });

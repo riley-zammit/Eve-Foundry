@@ -22,7 +22,8 @@ const AUTH_LABELS: Record<CatalogAuth, { label: string; className: string; note:
 };
 
 type DialogProps = {
-    addedUrls: string[];
+    // The factory's connections, as service ids and MCP URLs.
+    added: string[];
     onAdd: (connector: CatalogConnector) => void;
     onAddCustom: () => void;
     onClose: () => void;
@@ -47,7 +48,7 @@ function CatalogDialogWithConnectors({ catalog, ...props }: DialogProps & { cata
 function CatalogDialog({
     connectors,
     error,
-    addedUrls,
+    added,
     onAdd,
     onAddCustom,
     onClose,
@@ -121,7 +122,7 @@ function CatalogDialog({
                 {connectors !== null && visible.length === 0 && <p className="text-xs text-zinc-500">No connectors match.</p>}
                 <div className="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
                     {visible.map((connector) => {
-                        const isAdded = addedUrls.includes(connector.url);
+                        const isAdded = added.includes(connector.service ?? connector.url);
                         const auth = AUTH_LABELS[connector.auth];
                         return (
                             <div key={connector.id} className="flex flex-col gap-2 rounded-md border border-zinc-800 p-3">

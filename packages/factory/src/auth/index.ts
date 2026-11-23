@@ -1,14 +1,16 @@
 import { randomBytes } from "node:crypto";
 import { getDb } from "../db";
-import { isAllowedMcpUrl, type SignInStatus } from "../index";
+import { isAllowedMcpUrl, isServiceId, SERVICES, type SignInStatus } from "../index";
 import { decryptSecret, encryptSecret } from "../secrets";
+import { finishGoogleOAuth, refreshGoogleOAuth, startGoogleOAuth, type GoogleFlow, type GoogleTokens } from "./google";
 import { CALLBACK_PATH, finishOAuth, refreshOAuth, startOAuth, type OAuthFlow, type OAuthTokens } from "./oauth";
 import { connectToken, forgetConnectToken, isConnectSignedOut, revokeConnectToken, startConnectSignIn } from "./vercel-connect";
 
 export { CALLBACK_PATH, canSignInWithoutConnect, CLIENT_METADATA_PATH, clientMetadata } from "./oauth";
 
 // Connection sign-in. People sign in from the builder, never from a chat, so a sign-in belongs to
-// the factory's connection and scheduled turns can use it. Three methods, tried in order:
+// the factory's connection and scheduled turns can use it. Service connections (src/services.ts)
+// sign in with Foundry's Google app (./google.ts). MCP servers have three methods, tried in order:
 //
 // 1. vercel-connect: Vercel Connect runs the OAuth and keeps the tokens (./vercel-connect.ts).
 //    Needs the deployment's Vercel OIDC token.
@@ -17,7 +19,7 @@ export { CALLBACK_PATH, canSignInWithoutConnect, CLIENT_METADATA_PATH, clientMet
 //    accepts client metadata documents.
 // 3. dynamic-registration: Foundry registers its own client with the server (./oauth.ts).
 //
-// For 2 and 3, the tokens are encrypted in ConnectionCredential and refreshed here. Agents never
+// Except with Connect, the tokens are encrypted in ConnectionCredential and refreshed here. Agents never
 // see tokens: the runtime asks for one per call, eve sends it as a header, and nothing puts it in
 // a memo, prompt, or the sandbox. The builder only ever gets a SignInStatus.
 
@@ -38,7 +40,13 @@ type PendingSignIn = {
 } | {
     method: OAuthFlow["method"];
     flow: OAuthFlow;
+} | {
+    method: "google";
+    flow: GoogleFlow;
 });
+
+// What ConnectionCredential.encrypted holds depends on the sign-in method.
+type StoredTokens = OAuthTokens | GoogleTokens;
 
 // The connection has no usable sign-in: nobody signed in, its URL changed, or the server revoked it.
 export class NotSignedInError extends Error {
@@ -61,13 +69,13 @@ export async function startSignIn(input: { factoryId: string; connectionId: stri
             id: input.connectionId,
             factoryId: input.factoryId,
         },
-        select: { url: true },
+        select: {
+            url: true,
+            service: true,
+        },
     });
     if (!connection) {
         throw new Error("This connection isn't saved yet. Try again in a moment.");
-    }
-    if (!isAllowedMcpUrl(connection.url)) {
-        throw new Error("Signing in needs the connection's public https URL.");
     }
     const state = randomBytes(24).toString("base64url");
     const base = {
@@ -76,6 +84,29 @@ export async function startSignIn(input: { factoryId: string; connectionId: stri
         serverUrl: connection.url,
         expiresAt: Date.now() + SIGN_IN_TTL_MS,
     };
+    if (connection.service) {
+        if (!isServiceId(connection.service)) {
+            throw new Error("Foundry doesn't offer this service anymore.");
+        }
+        const { url, flow } = startGoogleOAuth({
+            scopes: [...SERVICES[connection.service].scopes],
+            origin: input.origin,
+            state,
+        });
+        const pending: PendingSignIn = {
+            ...base,
+            method: "google",
+            flow,
+        };
+        return {
+            url,
+            state,
+            pending: encryptSecret(JSON.stringify(pending), pendingContext(state)),
+        };
+    }
+    if (!isAllowedMcpUrl(connection.url)) {
+        throw new Error("Signing in needs the connection's public https URL.");
+    }
     const viaConnect = await startWithConnect(connection.url, input.connectionId, input.origin, state);
     if (viaConnect) {
         const pending: PendingSignIn = {
@@ -158,7 +189,7 @@ export async function completeSignIn(input: { state: string; pending: string; pa
             signIn,
         };
     }
-    const { tokens, expiresAt } = await finishOAuth(pending.flow, input.params);
+    const { tokens, expiresAt } = pending.method === "google" ? await finishGoogleOAuth(pending.flow, input.params) : await finishOAuth(pending.flow, input.params);
     const signIn = await saveCredential(pending.connectionId, {
         method: pending.method,
         serverUrl: pending.serverUrl,
@@ -202,7 +233,8 @@ async function saveCredential(connectionId: string, fields: { method: SignInStat
 }
 
 // A token for one call to `url`. It must be the URL the connection signed in to, so a token is
-// never sent anywhere else. Throws NotSignedInError when there's no usable sign-in.
+// never sent anywhere else. A service's URL is empty, and its tools only call its own API.
+// Throws NotSignedInError when there's no usable sign-in.
 export async function connectionToken(input: { factoryId: string; connectionId: string; url: string }) {
     const credential = await findCredential(input.factoryId, input.connectionId);
     if (!credential || credential.serverUrl !== input.url || credential.needsReconnect) {
@@ -252,7 +284,8 @@ async function refreshToken(factoryId: string, connectionId: string) {
             };
         }
         try {
-            const refreshed = await refreshOAuth(tokens);
+            // The method says which shape the tokens were stored in.
+            const refreshed = credential.method === "google" ? await refreshGoogleOAuth(tokens) : await refreshOAuth(tokens as OAuthTokens);
             await tx.connectionCredential.update({
                 where: { connectionId },
                 data: {
@@ -298,6 +331,7 @@ export async function forgetConnectionToken(factoryId: string, connectionId: str
 }
 
 // Deletes the sign-in. Connect also revokes its grant; Foundry's own tokens are just dropped.
+// google.ts says why Google's aren't revoked.
 export async function signOut(factoryId: string, connectionId: string) {
     const credential = await findCredential(factoryId, connectionId);
     if (!credential) {
@@ -346,13 +380,13 @@ function pendingContext(state: string) {
     return `sign-in:${state}`;
 }
 
-function readTokens(factoryId: string, connectionId: string, encrypted: string | null): OAuthTokens {
+function readTokens(factoryId: string, connectionId: string, encrypted: string | null): StoredTokens {
     if (!encrypted) {
         throw new NotSignedInError();
     }
     return JSON.parse(decryptSecret(encrypted, tokensContext(factoryId, connectionId)));
 }
 
-function writeTokens(factoryId: string, connectionId: string, tokens: OAuthTokens) {
+function writeTokens(factoryId: string, connectionId: string, tokens: StoredTokens) {
     return encryptSecret(JSON.stringify(tokens), tokensContext(factoryId, connectionId));
 }

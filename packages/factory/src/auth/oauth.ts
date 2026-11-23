@@ -23,7 +23,7 @@ const REQUEST_TIMEOUT_MS = 10_000;
 
 // The client and where its tokens come from. Includes the client secret, so it's only ever
 // stored encrypted.
-type OAuthClient = {
+export type OAuthClient = {
     clientId: string;
     clientSecret: string | null;
     authMethod: string;
@@ -343,7 +343,7 @@ async function registeredClient(issuer: string, registrationEndpoint: string, me
 
 // --- Tokens ---
 
-async function tokenRequest(tokenEndpoint: string, client: OAuthClient, params: Record<string, string>) {
+export async function tokenRequest(tokenEndpoint: string, client: OAuthClient, params: Record<string, string>) {
     const body = new URLSearchParams(params);
     const headers: Record<string, string> = {
         "content-type": "application/x-www-form-urlencoded",

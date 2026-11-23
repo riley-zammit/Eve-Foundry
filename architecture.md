@@ -10,6 +10,7 @@ One shared, multi-tenant eve deployment serves every factory. Factories are data
 | Instructions | dynamic `defineInstructions` | Yes |
 | Skills | dynamic `defineSkill` map | Yes |
 | MCPs / APIs | dynamic `defineMcpClientConnection` / `defineOpenAPIConnection` | Yes |
+| Services (Gmail, Calendar, Sheets) | our own tools in the runtime, offered through dynamic tools | Yes (add/sign in only) |
 | Tools (web_fetch, …) | templates shipped in runtime, library rows per factory via dynamic tools | Yes (add/config only) |
 | Plugins (CLI tools + skills) | catalog in code, CLIs baked into the sandbox template | Yes (toggle/config only) |
 | Custom code tools | user code runs in the sandbox via a generic tool | Yes |
@@ -38,10 +39,11 @@ Later: compile a factory's config into a standalone eve project for export or de
 - **Hosting:** Next.js hosts the agent (`withEve`, `eveRoot: "../.."`). The builder's chat calls `/eve/v1/*` on the same origin.
 - **Factory selection:** the chat sends an `x-foundry-factory` header. The eve channel's `onMessage` checks that the factory exists and copies its ID into the session's auth attributes. Dynamic files read it from `auth.initiator`, so it's pinned for the whole session and inherited by subagent sessions.
 - **Live edits:** the builder autosaves. The agent memoizes the factory per turn, so edits apply from the next message.
-- **Wired up:** model, instructions, skills, library tools from templates (`web_fetch`, `web_search`, `decide`, `generate_image`, `generate_video`), plugins (see [Sandboxes](#sandboxes)), MCP connections (https only, no localhost or IP literals), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
+- **Wired up:** model, instructions, skills, library tools from templates (`web_fetch`, `web_search`, `decide`, `generate_image`, `generate_video`), plugins (see [Sandboxes](#sandboxes)), MCP connections (https only, no localhost or IP literals), service connections (see [Services](#services)), and 3 subagent slots, one level deep. `defaultTools` is off, so a factory only gets the tools attached to it.
 - **Connector catalog:** the Connections **+** opens one list of services from two sources (`apps/web/app/factories/connector-catalog/`). The picker never says which source a service came from.
   - **Vercel Connect:** its MCP services that someone can sign in to from the builder (about 560). About 520 use Connect's own OAuth client. The rest, like Shop and PagerDuty, are listed by Connect as needing an API key or an OAuth app of our own, but their servers pass Foundry's own sign-in discovery (`canSignInWithoutConnect`). Finding them needs Connect's per-service detail, which needs a Vercel login, so they're a committed snapshot refreshed with `npm run sync:connect` in `apps/web`.
-  - **Not offered:** Connect services with no MCP server, only REST API tokens from an OAuth app we'd register ourselves (Google, Shopify, HubSpot, Figma, Zoom, Dropbox, and about 30 more), and MCP servers that need an API key or our own OAuth app (Asana, Box, Xero, Wrike, and others).
+  - **Foundry's services:** Gmail, Google Calendar, and Google Sheets, from `packages/factory/src/services.ts`. They win over a same-named entry from the other sources. See [Services](#services).
+  - **Not offered:** other Connect services with no MCP server, only REST API tokens from an OAuth app we'd register ourselves (Shopify, HubSpot, Figma, Zoom, Dropbox, and about 30 more), and MCP servers that need an API key or our own OAuth app (Asana, Box, Xero, Wrike, and others).
   - **ClawHub:** OpenClaw's official connectors only, never community packages. Loaded live and kept in the shared remote cache for hours. Each card links back to its ClawHub listing, as ClawHub asks.
   - **Duplicates:** a service on both keeps Connect's version. Two entries are the same service when their MCP hosts or names match.
   - **Channels** (Slack, Discord, Teams, Telegram) stay out of the catalog; they come from eve.
@@ -51,7 +53,7 @@ Later: compile a factory's config into a standalone eve project for export or de
 - **Not built yet:** API-key/header auth for MCPs, and rendering of approvals/questions in the chat.
 
 ### Connection sign-in
-One module, `packages/factory/src/auth/` (`@foundry/factory/auth`), handles all three sign-in methods, tried in this order:
+One module, `packages/factory/src/auth/` (`@foundry/factory/auth`), handles every sign-in. A service connection always uses **`google`** (`auth/google.ts`; see [Services](#services)). An MCP server tries three methods in this order:
 1. **`vercel-connect`** (`auth/vercel-connect.ts`): Connect provisions a managed OAuth connector for the server URL (`POST /v1/connect/connectors/managed/oauth`, UID `host/foundry-<urlhash>`), runs the OAuth, and keeps the tokens. The subject is the connection (`foundry-connection-<id>`) until there are accounts. Needs the Vercel OIDC token, so locally it needs `vercel link` and `vercel env pull`. Without one, Foundry falls back to its own client.
 2. **`client-metadata`** (`auth/oauth.ts`): Foundry's own OAuth client, identified by the document at `/oauth/client-metadata.json` (its URL is the client id). Only on a public https origin, and only for servers that advertise `client_id_metadata_document_supported`.
 3. **`dynamic-registration`** (`auth/oauth.ts`): Foundry registers itself at the server's `registration_endpoint` once per issuer and redirect URI, and caches the result in `RegisteredClient`.
@@ -60,6 +62,37 @@ One module, `packages/factory/src/auth/` (`@foundry/factory/auth`), handles all 
 - **Safety:** every URL a server hands back must pass `isAllowedMcpUrl`, and nothing follows redirects. The issuer must match its metadata, and the resource must be a prefix of the server URL. Tokens are only sent to the exact URL that signed in. Saving a new URL signs the connection out, and deleting a connection revokes its Connect grant.
 - **Runtime:** `agent/lib/factory.ts` gives signed-in connections `auth: { principalType: "app", getToken, evict }`. `getToken` calls `connectionToken`, which refreshes under a `SELECT … FOR UPDATE` row lock, so concurrent turns refresh once. Servers that rotate refresh tokens revoke the whole grant when an old one is reused. A rejected refresh sets `needsReconnect`, and calls then fail with `ConnectionAuthorizationFailedError` (`signed_out`) until someone signs in again. `instanceKey` includes `signedInAt`, so a new sign-in gets a fresh client.
 - **Coverage:** all 50 OAuth servers in the ClawHub catalog passed discovery. 16 accept a client metadata document and 34 need dynamic registration.
+
+### Services
+Some products have no MCP server we can sign in to, so Foundry connects to them itself: its own OAuth app and its own tools. Today that's Gmail, Google Calendar, and Google Sheets.
+
+- **Catalog:** `packages/factory/src/services.ts` lists each service's title, the scopes it asks for, a plain-words summary of that access, and its tools. Each tool is marked if it writes. Adding a service means a spec entry, a `SERVICE_TOOL_DEFS` entry in `agent/lib/factory.ts` (typecheck fails without it), and an icon in `apps/web/public/service-icons/`.
+- **A service is a connection.** `Connection.service` holds its id, set when it's created and never changed, and its URL is empty. Agents attach it and allow its tools like an MCP server's, and its gates use the same `connectionId:tool` keys. Its name follows eve's connection rule like any connection's (`toConnectionSlug`: no `_`), so its tools read `google-sheets__read_range`. Adding one from the picker sets the tools that write to ask a person first (`run: always`). People can turn that off.
+- **One service per product, not one Google connection.** Each asks only for its own scopes, so its consent screen stays small. A factory using all three signs in three times.
+
+| Service | Scopes | Tools (writes in bold) |
+|---|---|---|
+| `gmail` | `gmail.send` | **`send_email`** |
+| `google-calendar` | `calendar.events`, `calendar.events.freebusy` | `list_events`, `check_availability`, **`create_event`**, **`update_event`**, **`delete_event`** |
+| `google-sheets` | `spreadsheets` | `get_spreadsheet`, `read_range`, **`append_rows`**, **`update_range`**, **`create_spreadsheet`** |
+
+- **Sign-in (`auth/google.ts`):**
+  - Foundry's own Google app runs it, with `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, PKCE, and the same popup, cookie, and callback as MCP sign-in.
+  - It asks for offline access and always shows consent, so Google sends a refresh token. It lets the person pick an account.
+  - A grant missing any scope is refused, since Google lets people untick boxes.
+  - The client secret is read from env for each request, never stored with the tokens, so rotating it signs nobody out.
+  - Tokens are stored and refreshed like Foundry's own MCP sign-in, under the same row lock.
+  - Signing out only deletes the tokens. Google keeps one grant per account and app, so revoking would end that account's other Foundry sign-ins too.
+  - The token's URL is empty. Service tools only call their own Google API hosts.
+  - Not Vercel Connect: Connect's callback is on vercel.com, and Google's verification needs every redirect domain to be ours.
+- **Tools (`agent/lib/gmail.ts`, `google-calendar.ts`, `google-sheets.ts`):**
+  - Hand-written, one `defineTool` each, offered by `factoryTools` as `<connection>__<tool>` with the connection's gates.
+  - `agent/lib/google-api.ts` reads the token for each call. If Google rejects it, it gets a fresh one and tries once more. It passes Google's error message to the model.
+  - Unlike MCP tools, they're always in the tool list, not behind `eve__search`.
+  - Only before-the-call approvals for now.
+- **Gmail only sends.** Reading, searching, and drafts need restricted scopes, and those need Google's paid yearly security assessment. Until then, an approval on `send_email` stands in for drafts: the agent writes the email, and a person approves the send.
+- **Sheets can't search Drive.** The `spreadsheets` scope opens any spreadsheet the account can, by link or id, but can't list them. People paste a link.
+- **Google verification:** until Google reviews the app, sign-in shows an "unverified app" warning and is capped at 100 users. An app in testing mode also ends sign-ins after 7 days, and the connection then shows it needs a new sign-in. Every scope above is sensitive, not restricted, so verification is the standard review with no assessment.
 
 ## Data model
 ### Principles
@@ -148,12 +181,13 @@ erDiagram
     CONNECTION {
         string id PK
         string factoryId FK
-        string name "slug, unique per factory"
-        string url "https only"
+        string name "eve connection name: a-z, 0-9, dashes; unique per factory"
+        string url "https only; empty for a service"
+        string service "service id such as gmail; null for an MCP server"
     }
     CONNECTION_CREDENTIAL {
         string connectionId PK, FK
-        string method "vercel-connect | client-metadata | dynamic-registration"
+        string method "vercel-connect | client-metadata | dynamic-registration | google"
         string serverUrl "the URL it signed in to; tokens go nowhere else"
         string connector "Vercel Connect connector id, nullable"
         string encrypted "own-OAuth tokens and client, AES-256-GCM, nullable"
@@ -261,6 +295,7 @@ classDiagram
         Tool[] tools
         PluginId[] plugins
         Mcp[] mcps
+        Service[] services
     }
     class Skill {
         string name
@@ -271,6 +306,12 @@ classDiagram
         string name
         string url, https only
         number signedInAt, null when not signed in
+    }
+    class Service {
+        string id, the connection's
+        string name, prefixes its tool names
+        ServiceId service
+        string[] allowedTools, null for all
     }
     class Tool {
         string id, also its gate key
@@ -289,6 +330,7 @@ classDiagram
     }
     AgentConfig *-- Skill
     AgentConfig *-- Mcp
+    AgentConfig *-- Service
     AgentConfig *-- Tool
     Tool --> PrebuiltTool
 ```
@@ -325,6 +367,7 @@ Each agent's config is read by the files for its slot: the root `agent/` files f
 | `skills[]` | `skills/factory.ts` | map of `defineSkill` |
 | `tools[]` | `tools/factory.ts` | map of eve built-in tools |
 | `mcps[]` | `connections/factory.ts` | map of `defineMcpClientConnection`, `instanceKey` = `factoryId:slot:name` |
+| `services[]` | `tools/factory.ts` | `defineTool` per allowed service tool, named `<connection>__<tool>` |
 | subagent `name`, `description`, `model` | `subagents/subagent_N/agent.ts` | `defineAgent`, or `null` when the slot is empty |
 | `Channel.enabled` (planned) | channel auth/`onMessage` | rejects messages for disabled channels |
 | `Schedule` rows (planned) | `defineDynamicSchedules` | sends `task` to the orchestrator |
@@ -345,6 +388,12 @@ Session state, which eve keeps:
 - **Postgres:** Postgres 17 from Homebrew on `localhost:5432`, database `foundry`. `DATABASE_URL` lives in the root `.env.local`. `apps/web/.env.local` is a symlink to it. Both are gitignored, so recreate them on a new machine.
 - **Commands:** `npm install`, then `npm run db:migrate` (migrates and regenerates the Prisma client), then `npm run dev:web` (Next.js plus the eve agent). Pick a free port with `-p`; 3123 is taken by an unrelated server on this machine.
 - **`FOUNDRY_SECRETS_KEY`:** in `.env.local`, 32 random bytes in base64 (`openssl rand -base64 32`). Needed in every environment; changing it makes stored plugin secrets unreadable.
+- **Google sign-in (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`):** Without them, service connections can be added but not signed in to. Set them up once in a Google Cloud project:
+  1. Turn on the Gmail, Google Calendar, and Google Sheets APIs.
+  2. Set up the OAuth consent screen: External, Foundry's name, privacy policy, and domain. Add the scopes under [Services](#services).
+  3. Create a "Web application" OAuth client. Add each origin's `<origin>/oauth/callback` as a redirect URI, such as `http://localhost:3000/oauth/callback` and the production URL. They must match exactly, port included.
+  4. Put the client id and secret in `.env.local` and in the Vercel project's env.
+  5. Add test users while the app is in testing, or publish it and send it for verification.
 - **Model credential:** none is set up. Every chat turn fails at the model call until you add `AI_GATEWAY_API_KEY` to `.env.local` or run `/login` in `npx eve dev`. The model IDs in `MODELS` haven't been checked against AI Gateway.
 - **Docs:** read the eve docs in `node_modules/eve/docs/` before writing eve code. Next.js 16 is newer than most training data, so check `node_modules/next/dist/docs/` too.
 
@@ -356,6 +405,7 @@ Session state, which eve keeps:
 - **No automated tests:** everything was checked by hand in headless Chrome and with SQL queries. The tenant-scoped loader and the save actions should get tests first.
 - **Git:** nothing after eve's initial commit has been committed.
 - **Connection sign-ins aren't per user:** each connection has one sign-in that every chat and schedule in its factory uses. That's acceptable while Foundry has one user.
+- **Google sign-in tested with a stubbed Google only:** the consent URL, code exchange, refresh, rejected refresh, partial grants, and every tool's request were checked against a stubbed Google (one-off script, not checked in). No real Google app exists yet.
 - **Sign-in tested with a fake server only:** discovery ran against the real catalog servers. The callback, storage, and refresh lock were tested against a stubbed OAuth server (one-off script, not checked in). Neither the Connect path nor a real consent screen has been tried, because the repo isn't `vercel link`ed and needs a person to approve.
 
 ### Gotchas learned

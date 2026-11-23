@@ -1,6 +1,6 @@
 "use client";
 
-import { CHANNEL_KINDS, PLUGINS, PREBUILT_TOOLS, SUBAGENT_SLOTS, type FactoryData, type FolderCollection, type LibraryFolder, type Plugin } from "@foundry/factory";
+import { CHANNEL_KINDS, PLUGINS, PREBUILT_TOOLS, SERVICES, SUBAGENT_SLOTS, type FactoryData, type FolderCollection, type LibraryFolder, type Plugin } from "@foundry/factory";
 import { useState, type DragEvent, type ReactNode } from "react";
 import { connectionToolId, DRAG_MIME, gateDetail, ITEM_COLORS, sectionDragType, type LibraryItem, type Selection } from "./builder";
 import { useStoredState } from "./useStoredState";
@@ -224,7 +224,7 @@ export function Library({
                     id: connection.id,
                 }}
                 name={connection.name}
-                detail={connection.url || "No URL yet"}
+                detail={connection.service ? SERVICES[connection.service].title : connection.url || "No URL yet"}
                 isSelected={selection?.id === connection.id}
                 onSelect={() => onSelect({
                     collection: "connections",
@@ -310,7 +310,7 @@ export function Library({
                 }}
                 onAddFolder={() => addFolder("connections")}
             >
-                {factory.connections.length === 0 && <Empty>No MCP servers yet.</Empty>}
+                {factory.connections.length === 0 && <Empty>No connections yet.</Empty>}
                 {foldered("connections", connectionRows)}
             </Section>
             <Section
