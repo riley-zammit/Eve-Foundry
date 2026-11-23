@@ -1,35 +1,41 @@
-# foundry
+# Foundry
 
-This is an [eve](https://eve.dev) agent bootstrapped with [`eve init`](https://eve.dev/docs/reference/cli#eve-init).
+A visual builder for AI agent factories, built on [eve](https://eve.dev). Lay out an orchestrator and its subagents on a canvas, then give them skills, plugins, tools, and connections to external services and MCP servers. Wire up channels like web chat and Slack, schedule recurring tasks, and chat with the factory right from the builder.
+
+![Foundry builder](docs/screenshot.png)
+
+Every factory runs on one shared eve deployment. Factories are stored as data and built into an agent at runtime, so edits apply from the next message without a redeploy. See [architecture.md](architecture.md) for details.
+
+## Layout
+
+- `agent/`: the shared eve agent that runs every factory
+- `apps/web`: the Next.js builder
+- `packages/factory`: Prisma schema, database reads, secrets, and connection sign-in
 
 ## Getting started
 
-First, run the development server:
+Add a `.env.local` at the root with:
 
 ```bash
-eve dev
+DATABASE_URL=postgres://...
+FOUNDRY_SECRETS_KEY=...
 ```
 
-The development TUI opens an interactive session where you can send messages to your agent.
-
-Start by editing `agent/instructions.md` to define the agent's identity, purpose, tone, and response guidelines. Configure its model and runtime behavior in `agent/agent.ts`.
-
-Add capabilities under `agent/`, including tools, connections, channels, skills, subagents, and schedules. eve reloads your changes as you work.
-
-## Learn more
-
-To learn more about eve, explore these resources:
-
-- [eve documentation](https://eve.dev/docs) — learn about eve's features and authoring APIs.
-- [eve on GitHub](https://github.com/vercel/eve) — view the source and contribute.
-
-## Deploy on Vercel
-
-Deploy your agent to [Vercel](https://vercel.com) from the project root:
+Then link it into `apps/web`, install, migrate, and start the builder:
 
 ```bash
-eve deploy
+ln -s ../../.env.local apps/web/.env.local
+npm install
+npm run db:migrate
+npm run dev:web
 ```
 
-`eve deploy` links a Vercel project if needed and deploys the agent to production. See the [eve deployment documentation](https://eve.dev/docs/guides/deployment/vercel) for authentication, environment variables, and deployment options.
-# foundry
+To talk to the agent directly in eve's dev TUI, run `npm run dev`.
+
+## Deploy
+
+```bash
+npm run deploy
+```
+
+See the [eve deployment docs](https://eve.dev/docs/guides/deployment/vercel) for authentication and environment variables.
