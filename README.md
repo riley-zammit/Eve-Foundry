@@ -1,8 +1,20 @@
 # Foundry
 
-A visual builder for AI agent factories, built on [eve](https://eve.dev). Lay out an orchestrator and its subagents on a canvas, then give them skills, plugins, tools, and connections to external services and MCP servers. Wire up channels like web chat and Slack, schedule recurring tasks, and chat with the factory right from the builder.
+A visual builder for teams of AI agents, built on [eve](https://eve.dev). No code needed: you design the team on a canvas and chat with it right away.
 
 ![Foundry builder](docs/screenshot.png)
+
+## What you can do
+
+- **Build a team of agents.** A lead agent takes every request and hands work to up to three helper agents.
+- **Choose each agent's AI model and instructions**, including models from OpenAI, Anthropic, and Google. Instructions are written in plain language.
+- **Teach skills.** Write down know-how once, like "how we reply to support tickets", and give it to any agent.
+- **Give agents abilities.** They can search the web, read pages, use a real browser, create images and short videos, and edit images and video.
+- **Connect your apps.** Sign in to Gmail, Google Calendar, Google Sheets, and hundreds of other services so agents can send emails, book meetings, and update spreadsheets.
+- **Chat and tweak as you go.** Talk to your team from the builder. Changes save automatically and apply from the next message.
+- **Keep sign-ins safe.** Passwords and sign-ins are encrypted, and agents never see them.
+- **Export** a team's setup as a file.
+- **Coming soon:** reach your agents from Slack, Discord, Teams, and Telegram, and run tasks on a schedule.
 
 POC factory runs on one shared eve deployment. Recommend forking repo for production to create separate tenants. Factories are stored as data and built into an agent at runtime, so edits apply from the next message without a redeploy. See [architecture.md](architecture.md) for details.
 
