@@ -2,6 +2,8 @@
 
 A visual builder for teams of AI agents, built on [eve](https://eve.dev). No code needed: you design the team on a canvas and chat with it right away.
 
+This is a POC not yet built for multiple users. Evaluation of multi-tenant performance and security required first.
+
 ![Foundry builder](docs/screenshot.png)
 
 ## What you can do
